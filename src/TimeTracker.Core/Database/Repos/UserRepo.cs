@@ -10,6 +10,7 @@ namespace TimeTracker.Core.Database.Repos
   public interface IUserRepo
   {
     Task<UserEntity> GetUsingCredentials(string username, string password);
+    Task<int> UpdateLastLoginDate(int userId);
   }
 
   public class UserRepo : BaseRepo<UserRepo>, IUserRepo
@@ -38,6 +39,16 @@ namespace TimeTracker.Core.Database.Repos
           Username = username,
           Password = password
         }
+      );
+    }
+
+    public async Task<int> UpdateLastLoginDate(int userId)
+    {
+      // TODO: [TESTS] (UserRepo.UpdateLastLoginDate) Add tests
+      return await ExecuteAsync(
+        nameof(UpdateLastLoginDate),
+        _queries.UpdateLastLoginDate(),
+        new { UserId = userId }
       );
     }
   }

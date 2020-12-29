@@ -37,9 +37,16 @@ namespace TimeTracker.Core.Services
     public async Task<string> LoginUser(string username, string password)
     {
       // TODO: [TESTS] (UserService.LoginUser) Add tests
-
       var encryptedPass = _encryptionService.Encrypt(password);
       var userEntity = await _userRepo.GetUsingCredentials(username, encryptedPass);
+
+      if (userEntity == null)
+      {
+        // TODO: [COMPLETE] (UserService.LoginUser) Complete this
+        return null;
+      }
+      
+      await _userRepo.UpdateLastLoginDate(userEntity.UserId);
       return GenerateJwtToken(userEntity.UserId);
     }
 

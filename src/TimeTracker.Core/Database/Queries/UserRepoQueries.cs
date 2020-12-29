@@ -3,6 +3,7 @@
   public interface IUserRepoQueries
   {
     string GetUsingCredentials();
+    string UpdateLastLoginDate();
   }
 
   public class UserRepoQueries : IUserRepoQueries
@@ -15,6 +16,15 @@
 	      `Username` = @Username AND
 	      `Password` = @Password AND
 	      `Deleted` = 0";
+    }
+
+    public string UpdateLastLoginDate()
+    {
+      return @"UPDATE `Users`
+      SET
+	      `LastLoginDateUtc` = current_timestamp()
+      WHERE
+	      `UserId` = @UserId";
     }
   }
 }

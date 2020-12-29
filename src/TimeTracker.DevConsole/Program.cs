@@ -24,14 +24,21 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var userRepo = _serviceProvider.GetService<IUserRepo>();
+      // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
 
-      var userEntity = userRepo.Bob()
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
+
+      var encrypt = EncryptPassword("password");
+
 
       Console.WriteLine("Hello World!");
+    }
+
+
+    // Helper methods
+    private static string EncryptPassword(string password)
+    {
+      var encryptionService = _serviceProvider.GetService<IEncryptionService>();
+      return encryptionService.Encrypt(password);
     }
 
 

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Entities;
 
 namespace TimeTracker.Core.Database.Repos

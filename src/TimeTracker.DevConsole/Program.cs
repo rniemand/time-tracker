@@ -9,6 +9,7 @@ using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Repos;
 
@@ -23,11 +24,12 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var encService = _serviceProvider.GetService<IEncryptionService>();
+      var userRepo = _serviceProvider.GetService<IUserRepo>();
 
-      var encrypt = encService.Encrypt("Hello World");
-      var decrypt = encService.Decrypt(encrypt);
-
+      var userEntity = userRepo.Bob()
+        .ConfigureAwait(false)
+        .GetAwaiter()
+        .GetResult();
 
       Console.WriteLine("Hello World!");
     }

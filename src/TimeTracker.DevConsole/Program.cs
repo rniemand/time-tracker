@@ -5,9 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Rn.NetCore.Common.Abstractions;
+using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.Common.Services;
+using TimeTracker.Core.Database;
+using TimeTracker.Core.Database.Repos;
 
 namespace TimeTracker.DevConsole
 {
@@ -20,8 +23,12 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var encryptionService = _serviceProvider.GetService<IEncryptionService>();
+      var userRepo = _serviceProvider.GetService<IUserRepo>();
 
+      var userEntity = userRepo.Bob()
+        .ConfigureAwait(false)
+        .GetAwaiter()
+        .GetResult();
 
       Console.WriteLine("Hello World!");
     }
@@ -38,6 +45,8 @@ namespace TimeTracker.DevConsole
         .Build();
 
       ConfigureDI_Core(services, config);
+      ConfigureDI_DBCore(services);
+      ConfigureDI_Repos(services);
 
       _serviceProvider = services.BuildServiceProvider();
       _logger = _serviceProvider.GetService<ILoggerAdapter<Program>>();
@@ -51,6 +60,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IEncryptionService, EncryptionService>()
         .AddSingleton<IMetricService, MetricService>()
         .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>()
+        .AddSingleton<IJsonHelper, JsonHelper>()
         .AddLogging(loggingBuilder =>
         {
           // configure Logging with NLog
@@ -58,6 +68,18 @@ namespace TimeTracker.DevConsole
           loggingBuilder.SetMinimumLevel(LogLevel.Trace);
           loggingBuilder.AddNLog(config);
         });
+    }
+
+    private static void ConfigureDI_DBCore(IServiceCollection services)
+    {
+      services
+        .AddSingleton<IDbHelper, DbHelper>();
+    }
+
+    private static void ConfigureDI_Repos(IServiceCollection services)
+    {
+      services
+        .AddSingleton<IUserRepo, UserRepo>();
     }
   }
 }

@@ -5,10 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Rn.NetCore.Common.Abstractions;
+using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
-using Rn.NetCore.Common.Services;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Repos;
 
@@ -23,12 +23,11 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var userRepo = _serviceProvider.GetService<IUserRepo>();
+      var encService = _serviceProvider.GetService<IEncryptionService>();
 
-      var userEntity = userRepo.Bob()
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
+      var encrypt = encService.Encrypt("Hello World");
+      var decrypt = encService.Decrypt(encrypt);
+
 
       Console.WriteLine("Hello World!");
     }
@@ -58,6 +57,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton(config)
         .AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>))
         .AddSingleton<IEncryptionService, EncryptionService>()
+        .AddSingleton<IEncryptionUtils, EncryptionUtils>()
         .AddSingleton<IMetricService, MetricService>()
         .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>()
         .AddSingleton<IJsonHelper, JsonHelper>()

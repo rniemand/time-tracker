@@ -11,7 +11,9 @@ using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database;
+using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Services;
 
 namespace TimeTracker.DevConsole
 {
@@ -26,8 +28,12 @@ namespace TimeTracker.DevConsole
 
       // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
 
+      var userService = _serviceProvider.GetService<IUserService>();
 
-      var encrypt = EncryptPassword("password");
+      var userToken = userService.LoginUser("niemandr", "password")
+        .ConfigureAwait(false)
+        .GetAwaiter()
+        .GetResult();
 
 
       Console.WriteLine("Hello World!");
@@ -55,6 +61,7 @@ namespace TimeTracker.DevConsole
       ConfigureDI_Core(services, config);
       ConfigureDI_DBCore(services);
       ConfigureDI_Repos(services);
+      ConfigureDI_Services(services);
 
       _serviceProvider = services.BuildServiceProvider();
       _logger = _serviceProvider.GetService<ILoggerAdapter<Program>>();
@@ -88,7 +95,14 @@ namespace TimeTracker.DevConsole
     private static void ConfigureDI_Repos(IServiceCollection services)
     {
       services
-        .AddSingleton<IUserRepo, UserRepo>();
+        .AddSingleton<IUserRepo, UserRepo>()
+        .AddSingleton<IUserRepoQueries, UserRepoQueries>();
+    }
+
+    private static void ConfigureDI_Services(IServiceCollection services)
+    {
+      services
+        .AddSingleton<IUserService, UserService>();
     }
   }
 }

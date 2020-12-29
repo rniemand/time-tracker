@@ -2,7 +2,7 @@ import { DOCUMENT, LocationStrategy } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FlexLayoutModule } from '@angular/flex-layout';
 
-import { API_BASE_URL, WeatherForecastClient } from "../time-tracker-api";
+import { API_BASE_URL, AuthClient, WeatherForecastClient } from "../time-tracker-api";
 
 export function getBaseUrl(locationStrategy: LocationStrategy, document: any): string {
   let baseHref = locationStrategy.getBaseHref();
@@ -29,7 +29,8 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
   providers: [
     { provide: API_BASE_URL, useFactory: getBaseUrl, deps: [LocationStrategy, DOCUMENT] },
     
-    WeatherForecastClient
+    WeatherForecastClient,
+    AuthClient
   ]
 })
 export class TimeTrackerModule {}

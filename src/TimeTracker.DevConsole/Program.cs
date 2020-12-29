@@ -10,9 +10,9 @@ using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
-using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 
 namespace TimeTracker.DevConsole
@@ -30,16 +30,19 @@ namespace TimeTracker.DevConsole
 
       var userService = _serviceProvider.GetService<IUserService>();
       
-      var userToken = userService.LoginUser("niemandr", "password")
+      var authenticationResponse = userService.Authenticate(new AuthenticationRequest
+        {
+          Username = "niemandr",
+          Password = "password"
+        })
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
 
-      var userDto = userService.GetFromToken(userToken)
+      var userDto = userService.GetFromToken(authenticationResponse.Token)
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
-
 
       Console.WriteLine("Hello World!");
     }

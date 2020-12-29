@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { WeatherForecast, WeatherForecastClient } from 'src/app/time-tracker-api';
+import { AuthClient, AuthenticationRequest, AuthenticationResponse } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-home',
@@ -8,15 +8,29 @@ import { WeatherForecast, WeatherForecastClient } from 'src/app/time-tracker-api
 })
 export class HomeComponent implements OnInit {
 
-  constructor(private client: WeatherForecastClient) { }
+  constructor(
+    private authClient: AuthClient
+  ) { }
 
   ngOnInit(): void {
-    this.client.get().toPromise().then(
-      (response: WeatherForecast[]) => {
+    // this.client.get().toPromise().then(
+    //   (response: WeatherForecast[]) => {
+    //     console.log(response);
+    //   },
+    //   (error: any) => {
+    //     console.log(error);
+    //   }
+    // );
+
+    this.authClient.authenticate(new AuthenticationRequest({
+      username: 'niemandr',
+      password: 'password'
+    })).toPromise().then(
+      (response: AuthenticationResponse) => {
         console.log(response);
       },
       (error: any) => {
-        console.log(error);
+        console.error(error);
       }
     );
   }

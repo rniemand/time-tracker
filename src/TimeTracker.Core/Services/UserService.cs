@@ -10,13 +10,15 @@ using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Requests;
+using TimeTracker.Core.Models.Responses;
 
 namespace TimeTracker.Core.Services
 {
   public interface IUserService
   {
-    Task<string> LoginUser(string username, string password);
     Task<UserDto> GetFromToken(string token);
+    Task<AuthenticationResponse> Authenticate(AuthenticationRequest request);
   }
 
   public class UserService : IUserService
@@ -35,22 +37,6 @@ namespace TimeTracker.Core.Services
       _logger = logger;
       _encryptionService = encryptionService;
       _userRepo = userRepo;
-    }
-
-    public async Task<string> LoginUser(string username, string password)
-    {
-      // TODO: [TESTS] (UserService.LoginUser) Add tests
-      var encryptedPass = _encryptionService.Encrypt(password);
-      var userEntity = await _userRepo.GetUsingCredentials(username, encryptedPass);
-
-      if (userEntity == null)
-      {
-        // TODO: [COMPLETE] (UserService.LoginUser) Complete this
-        return null;
-      }
-      
-      await _userRepo.UpdateLastLoginDate(userEntity.UserId);
-      return GenerateJwtToken(userEntity.UserId);
     }
 
     public async Task<UserDto> GetFromToken(string token)
@@ -73,6 +59,41 @@ namespace TimeTracker.Core.Services
       return UserDto.Projection.Compile()(userEntity);
     }
 
+    public async Task<AuthenticationResponse> Authenticate(AuthenticationRequest request)
+    {
+      // TODO: [TESTS] (UserService.Authenticate) Add tests
+
+      var loggedInUser = await LoginUser(request.Username, request.Password);
+      if (loggedInUser == null)
+        return null;
+
+      return new AuthenticationResponse
+      {
+        FirstName = loggedInUser.FirstName,
+        LastName = loggedInUser.LastName,
+        UserId = loggedInUser.UserId,
+        Username = loggedInUser.Username,
+        Token = GenerateJwtToken(loggedInUser.UserId)
+      };
+    }
+
+
+    // Internal methods
+    private async Task<UserEntity> LoginUser(string username, string password)
+    {
+      // TODO: [TESTS] (UserService.LoginUser) Add tests
+      var encryptedPass = _encryptionService.Encrypt(password);
+      var userEntity = await _userRepo.GetUsingCredentials(username, encryptedPass);
+
+      if (userEntity == null)
+      {
+        // TODO: [COMPLETE] (UserService.LoginUser) Complete this
+        return null;
+      }
+
+      await _userRepo.UpdateLastLoginDate(userEntity.UserId);
+      return userEntity;
+    }
 
     private string GenerateJwtToken(int userId)
     {

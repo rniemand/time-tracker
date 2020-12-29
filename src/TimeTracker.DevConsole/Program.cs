@@ -4,7 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Logging;
+using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.Common.Services;
 
 namespace TimeTracker.DevConsole
 {
@@ -17,7 +20,8 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      _logger.Info("Hello world");
+      var encryptionService = _serviceProvider.GetService<IEncryptionService>();
+
 
       Console.WriteLine("Hello World!");
     }
@@ -33,9 +37,20 @@ namespace TimeTracker.DevConsole
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .Build();
 
+      ConfigureDI_Core(services, config);
+
+      _serviceProvider = services.BuildServiceProvider();
+      _logger = _serviceProvider.GetService<ILoggerAdapter<Program>>();
+    }
+
+    private static void ConfigureDI_Core(IServiceCollection services, IConfiguration config)
+    {
       services
-        .AddSingleton<IConfiguration>(config)
+        .AddSingleton(config)
         .AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>))
+        .AddSingleton<IEncryptionService, EncryptionService>()
+        .AddSingleton<IMetricService, MetricService>()
+        .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>()
         .AddLogging(loggingBuilder =>
         {
           // configure Logging with NLog
@@ -43,9 +58,6 @@ namespace TimeTracker.DevConsole
           loggingBuilder.SetMinimumLevel(LogLevel.Trace);
           loggingBuilder.AddNLog(config);
         });
-
-      _serviceProvider = services.BuildServiceProvider();
-      _logger = _serviceProvider.GetService<ILoggerAdapter<Program>>();
     }
   }
 }

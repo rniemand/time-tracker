@@ -11,6 +11,7 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<UserEntity> GetUsingCredentials(string username, string password);
     Task<int> UpdateLastLoginDate(int userId);
+    Task<UserEntity> GetUserById(int userId);
   }
 
   public class UserRepo : BaseRepo<UserRepo>, IUserRepo
@@ -48,6 +49,16 @@ namespace TimeTracker.Core.Database.Repos
       return await ExecuteAsync(
         nameof(UpdateLastLoginDate),
         _queries.UpdateLastLoginDate(),
+        new { UserId = userId }
+      );
+    }
+
+    public async Task<UserEntity> GetUserById(int userId)
+    {
+      // TODO: [TESTS] (UserRepo.GetUserById) Add tests
+      return await GetSingle<UserEntity>(
+        nameof(GetUserById),
+        _queries.GetUserById(),
         new { UserId = userId }
       );
     }

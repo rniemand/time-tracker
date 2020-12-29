@@ -4,6 +4,7 @@
   {
     string GetUsingCredentials();
     string UpdateLastLoginDate();
+    string GetUserById();
   }
 
   public class UserRepoQueries : IUserRepoQueries
@@ -25,6 +26,13 @@
 	      `LastLoginDateUtc` = current_timestamp()
       WHERE
 	      `UserId` = @UserId";
+    }
+
+    public string GetUserById()
+    {
+      return @"SELECT *
+      FROM `Users`
+      WHERE `UserId` = @UserId";
     }
   }
 }

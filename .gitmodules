@@ -1,3 +1,0 @@
-[submodule "sub-modules/Rn.NetCore.Common"]
-	path = sub-modules/Rn.NetCore.Common
-	url = https://github.com/rniemand/Rn.NetCore.Common.git

@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTracker", "TimeTracker\TimeTracker.csproj", "{0D6938E4-B653-4082-AAC5-BD6542FB83B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTracker", "TimeTracker\TimeTracker.csproj", "{0D6938E4-B653-4082-AAC5-BD6542FB83B8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{5BDD6777-FCFD-45BA-84B8-66D3F5F5C087}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rn.NetCore.Common", "..\sub-modules\Rn.NetCore.Common\src\Rn.NetCore.Common\Rn.NetCore.Common.csproj", "{635095A3-9EC1-4529-B487-AF6D153EBBE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTracker.Core", "TimeTracker.Core\TimeTracker.Core.csproj", "{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,21 @@ Global
 		{0D6938E4-B653-4082-AAC5-BD6542FB83B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D6938E4-B653-4082-AAC5-BD6542FB83B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D6938E4-B653-4082-AAC5-BD6542FB83B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{635095A3-9EC1-4529-B487-AF6D153EBBE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{635095A3-9EC1-4529-B487-AF6D153EBBE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{635095A3-9EC1-4529-B487-AF6D153EBBE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{635095A3-9EC1-4529-B487-AF6D153EBBE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{635095A3-9EC1-4529-B487-AF6D153EBBE0} = {5BDD6777-FCFD-45BA-84B8-66D3F5F5C087}
+		{BBEA4D4D-96E9-4F5C-8545-14BC9D40FE5E} = {5BDD6777-FCFD-45BA-84B8-66D3F5F5C087}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {490628CD-60F6-4470-ACDE-2FC8D93DCA52}

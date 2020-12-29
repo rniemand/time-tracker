@@ -1,0 +1,19 @@
+<mat-nav-list>
+  <a mat-list-item routerLink="/" (click)="onClose()" routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>home</mat-icon>
+    <span class="nav-caption">Home</span>
+  </a>
+
+  <a mat-list-item routerLink="/test" (click)="onClose()" routerLinkActive="active">
+    <mat-icon>build</mat-icon>
+    <span class="nav-caption">Test</span>
+  </a>
+
+  <mat-list-item (click)="onLogout()" *ngIf="loggedIn">
+    <button mat-icon-button>
+      <mat-icon>lock</mat-icon>
+      <span class="nav-caption">Logout</span>
+    </button>
+  </mat-list-item>
+</mat-nav-list>

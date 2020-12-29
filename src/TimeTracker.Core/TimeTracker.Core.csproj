@@ -7,10 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.78" />
     <PackageReference Include="MySql.Data" Version="8.0.22" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\sub-modules\Rn.NetCore.Common\src\Rn.NetCore.Common\Rn.NetCore.Common.csproj" />
+    <PackageReference Include="Rn.NetCore.Common" Version="3.0.0.100" />
   </ItemGroup>
 
 </Project>

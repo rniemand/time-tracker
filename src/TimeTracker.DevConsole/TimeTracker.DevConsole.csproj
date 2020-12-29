@@ -10,10 +10,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="NLog" Version="4.7.6" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.0" />
+    <PackageReference Include="Rn.NetCore.Common" Version="3.0.0.100" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\sub-modules\Rn.NetCore.Common\src\Rn.NetCore.Common\Rn.NetCore.Common.csproj" />
     <ProjectReference Include="..\TimeTracker.Core\TimeTracker.Core.csproj" />
   </ItemGroup>
 

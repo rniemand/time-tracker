@@ -10,6 +10,7 @@ import { MaterialModule } from './modules/material.module';
 import { HomeComponent } from './components/views/home/home.component';
 import { TestComponent } from './components/views/test/test.component';
 import { TimeTrackerModule } from './modules/time-tracker.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { TimeTrackerModule } from './modules/time-tracker.module';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     MaterialModule,
     TimeTrackerModule
   ],

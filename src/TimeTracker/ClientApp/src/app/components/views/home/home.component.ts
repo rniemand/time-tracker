@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { WeatherForecast, WeatherForecastClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  constructor(private client: WeatherForecastClient) { }
 
   ngOnInit(): void {
+    this.client.get().toPromise().then(
+      (response: WeatherForecast[]) => {
+        console.log(response);
+      },
+      (error: any) => {
+        console.log(error);
+      }
+    );
   }
 
 }

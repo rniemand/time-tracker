@@ -7,23 +7,27 @@ namespace TimeTracker.Core.Database.Entities
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public DateTime DateCreatedUtc { get; set; }
-
-		/*4
-	`DateModified` DATETIME NULL DEFAULT NULL,
-	`LastLoginDate` DATETIME NULL DEFAULT NULL,
-	`FirstName` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_general_ci',
-	`LastName` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_general_ci',
-	`Username` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_general_ci',
-	`Password` VARCHAR(128) NOT NULL COLLATE 'utf8mb4_general_ci',
-	`UserEmail` VARCHAR(128) NOT NULL COLLATE 'utf8mb4_general_ci',
-     */
+    public DateTime? DateModified { get; set; }
+    public DateTime? LastLoginDate { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string UserEmail { get; set; }
 
     public UserEntity()
     {
-			// TODO: [TESTS] (UserEntity) Add tests
+      // TODO: [TESTS] (UserEntity) Add tests
       UserId = 0;
       Deleted = false;
       DateCreatedUtc = DateTime.UtcNow;
+      DateModified = null;
+      LastLoginDate = null;
+      FirstName = string.Empty;
+      LastName = string.Empty;
+      Username = string.Empty;
+      Password = string.Empty;
+      UserEmail = string.Empty;
     }
-	}
+  }
 }

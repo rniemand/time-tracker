@@ -11,8 +11,9 @@ import { ClientDto, ClientsClient } from 'src/app/time-tracker-api';
   styleUrls: ['./clients.component.css']
 })
 export class ClientsComponent implements OnInit {
-  displayedColumns: string[] = ['clientName'];
+  displayedColumns: string[] = ['clientName', 'options'];
   dataSource = new MatTableDataSource<ClientDto>();
+  clientsLoaded: boolean = false;
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -23,6 +24,11 @@ export class ClientsComponent implements OnInit {
   ) { }
   
   ngOnInit(): void {
+    this.refreshClients();
+  }
+
+  // Internal methods
+  private refreshClients = () => {
     this.uiService.showLoader(true);
 
     this.clients.getAll().toPromise().then(
@@ -30,6 +36,8 @@ export class ClientsComponent implements OnInit {
         this.dataSource = new MatTableDataSource(clients);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
+        this.clientsLoaded = true;
+        this.uiService.hideLoader();
       },
       this.uiService.handleClientError
     );

@@ -15,6 +15,7 @@ import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-tok
 import { LoginComponent } from './components/views/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClientsComponent } from './components/views/clients/clients.component';
+import { AddClientComponent } from './components/views/clients/add-client/add-client.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ClientsComponent } from './components/views/clients/clients.component';
     HomeComponent,
     TestComponent,
     LoginComponent,
-    ClientsComponent
+    ClientsComponent,
+    AddClientComponent
   ],
   imports: [
     BrowserModule,

@@ -26,3 +26,22 @@ body {
 .content-row .data-table {
   width: 100%;
 }
+
+.ui-navigation mat-icon {
+  vertical-align: text-bottom;
+  padding-bottom: 2px;
+  cursor: pointer;
+  color: #d1b2de;
+}
+  .ui-navigation mat-icon:hover {
+    color: #bd7ed8;
+  }
+
+.ui-navigation a {
+  text-decoration: none;
+  color: #d1b2de;
+  cursor: pointer;
+}
+.ui-navigation a:hover {
+  color: #bd7ed8;
+}

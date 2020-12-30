@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { catchError } from 'rxjs/operators';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { UiService } from '../services/ui.service';
 
 // https://angular.io/guide/http#intercepting-requests-and-responses
 // https://github.com/cornflourblue/angular-9-jwt-authentication-example
@@ -50,7 +51,8 @@ export class ErrorInterceptor implements HttpInterceptor {
 export class AuthGuard implements CanActivate {
     constructor(
         private router: Router,
-        private authService: AuthService
+        private authService: AuthService,
+        private _uiService: UiService
     ) { }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -61,6 +63,7 @@ export class AuthGuard implements CanActivate {
 
         // not logged in so redirect to login page with the return url
         this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+        this._uiService.notify('You need to log in to access this content', 3000);
         return false;
     }
 }

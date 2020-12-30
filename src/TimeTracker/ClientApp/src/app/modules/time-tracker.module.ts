@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AuthService } from "../services/auth.service";
 import { StorageService } from "../services/storage.service";
+import { UiService } from "../services/ui.service";
 
 import { API_BASE_URL, AuthClient, WeatherForecastClient } from "../time-tracker-api";
 
@@ -34,6 +35,7 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
     // Services
     AuthService,
     StorageService,
+    UiService,
     
     // Clients
     WeatherForecastClient,

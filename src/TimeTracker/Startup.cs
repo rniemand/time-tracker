@@ -97,7 +97,8 @@ namespace TimeTracker
         .AddSingleton<IEncryptionService, EncryptionService>()
         .AddSingleton<IMetricService, MetricService>()
         .AddSingleton<IUserService, UserService>()
-        .AddSingleton<IClientService, ClientService>();
+        .AddSingleton<IClientService, ClientService>()
+        .AddSingleton<IProductService, ProductService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)
@@ -119,7 +120,9 @@ namespace TimeTracker
         .AddSingleton<IUserRepo, UserRepo>()
         .AddSingleton<IUserRepoQueries, UserRepoQueries>()
         .AddSingleton<IClientRepo, ClientRepo>()
-        .AddSingleton<IClientRepoQueries, ClientRepoQueries>();
+        .AddSingleton<IClientRepoQueries, ClientRepoQueries>()
+        .AddSingleton<IProductRepo, ProductRepo>()
+        .AddSingleton<IProductRepoQueries, ProductRepoQueries>();
     }
   }
 }

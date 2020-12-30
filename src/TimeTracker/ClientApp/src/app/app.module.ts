@@ -17,6 +17,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClientsComponent } from './components/views/clients/clients.component';
 import { AddClientComponent } from './components/views/clients/add-client/add-client.component';
 import { EditClientComponent } from './components/views/clients/edit-client/edit-client.component';
+import { ProductsComponent } from './components/views/products/products.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { EditClientComponent } from './components/views/clients/edit-client/edit
     LoginComponent,
     ClientsComponent,
     AddClientComponent,
-    EditClientComponent
+    EditClientComponent,
+    ProductsComponent
   ],
   imports: [
     BrowserModule,

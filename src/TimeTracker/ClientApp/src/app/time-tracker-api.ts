@@ -357,6 +357,77 @@ export class ClientClient implements IClientClient {
     }
 }
 
+export interface IProductClient {
+    getAll(clientId: number): Observable<ProductDto[]>;
+}
+
+@Injectable()
+export class ProductClient implements IProductClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getAll(clientId: number): Observable<ProductDto[]> {
+        let url_ = this.baseUrl + "/api/Product/products/{clientId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(<any>response_);
+                } catch (e) {
+                    return <Observable<ProductDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ProductDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<ProductDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ProductDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ProductDto[]>(<any>null);
+    }
+}
+
 export class AuthenticationResponse implements IAuthenticationResponse {
     userId?: number;
     username?: string | undefined;
@@ -507,6 +578,66 @@ export interface IClientDto {
     dateModifiedUtc?: Date | undefined;
     clientName?: string | undefined;
     clientEmail?: string | undefined;
+}
+
+export class ProductDto implements IProductDto {
+    productId?: number;
+    clientId?: number;
+    userId?: number;
+    deleted?: boolean;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    productName?: string | undefined;
+
+    constructor(data?: IProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productId = _data["productId"];
+            this.clientId = _data["clientId"];
+            this.userId = _data["userId"];
+            this.deleted = _data["deleted"];
+            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
+            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.productName = _data["productName"];
+        }
+    }
+
+    static fromJS(data: any): ProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productId"] = this.productId;
+        data["clientId"] = this.clientId;
+        data["userId"] = this.userId;
+        data["deleted"] = this.deleted;
+        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
+        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["productName"] = this.productName;
+        return data; 
+    }
+}
+
+export interface IProductDto {
+    productId?: number;
+    clientId?: number;
+    userId?: number;
+    deleted?: boolean;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    productName?: string | undefined;
 }
 
 export class SwaggerException extends Error {

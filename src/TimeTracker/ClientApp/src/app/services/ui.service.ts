@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { EventEmitter, Injectable } from "@angular/core";
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from "@angular/material/snack-bar";
 
 export interface NotifyOptions {
@@ -11,6 +11,11 @@ export interface NotifyOptions {
 
 @Injectable()
 export class UiService {
+  showLoaderChange = new EventEmitter<boolean>();
+  loaderVisible: boolean = false;
+
+  private _closeOnError: boolean = false;
+  
   constructor(
     private _snackBar: MatSnackBar
   ) { }
@@ -38,5 +43,24 @@ export class UiService {
   handleClientError = (error: any) => {
     // TODO: [COMPLETE] Complete me
     console.error(error);
+
+    if(this._closeOnError) {
+      this.hideLoader();
+    }
+  }
+
+  showLoader(closeOnError: boolean = false) {
+    // Address race condition
+    setTimeout(() => {
+      this._closeOnError = closeOnError;
+      this.loaderVisible = true;
+      this.showLoaderChange.emit(true);
+    }, 1);
+  }
+
+  hideLoader() {
+    this._closeOnError = false;
+    this.loaderVisible = false;
+    this.showLoaderChange.emit(false);
   }
 }

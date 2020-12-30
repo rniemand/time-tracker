@@ -13,6 +13,7 @@ import { TimeTrackerModule } from './modules/time-tracker.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-token.interceptor';
 import { LoginComponent } from './components/views/login/login.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,8 @@ import { LoginComponent } from './components/views/login/login.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     HttpClientModule,
     MaterialModule,

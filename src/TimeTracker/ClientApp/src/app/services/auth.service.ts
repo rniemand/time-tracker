@@ -19,38 +19,65 @@ export class AuthService {
     // Check to see if we are logged in
     if(this.storage.hasItem(KEY_TOKEN)) {
       // TODO: [VALIDATION] Add some form of token validation here
-      this._currentToken = this.storage.getItem<string>(KEY_TOKEN);
-      this.loggedIn = true;
+      this.setLoggedInSate(true, this.storage.getItem<string>(KEY_TOKEN));
     }
   }
 
   login = (username: string, password: string) => {
-    this.authClient.authenticate(new AuthenticationRequest({
+    let authRequest = new AuthenticationRequest({
       username: username,
       password: password
-    })).toPromise().then(
-      (response: AuthenticationResponse) => {
-        console.log(response);
+    });
 
-        if((response?.token?.length ?? 0) > 0) {
-          this.storage.setItem(KEY_TOKEN, response.token);
-          this.loggedIn = true;
+    return new Promise<boolean>((resolve, reject) => {
+      this.authClient.authenticate(authRequest).toPromise().then(
+        (response: AuthenticationResponse) => {
+          if((response?.token?.length ?? 0) > 0) {
+            this.setLoggedInSate(true, response.token);
+          } else {
+            this.setLoggedInSate(false);
+          }
+
+          resolve(this.loggedIn);
+        },
+        (error: any) => {
+          console.error(error);
+
+          this.setLoggedInSate(false);
+          resolve(false);
         }
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
+      );
+    });
   }
 
   logout = () => {
-    this.storage.removeItem(KEY_TOKEN);
+    this.setLoggedInSate(false);
   }
 
   getAuthToken = () => {
-    if(!this.storage.hasItem(KEY_TOKEN))
+    if(this._currentToken.length < 1)
       return null;
+    
+    return this._currentToken;
+  }
 
-    return this.storage.getItem<string>(KEY_TOKEN);
+  // Internal methods
+  private setLoggedInSate = (loggedIn: boolean, token?: string) => {
+    this.loggedIn = loggedIn;
+
+    if(this.loggedIn === false) {
+      this._currentToken = '';
+      
+      if(this.storage.hasItem(KEY_TOKEN)) {
+        this.storage.removeItem(KEY_TOKEN);
+      }
+    }
+
+    if(typeof(token) === 'string' && token.length > 0) {
+      this._currentToken = token;
+      this.storage.setItem(KEY_TOKEN, token);
+    }
+
+    this.authChanged.next(this.loggedIn);
   }
 }

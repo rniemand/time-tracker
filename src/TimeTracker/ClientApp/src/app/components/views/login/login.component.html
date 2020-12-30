@@ -1,5 +1,33 @@
 <div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
-  <div class="content-row">
-    <h1>Login</h1>
+  <div class="content-row" *ngIf="!loggedIn">
+    <h1>Welcome, Please login</h1>
+  </div>
+
+  <div class="content-row" fxLayout="column" fxLayoutAlign="start center" *ngIf="!loggedIn">
+    <div class="login-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <mat-icon matSuffix>account_box</mat-icon>
+        <input matInput [formControl]="username" type="text" required>
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <mat-icon matSuffix>lock</mat-icon>
+        <input matInput [formControl]="password" type="password" required>
+      </mat-form-field>
+
+      <div class="controls">
+        <button mat-stroked-button class="login" [disabled]="validCreds()" type="button" (click)="login()">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-row" *ngIf="loggedIn">
+    <h1>Welcome, NAME</h1>
+
+    <div class="user-controls">
+      <button mat-stroked-button class="logout" type="button" (click)="logout()">Logout</button>
+    </div>
   </div>
 </div>

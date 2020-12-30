@@ -1,3 +1,24 @@
 .content-row h1 {
   text-align: center;
+  margin-top: 8px;
 }
+
+.login-form {
+  width: 400px;
+}
+  .login-form mat-form-field {
+    width: 100%;
+  }
+  .login-form .controls {
+    text-align: center;
+  }
+    .login-form .controls .login {
+      width: 50%;
+    }
+
+.user-controls {
+  text-align: center;
+}
+  .user-controls .logout {
+    width: 50%;
+  }

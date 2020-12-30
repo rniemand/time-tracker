@@ -8,7 +8,7 @@ export class StorageService {
 
   getItem = <TOut>(key: string): TOut => {
     let rawValue = localStorage.getItem(key);
-    return JSON.parse(rawValue ?? '{}') as TOut;
+    return JSON.parse(rawValue ?? '') as TOut;
   }
 
   removeItem(key: string): void {

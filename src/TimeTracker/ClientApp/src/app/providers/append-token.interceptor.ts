@@ -3,6 +3,7 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/c
 import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { catchError } from 'rxjs/operators';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 
 // https://angular.io/guide/http#intercepting-requests-and-responses
 // https://github.com/cornflourblue/angular-9-jwt-authentication-example
@@ -27,7 +28,6 @@ export class AppendTokenInterceptor implements HttpInterceptor {
   }
 }
 
-
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
     constructor(private authService: AuthService) { }
@@ -43,5 +43,24 @@ export class ErrorInterceptor implements HttpInterceptor {
             const error = err.error.message || err.statusText;
             return throwError(error);
         }))
+    }
+}
+
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+    constructor(
+        private router: Router,
+        private authService: AuthService
+    ) { }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        if (this.authService.loggedIn) {
+            // logged in so return true
+            return true;
+        }
+
+        // not logged in so redirect to login page with the return url
+        this.router.navigate(['/home'], { queryParams: { returnUrl: state.url } });
+        return false;
     }
 }

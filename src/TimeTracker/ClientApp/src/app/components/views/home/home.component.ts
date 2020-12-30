@@ -15,28 +15,7 @@ export class HomeComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this.client.get().toPromise().then(
-    //   (response: WeatherForecast[]) => {
-    //     console.log(response);
-    //   },
-    //   (error: any) => {
-    //     console.log(error);
-    //   }
-    // );
-
-    // this.authClient.authenticate(new AuthenticationRequest({
-    //   username: 'niemandr',
-    //   password: 'password'
-    // })).toPromise().then(
-    //   (response: AuthenticationResponse) => {
-    //     console.log(response?.token);
-    //   },
-    //   (error: any) => {
-    //     console.error(error);
-    //   }
-    // );
-
-    this.authService.login('niemandr', 'password');
+    // this.authService.login('niemandr', 'password');
   }
 
 }

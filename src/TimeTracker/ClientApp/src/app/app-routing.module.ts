@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AddClientComponent } from './components/views/clients/add-client/add-client.component';
 import { ClientsComponent } from './components/views/clients/clients.component';
+import { EditClientComponent } from './components/views/clients/edit-client/edit-client.component';
 import { HomeComponent } from './components/views/home/home.component';
 import { LoginComponent } from './components/views/login/login.component';
 import { TestComponent } from './components/views/test/test.component';
@@ -29,14 +30,9 @@ const routes: Routes = [
     path: "clients",
     canActivate: [AuthGuard],
     children: [
-      {
-        path: "",
-        component: ClientsComponent
-      },
-      {
-        path: "add",
-        component: AddClientComponent
-      }
+      { path: "", component: ClientsComponent },
+      { path: "add", component: AddClientComponent },
+      { path: "edit/:id", component: EditClientComponent }
     ]
   }
 ];

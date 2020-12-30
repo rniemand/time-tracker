@@ -11,7 +11,7 @@ import { ClientDto, ClientClient } from 'src/app/time-tracker-api';
   styleUrls: ['./clients.component.css']
 })
 export class ClientsComponent implements OnInit {
-  displayedColumns: string[] = ['clientName', 'options'];
+  displayedColumns: string[] = ['clientName', 'clientEmail', 'options'];
   dataSource = new MatTableDataSource<ClientDto>();
   clientsLoaded: boolean = false;
 

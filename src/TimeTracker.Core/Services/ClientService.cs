@@ -11,6 +11,8 @@ namespace TimeTracker.Core.Services
   {
     Task<List<ClientDto>> GetAll(int userId);
     Task<ClientDto> AddClient(int userId, ClientDto clientDto);
+    Task<ClientDto> GetById(int userId, int clientId);
+    Task<ClientDto> Update(int userId, ClientDto clientDto);
   }
 
   public class ClientService : IClientService
@@ -51,6 +53,52 @@ namespace TimeTracker.Core.Services
       await _clientRepo.Add(clientEntity);
       var dbEntry = await _clientRepo.GetByName(userId, clientDto.ClientName);
       return ClientDto.FromEntity(dbEntry);
+    }
+
+    public async Task<ClientDto> GetById(int userId, int clientId)
+    {
+      // TODO: [TESTS] (ClientService.GetById) Add tests
+      var dbClient = await _clientRepo.GetById(clientId);
+      if (dbClient == null)
+        return null;
+
+      // ReSharper disable once InvertIf
+      if (dbClient.UserId != userId)
+      {
+        // TODO: [HANDLE] (ClientService.GetById) Handle this better
+        _logger.Warning("Requested client '{cname}' ({cid}) does not belong to user ({uid})",
+          dbClient.ClientName,
+          dbClient.ClientId,
+          userId
+        );
+
+        return null;
+      }
+
+      return ClientDto.FromEntity(dbClient);
+    }
+
+    public async Task<ClientDto> Update(int userId, ClientDto clientDto)
+    {
+      // TODO: [TESTS] (ClientService.Update) Add tests
+      var dbEntry = await _clientRepo.GetById(clientDto.ClientId);
+      if (dbEntry == null)
+      {
+        // TODO: [HANDLE] (ClientService.Update) Handle not found
+        return null;
+      }
+
+      if (dbEntry.UserId != userId)
+      {
+        // TODO: [HANDLE] (ClientService.Update) Handle wrong owner
+        return null;
+      }
+
+      await _clientRepo.Update(clientDto.ToDbEntity());
+
+      return ClientDto.FromEntity(
+        await _clientRepo.GetById(clientDto.ClientId)
+      );
     }
   }
 }

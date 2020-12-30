@@ -1,10 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NSwag.Annotations;
+using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
@@ -71,7 +75,10 @@ namespace TimeTracker
   [ModelBinder(BinderType = typeof(TestModelBinder))]
   public class TestModel
   {
+    [OpenApiIgnore]
     public UserDto User { get; set; }
+
+    [OpenApiIgnore]
     public int UserId { get; set; }
 
     public TestModel()
@@ -82,13 +89,27 @@ namespace TimeTracker
     }
   }
 
+  public class DerivedTestModel : TestModel
+  {
+    public string Test { get; set; }
+
+    public DerivedTestModel()
+    {
+      Test = string.Empty;
+    }
+  }
+
   public class TestModelBinder : IModelBinder
   {
     private readonly ILoggerAdapter<TestModelBinder> _logger;
+    private readonly IJsonHelper _jsonHelper;
 
-    public TestModelBinder(ILoggerAdapter<TestModelBinder> logger)
+    public TestModelBinder(
+      ILoggerAdapter<TestModelBinder> logger,
+      IJsonHelper jsonHelper)
     {
       _logger = logger;
+      _jsonHelper = jsonHelper;
     }
 
     public async Task BindModelAsync(ModelBindingContext bindingContext)
@@ -99,17 +120,44 @@ namespace TimeTracker
         throw new ArgumentNullException(nameof(bindingContext));
       }
 
-      var model = new TestModel();
+      var bodyJson = await GetBody(bindingContext);
+      var modelType = bindingContext.ModelType;
+      var model = _jsonHelper.DeserializeObject(bodyJson, modelType);
+      AppendUser(model as TestModel, bindingContext);
 
+      bindingContext.Result = ModelBindingResult.Success(model);
+    }
+
+    // Helper methods
+    private async Task<string> GetBody(ModelBindingContext bindingContext)
+    {
+      // TODO: [TESTS] (TestingBinder.GetBody) Add tests
+
+      try
+      {
+        using var reader = new StreamReader(
+          bindingContext.ActionContext.HttpContext.Request.Body,
+          Encoding.UTF8
+        );
+
+        var rawBody = await reader.ReadToEndAsync();
+        return string.IsNullOrWhiteSpace(rawBody) ? "{}" : rawBody;
+      }
+      catch (Exception ex)
+      {
+        _logger.Error(ex, "Unable to read body: {msg}", ex.Message);
+        return "{}";
+      }
+    }
+
+    private static void AppendUser(TestModel model, ModelBindingContext bindingContext)
+    {
       if (bindingContext.HttpContext.Items.ContainsKey("User"))
       {
         model.User = (UserDto) bindingContext.HttpContext.Items["User"];
       }
 
       model.UserId = model?.User?.UserId ?? 0;
-      await Task.CompletedTask;
-
-      bindingContext.Result = ModelBindingResult.Success(model);
     }
   }
 }

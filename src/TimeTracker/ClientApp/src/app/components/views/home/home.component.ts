@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { UiService } from 'src/app/services/ui.service';
-import { AuthClient, ClientDto, ClientsClient } from 'src/app/time-tracker-api';
+import { AuthClient, ClientDto, ClientsClient, DerivedTestModel } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +21,12 @@ export class HomeComponent implements OnInit {
     // this.authService.login('niemandr', 'password');
 
     if(this.authService.loggedIn) {
-      this.clients.getAllClients().toPromise().then(
+
+      let model = new DerivedTestModel({
+        test: "hello world"
+      });
+
+      this.clients.getAllClients(model).toPromise().then(
         (clients: ClientDto[]) => {
           console.log(clients);
         },

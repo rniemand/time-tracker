@@ -1,6 +1,8 @@
 import { DOCUMENT, LocationStrategy } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { AuthService } from "../services/auth.service";
+import { StorageService } from "../services/storage.service";
 
 import { API_BASE_URL, AuthClient, WeatherForecastClient } from "../time-tracker-api";
 
@@ -28,7 +30,12 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
   ],
   providers: [
     { provide: API_BASE_URL, useFactory: getBaseUrl, deps: [LocationStrategy, DOCUMENT] },
+
+    // Services
+    AuthService,
+    StorageService,
     
+    // Clients
     WeatherForecastClient,
     AuthClient
   ]

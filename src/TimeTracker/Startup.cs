@@ -59,6 +59,8 @@ namespace TimeTracker
 
       app.UseRouting();
 
+      app.UseMiddleware<JwtMiddleware>();
+
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllerRoute(

@@ -30,5 +30,11 @@ namespace TimeTracker.Controllers
 
       return Ok(response);
     }
+
+    [HttpGet, Route("locked"), Authorize]
+    public ActionResult<string> Locked()
+    {
+      return Ok("woot");
+    }
   }
 }

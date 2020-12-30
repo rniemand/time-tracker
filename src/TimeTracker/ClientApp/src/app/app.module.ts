@@ -10,7 +10,8 @@ import { MaterialModule } from './modules/material.module';
 import { HomeComponent } from './components/views/home/home.component';
 import { TestComponent } from './components/views/test/test.component';
 import { TimeTrackerModule } from './modules/time-tracker.module';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-token.interceptor';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,10 @@ import { HttpClientModule } from '@angular/common/http';
     MaterialModule,
     TimeTrackerModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AppendTokenInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

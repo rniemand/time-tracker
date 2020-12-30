@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthClient, AuthenticationRequest, AuthenticationResponse } from 'src/app/time-tracker-api';
+import { AuthService } from 'src/app/services/auth.service';
+import { AuthClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +10,7 @@ import { AuthClient, AuthenticationRequest, AuthenticationResponse } from 'src/a
 export class HomeComponent implements OnInit {
 
   constructor(
+    private authService: AuthService,
     private authClient: AuthClient
   ) { }
 
@@ -22,17 +24,19 @@ export class HomeComponent implements OnInit {
     //   }
     // );
 
-    this.authClient.authenticate(new AuthenticationRequest({
-      username: 'niemandr',
-      password: 'password'
-    })).toPromise().then(
-      (response: AuthenticationResponse) => {
-        console.log(response);
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
+    // this.authClient.authenticate(new AuthenticationRequest({
+    //   username: 'niemandr',
+    //   password: 'password'
+    // })).toPromise().then(
+    //   (response: AuthenticationResponse) => {
+    //     console.log(response?.token);
+    //   },
+    //   (error: any) => {
+    //     console.error(error);
+    //   }
+    // );
+
+    this.authService.login('niemandr', 'password');
   }
 
 }

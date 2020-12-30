@@ -24,7 +24,7 @@
   </div>
 
   <div class="content-row" *ngIf="loggedIn">
-    <h1>Welcome, NAME</h1>
+    <h1>Welcome, {{ currentUser?.firstName }}</h1>
 
     <div class="user-controls">
       <button mat-stroked-button class="logout" type="button" (click)="logout()">Logout</button>

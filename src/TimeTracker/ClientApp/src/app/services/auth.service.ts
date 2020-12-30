@@ -2,21 +2,37 @@ import { Subject } from "rxjs";
 import { Injectable } from "@angular/core";
 import { AuthClient, AuthenticationRequest, AuthenticationResponse } from "../time-tracker-api";
 import { StorageService } from "./storage.service";
+import { Router } from "@angular/router";
+import { UiService } from "./ui.service";
 
 const KEY_TOKEN = 'user.token';
+const KEY_USER_INFO = 'user.info';
+
+export interface UserInfo {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+}
 
 @Injectable()
 export class AuthService {
   authChanged = new Subject<boolean>();
   loggedIn: boolean = false;
+  currentUser?: UserInfo;
 
   private _currentToken: string = '';
 
   constructor(
     private authClient: AuthClient,
-    private storage: StorageService
+    private storage: StorageService,
+    private router: Router,
+    private uiService: UiService
   ) {
-    // Check to see if we are logged in
+    if(this.storage.hasItem(KEY_USER_INFO)) {
+      this.currentUser = this.storage.getItem<UserInfo>(KEY_USER_INFO);
+    }
+    
     if(this.storage.hasItem(KEY_TOKEN)) {
       // TODO: [VALIDATION] Add some form of token validation here
       this.setLoggedInSate(true, this.storage.getItem<string>(KEY_TOKEN));
@@ -32,12 +48,7 @@ export class AuthService {
     return new Promise<boolean>((resolve, reject) => {
       this.authClient.authenticate(authRequest).toPromise().then(
         (response: AuthenticationResponse) => {
-          if((response?.token?.length ?? 0) > 0) {
-            this.setLoggedInSate(true, response.token);
-          } else {
-            this.setLoggedInSate(false);
-          }
-
+          this.processAuthResponse(response);
           resolve(this.loggedIn);
         },
         (error: any) => {
@@ -52,6 +63,8 @@ export class AuthService {
 
   logout = () => {
     this.setLoggedInSate(false);
+    this.router.navigate(['/']);
+    this.uiService.notify('Logged out', 1500);
   }
 
   getAuthToken = () => {
@@ -79,5 +92,36 @@ export class AuthService {
     }
 
     this.authChanged.next(this.loggedIn);
+  }
+
+  private updateCurrentUser = (response: AuthenticationResponse) => {
+    let loggedIn = (response?.userId ?? 0) > 0;
+    this.currentUser = undefined;
+
+    if(!loggedIn) {
+      if(this.storage.hasItem(KEY_USER_INFO)) {
+        this.storage.removeItem(KEY_USER_INFO);
+      }
+      return;
+    }
+    
+    this.currentUser = {
+      id: response?.userId ?? 0,
+      username: response?.username ?? '',
+      firstName: response?.firstName ?? '',
+      lastName: response?.lastName ?? ''
+    };
+
+    this.storage.setItem(KEY_USER_INFO, this.currentUser);
+  }
+
+  private processAuthResponse = (response: AuthenticationResponse) => {
+    this.updateCurrentUser(response);
+
+    if((response?.token?.length ?? 0) > 0) {
+      this.setLoggedInSate(true, response.token);
+    } else {
+      this.setLoggedInSate(false);
+    }
   }
 }

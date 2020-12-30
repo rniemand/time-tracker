@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService, UserInfo } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   username = new FormControl('', [Validators.required, Validators.minLength(1)]);
   password = new FormControl('', [Validators.required, Validators.minLength(1)]);
   loggedIn: boolean = false;
+  currentUser?: UserInfo;
 
   private subscriptions: Subscription[] = [];
 
@@ -21,10 +22,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   
   ngOnInit(): void {
     this.loggedIn = this._authService.loggedIn;
+    this.currentUser = this._authService.currentUser;
 
     this.subscriptions.push(this._authService.authChanged.subscribe(
       (loggedIn: boolean) => {
         this.loggedIn = loggedIn;
+        this.currentUser = this._authService.currentUser;
       }
     ));
   }

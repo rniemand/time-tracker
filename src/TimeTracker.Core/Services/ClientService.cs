@@ -10,6 +10,7 @@ namespace TimeTracker.Core.Services
   public interface IClientService
   {
     Task<List<ClientDto>> GetAll(int userId);
+    Task<ClientDto> AddClient(int userId, ClientDto clientDto);
   }
 
   public class ClientService : IClientService
@@ -37,6 +38,19 @@ namespace TimeTracker.Core.Services
         .AsQueryable()
         .Select(ClientDto.Projection)
         .ToList();
+    }
+
+    public async Task<ClientDto> AddClient(int userId, ClientDto clientDto)
+    {
+      // TODO: [TESTS] (ClientService.AddClient) Add tests
+      // TODO: [DUPLICATED] (ClientService.AddClient) Guard against
+
+      var clientEntity = clientDto.ToDbEntity();
+      clientEntity.UserId = userId;
+
+      await _clientRepo.Add(clientEntity);
+      var dbEntry = await _clientRepo.GetByName(userId, clientDto.ClientName);
+      return ClientDto.FromEntity(dbEntry);
     }
   }
 }

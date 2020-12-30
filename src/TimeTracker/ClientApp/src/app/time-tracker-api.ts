@@ -131,12 +131,13 @@ export class AuthClient implements IAuthClient {
     }
 }
 
-export interface IClientsClient {
+export interface IClientClient {
     getAll(): Observable<ClientDto[]>;
+    addClient(clientDto: ClientDto): Observable<ClientDto>;
 }
 
 @Injectable()
-export class ClientsClient implements IClientsClient {
+export class ClientClient implements IClientClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -147,7 +148,7 @@ export class ClientsClient implements IClientsClient {
     }
 
     getAll(): Observable<ClientDto[]> {
-        let url_ = this.baseUrl + "/api/Clients";
+        let url_ = this.baseUrl + "/api/Client/list-all";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -196,6 +197,58 @@ export class ClientsClient implements IClientsClient {
             }));
         }
         return _observableOf<ClientDto[]>(<any>null);
+    }
+
+    addClient(clientDto: ClientDto): Observable<ClientDto> {
+        let url_ = this.baseUrl + "/api/Client";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(clientDto);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddClient(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddClient(<any>response_);
+                } catch (e) {
+                    return <Observable<ClientDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ClientDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddClient(response: HttpResponseBase): Observable<ClientDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ClientDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ClientDto>(<any>null);
     }
 }
 

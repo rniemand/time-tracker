@@ -31,6 +31,12 @@ namespace TimeTracker.Core.Models.Dto
       }
     }
 
+    public static ClientDto FromEntity(ClientEntity entity)
+    {
+      // TODO: [TESTS] (ClientDto.FromEntity) Add tests
+      return entity == null ? null : Projection.Compile()(entity);
+    }
+
     public ClientDto()
     {
       // TODO: [TESTS] (ClientDto) Add tests
@@ -41,6 +47,21 @@ namespace TimeTracker.Core.Models.Dto
       DateModifiedUtc = null;
       ClientName = string.Empty;
       ClientEmail = string.Empty;
+    }
+
+    public ClientEntity ToDbEntity()
+    {
+      // TODO: [TESTS] (ClientDto.ToDbEntity) Add tests
+      return new ClientEntity
+      {
+        UserId = UserId,
+        DateCreatedUtc = DateCreatedUtc,
+        ClientEmail = ClientEmail,
+        ClientId = ClientId,
+        DateModifiedUtc = DateModifiedUtc,
+        ClientName = ClientName,
+        Deleted = Deleted
+      };
     }
   }
 }

@@ -17,3 +17,8 @@ body {
   max-width: 750px;
   display: inline-block;
 }
+
+.content-row h1 {
+  text-align: center;
+  margin-top: 8px;
+}

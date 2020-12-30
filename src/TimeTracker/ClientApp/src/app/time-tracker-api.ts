@@ -132,7 +132,7 @@ export class AuthClient implements IAuthClient {
 }
 
 export interface IClientsClient {
-    getAllClients(test: DerivedBaseApiRequest): Observable<ClientDto[]>;
+    getAll(): Observable<ClientDto[]>;
 }
 
 @Injectable()
@@ -146,28 +146,24 @@ export class ClientsClient implements IClientsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getAllClients(test: DerivedBaseApiRequest): Observable<ClientDto[]> {
+    getAll(): Observable<ClientDto[]> {
         let url_ = this.baseUrl + "/api/Clients";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(test);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
 
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllClients(response_);
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAllClients(<any>response_);
+                    return this.processGetAll(<any>response_);
                 } catch (e) {
                     return <Observable<ClientDto[]>><any>_observableThrow(e);
                 }
@@ -176,7 +172,7 @@ export class ClientsClient implements IClientsClient {
         }));
     }
 
-    protected processGetAllClients(response: HttpResponseBase): Observable<ClientDto[]> {
+    protected processGetAll(response: HttpResponseBase): Observable<ClientDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -353,145 +349,6 @@ export interface IClientDto {
     dateModifiedUtc?: Date | undefined;
     clientName?: string | undefined;
     clientEmail?: string | undefined;
-}
-
-export abstract class BaseApiRequest implements IBaseApiRequest {
-    user?: UserDto | undefined;
-    userId?: number;
-
-    constructor(data?: IBaseApiRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.user = _data["user"] ? UserDto.fromJS(_data["user"]) : <any>undefined;
-            this.userId = _data["userId"];
-        }
-    }
-
-    static fromJS(data: any): BaseApiRequest {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseApiRequest' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["userId"] = this.userId;
-        return data; 
-    }
-}
-
-export interface IBaseApiRequest {
-    user?: UserDto | undefined;
-    userId?: number;
-}
-
-export class DerivedBaseApiRequest extends BaseApiRequest implements IDerivedBaseApiRequest {
-    test?: string | undefined;
-
-    constructor(data?: IDerivedBaseApiRequest) {
-        super(data);
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.test = _data["test"];
-        }
-    }
-
-    static fromJS(data: any): DerivedBaseApiRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new DerivedBaseApiRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["test"] = this.test;
-        super.toJSON(data);
-        return data; 
-    }
-}
-
-export interface IDerivedBaseApiRequest extends IBaseApiRequest {
-    test?: string | undefined;
-}
-
-export class UserDto implements IUserDto {
-    userId?: number;
-    deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModified?: Date | undefined;
-    lastLoginDate?: Date | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    username?: string | undefined;
-    userEmail?: string | undefined;
-
-    constructor(data?: IUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userId = _data["userId"];
-            this.deleted = _data["deleted"];
-            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
-            this.dateModified = _data["dateModified"] ? new Date(_data["dateModified"].toString()) : <any>undefined;
-            this.lastLoginDate = _data["lastLoginDate"] ? new Date(_data["lastLoginDate"].toString()) : <any>undefined;
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.username = _data["username"];
-            this.userEmail = _data["userEmail"];
-        }
-    }
-
-    static fromJS(data: any): UserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
-        data["deleted"] = this.deleted;
-        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
-        data["dateModified"] = this.dateModified ? this.dateModified.toISOString() : <any>undefined;
-        data["lastLoginDate"] = this.lastLoginDate ? this.lastLoginDate.toISOString() : <any>undefined;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["username"] = this.username;
-        data["userEmail"] = this.userEmail;
-        return data; 
-    }
-}
-
-export interface IUserDto {
-    userId?: number;
-    deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModified?: Date | undefined;
-    lastLoginDate?: Date | undefined;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    username?: string | undefined;
-    userEmail?: string | undefined;
 }
 
 export class SwaggerException extends Error {

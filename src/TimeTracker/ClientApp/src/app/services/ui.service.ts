@@ -34,4 +34,9 @@ export class UiService {
       verticalPosition: castOptions?.verticalPosition ?? 'bottom'
     });
   }
+
+  handleClientError = (error: any) => {
+    // TODO: [COMPLETE] Complete me
+    console.error(error);
+  }
 }

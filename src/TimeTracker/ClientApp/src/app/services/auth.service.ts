@@ -52,8 +52,7 @@ export class AuthService {
           resolve(this.loggedIn);
         },
         (error: any) => {
-          console.error(error);
-
+          this.uiService.handleClientError(error);
           this.setLoggedInSate(false);
           resolve(false);
         }

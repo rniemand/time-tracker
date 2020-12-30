@@ -3,7 +3,7 @@ using NSwag.Annotations;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.WebApi.ModelBinding;
 
-namespace TimeTracker.Core.WebApi.Models
+namespace TimeTracker.Core.WebApi.Requests
 {
   [ModelBinder(BinderType = typeof(BaseApiRequestModelBinder))]
   public abstract class BaseApiRequest

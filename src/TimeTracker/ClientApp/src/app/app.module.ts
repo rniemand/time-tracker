@@ -14,6 +14,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-token.interceptor';
 import { LoginComponent } from './components/views/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ClientsComponent } from './components/views/clients/clients.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     HeaderComponent,
     HomeComponent,
     TestComponent,
-    LoginComponent
+    LoginComponent,
+    ClientsComponent
   ],
   imports: [
     BrowserModule,

@@ -15,6 +15,11 @@
     <span class="nav-caption">Login</span>
   </a>
 
+  <a mat-list-item routerLink="/clients" (click)="onClose()" routerLinkActive="active" *ngIf="loggedIn">
+    <mat-icon>group</mat-icon>
+    <span class="nav-caption">Clients</span>
+  </a>
+
   <mat-list-item (click)="onLogout()" *ngIf="loggedIn">
     <button mat-icon-button>
       <mat-icon>lock</mat-icon>

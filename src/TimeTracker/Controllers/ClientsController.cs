@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Attributes;
+using TimeTracker.Core.WebApi.Requests;
 
 namespace TimeTracker.Controllers
 {
@@ -17,10 +20,11 @@ namespace TimeTracker.Controllers
       _clientService = clientService;
     }
 
-    [HttpPost, Route(""), Authorize]
-    public async Task<ActionResult<List<ClientDto>>> GetAllClients([FromBody] DerivedBaseApiRequest test)
+    [HttpGet, Route(""), Authorize]
+    public async Task<ActionResult<List<ClientDto>>> GetAll([OpenApiIgnore] CoreApiRequest request)
     {
-      return Ok(await _clientService.GetAll(test.UserId));
+      // TODO: [TESTS] (ClientsController.GetAll) Add tests
+      return Ok(await _clientService.GetAll(request.UserId));
     }
   }
 }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Models.Dto;
-using TimeTracker.Core.WebApi.Models;
+using TimeTracker.Core.WebApi.Requests;
 
 namespace TimeTracker.Core.WebApi.ModelBinding
 {

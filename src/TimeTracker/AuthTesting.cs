@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
 

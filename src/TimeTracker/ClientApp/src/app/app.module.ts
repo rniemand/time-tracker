@@ -12,6 +12,7 @@ import { TestComponent } from './components/views/test/test.component';
 import { TimeTrackerModule } from './modules/time-tracker.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-token.interceptor';
+import { LoginComponent } from './components/views/login/login.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-tok
     SideNavComponent,
     HeaderComponent,
     HomeComponent,
-    TestComponent
+    TestComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

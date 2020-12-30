@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi.Attributes;
 
 namespace TimeTracker.Controllers
 {
@@ -17,7 +18,7 @@ namespace TimeTracker.Controllers
     }
 
     [HttpPost, Route(""), Authorize]
-    public async Task<ActionResult<List<ClientDto>>> GetAllClients([FromBody] DerivedTestModel test)
+    public async Task<ActionResult<List<ClientDto>>> GetAllClients([FromBody] DerivedBaseApiRequest test)
     {
       return Ok(await _clientService.GetAll(test.UserId));
     }

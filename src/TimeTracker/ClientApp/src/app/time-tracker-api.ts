@@ -132,7 +132,7 @@ export class AuthClient implements IAuthClient {
 }
 
 export interface IClientsClient {
-    getAllClients(test: DerivedTestModel): Observable<ClientDto[]>;
+    getAllClients(test: DerivedBaseApiRequest): Observable<ClientDto[]>;
 }
 
 @Injectable()
@@ -146,7 +146,7 @@ export class ClientsClient implements IClientsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getAllClients(test: DerivedTestModel): Observable<ClientDto[]> {
+    getAllClients(test: DerivedBaseApiRequest): Observable<ClientDto[]> {
         let url_ = this.baseUrl + "/api/Clients";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -423,11 +423,11 @@ export interface IClientDto {
     clientEmail?: string | undefined;
 }
 
-export class TestModel implements ITestModel {
+export abstract class BaseApiRequest implements IBaseApiRequest {
     user?: UserDto | undefined;
     userId?: number;
 
-    constructor(data?: ITestModel) {
+    constructor(data?: IBaseApiRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -443,11 +443,9 @@ export class TestModel implements ITestModel {
         }
     }
 
-    static fromJS(data: any): TestModel {
+    static fromJS(data: any): BaseApiRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new TestModel();
-        result.init(data);
-        return result;
+        throw new Error("The abstract class 'BaseApiRequest' cannot be instantiated.");
     }
 
     toJSON(data?: any) {
@@ -458,15 +456,15 @@ export class TestModel implements ITestModel {
     }
 }
 
-export interface ITestModel {
+export interface IBaseApiRequest {
     user?: UserDto | undefined;
     userId?: number;
 }
 
-export class DerivedTestModel extends TestModel implements IDerivedTestModel {
+export class DerivedBaseApiRequest extends BaseApiRequest implements IDerivedBaseApiRequest {
     test?: string | undefined;
 
-    constructor(data?: IDerivedTestModel) {
+    constructor(data?: IDerivedBaseApiRequest) {
         super(data);
     }
 
@@ -477,9 +475,9 @@ export class DerivedTestModel extends TestModel implements IDerivedTestModel {
         }
     }
 
-    static fromJS(data: any): DerivedTestModel {
+    static fromJS(data: any): DerivedBaseApiRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new DerivedTestModel();
+        let result = new DerivedBaseApiRequest();
         result.init(data);
         return result;
     }
@@ -492,7 +490,7 @@ export class DerivedTestModel extends TestModel implements IDerivedTestModel {
     }
 }
 
-export interface IDerivedTestModel extends ITestModel {
+export interface IDerivedBaseApiRequest extends IBaseApiRequest {
     test?: string | undefined;
 }
 

@@ -12,6 +12,7 @@ using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi.Middleware;
 
 namespace TimeTracker
 {

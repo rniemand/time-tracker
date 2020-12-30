@@ -104,13 +104,16 @@ namespace TimeTracker.DevConsole
     {
       services
         .AddSingleton<IUserRepo, UserRepo>()
-        .AddSingleton<IUserRepoQueries, UserRepoQueries>();
+        .AddSingleton<IUserRepoQueries, UserRepoQueries>()
+        .AddSingleton<IClientRepo, ClientRepo>()
+        .AddSingleton<IClientRepoQueries, ClientRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
     {
       services
-        .AddSingleton<IUserService, UserService>();
+        .AddSingleton<IUserService, UserService>()
+        .AddSingleton<IClientService, ClientService>();
     }
   }
 }

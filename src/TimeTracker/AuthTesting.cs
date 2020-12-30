@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
 
@@ -66,4 +68,48 @@ namespace TimeTracker
     }
   }
 
+  [ModelBinder(BinderType = typeof(TestModelBinder))]
+  public class TestModel
+  {
+    public UserDto User { get; set; }
+    public int UserId { get; set; }
+
+    public TestModel()
+    {
+      // TODO: [TESTS] (TestModel) Add tests
+      User = null;
+      UserId = 0;
+    }
+  }
+
+  public class TestModelBinder : IModelBinder
+  {
+    private readonly ILoggerAdapter<TestModelBinder> _logger;
+
+    public TestModelBinder(ILoggerAdapter<TestModelBinder> logger)
+    {
+      _logger = logger;
+    }
+
+    public async Task BindModelAsync(ModelBindingContext bindingContext)
+    {
+      // TODO: [TESTS] (TestModelBinder.BindModelAsync) Add tests
+      if (bindingContext == null)
+      {
+        throw new ArgumentNullException(nameof(bindingContext));
+      }
+
+      var model = new TestModel();
+
+      if (bindingContext.HttpContext.Items.ContainsKey("User"))
+      {
+        model.User = (UserDto) bindingContext.HttpContext.Items["User"];
+      }
+
+      model.UserId = model?.User?.UserId ?? 0;
+      await Task.CompletedTask;
+
+      bindingContext.Result = ModelBindingResult.Success(model);
+    }
+  }
 }

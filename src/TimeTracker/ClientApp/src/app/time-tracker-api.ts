@@ -131,6 +131,74 @@ export class AuthClient implements IAuthClient {
     }
 }
 
+export interface IClientsClient {
+    getAllClients(): Observable<ClientDto[]>;
+}
+
+@Injectable()
+export class ClientsClient implements IClientsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getAllClients(): Observable<ClientDto[]> {
+        let url_ = this.baseUrl + "/api/Clients";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllClients(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllClients(<any>response_);
+                } catch (e) {
+                    return <Observable<ClientDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ClientDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetAllClients(response: HttpResponseBase): Observable<ClientDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ClientDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ClientDto[]>(<any>null);
+    }
+}
+
 export interface IWeatherForecastClient {
     get(): Observable<WeatherForecast[]>;
 }
@@ -289,6 +357,66 @@ export class AuthenticationRequest implements IAuthenticationRequest {
 export interface IAuthenticationRequest {
     username?: string | undefined;
     password?: string | undefined;
+}
+
+export class ClientDto implements IClientDto {
+    clientId?: number;
+    deleted?: boolean;
+    userId?: number;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    clientName?: string | undefined;
+    clientEmail?: string | undefined;
+
+    constructor(data?: IClientDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.clientId = _data["clientId"];
+            this.deleted = _data["deleted"];
+            this.userId = _data["userId"];
+            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
+            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.clientName = _data["clientName"];
+            this.clientEmail = _data["clientEmail"];
+        }
+    }
+
+    static fromJS(data: any): ClientDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ClientDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["clientId"] = this.clientId;
+        data["deleted"] = this.deleted;
+        data["userId"] = this.userId;
+        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
+        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["clientName"] = this.clientName;
+        data["clientEmail"] = this.clientEmail;
+        return data; 
+    }
+}
+
+export interface IClientDto {
+    clientId?: number;
+    deleted?: boolean;
+    userId?: number;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    clientName?: string | undefined;
+    clientEmail?: string | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, forwardRef, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { ClientsClient, IntListItem } from 'src/app/time-tracker-api';
 
 @Component({
@@ -19,6 +20,8 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
   clientId: number = 0;
   entries: IntListItem[] = [];
   loading: boolean = true;
+  @Input('appearance') appearance: MatFormFieldAppearance = "outline";
+  @Input('class') class: string = "";
 
   private _onChangeFn = (_: any) => { };
 

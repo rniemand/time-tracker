@@ -5,6 +5,7 @@ import { ClientsComponent } from './components/views/clients/clients.component';
 import { EditClientComponent } from './components/views/clients/edit-client/edit-client.component';
 import { HomeComponent } from './components/views/home/home.component';
 import { LoginComponent } from './components/views/login/login.component';
+import { AddProductComponent } from './components/views/products/add-product/add-product.component';
 import { ProductsComponent } from './components/views/products/products.component';
 import { TestComponent } from './components/views/test/test.component';
 import { AuthGuard } from './providers/append-token.interceptor';
@@ -40,7 +41,8 @@ const routes: Routes = [
     path: "products",
     canActivate: [AuthGuard],
     children: [
-      { path: "", component: ProductsComponent }
+      { path: "", component: ProductsComponent },
+      { path: "add", component: AddProductComponent }
     ]
   }
 ];

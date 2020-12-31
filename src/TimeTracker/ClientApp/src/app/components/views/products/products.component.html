@@ -7,26 +7,17 @@
     <app-client-selector (changed)="clientSelected($event)" [(ngModel)]="clientId"></app-client-selector>
   </div>
 
-  <!-- <div class="content-row" *ngIf="clientsLoaded">
+  <div class="content-row" *ngIf="productsLoaded">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 data-table">
 
-      <ng-container matColumnDef="clientName">
+      <ng-container matColumnDef="productName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-        <td mat-cell *matCellDef="let client"> {{client.clientName}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="clientEmail">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
-        <td mat-cell *matCellDef="let client"> {{client.clientEmail}} </td>
+        <td mat-cell *matCellDef="let product"> {{product.productName}} </td>
       </ng-container>
 
       <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> &nbsp; </th>
-        <td mat-cell *matCellDef="let client" class="options-td">
-          <button mat-icon-button [routerLink]="['/clients', 'edit', client.clientId]">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
+        <td mat-cell *matCellDef="let client" class="options-td"> Hi </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -34,8 +25,8 @@
     </table>
     <mat-paginator [pageSizeOptions]="[10, 20, 30, 40, 50]" showFirstLastButtons></mat-paginator>
 
-    <button mat-mini-fab color="primary" class="add-client-fab" routerLink="/clients/add">
+    <button mat-mini-fab color="primary" class="add-client-fab" routerLink="/products/add">
       <mat-icon>add</mat-icon>
     </button>
-  </div> -->
+  </div>
 </div>

@@ -19,6 +19,7 @@ import { AddClientComponent } from './components/views/clients/add-client/add-cl
 import { EditClientComponent } from './components/views/clients/edit-client/edit-client.component';
 import { ProductsComponent } from './components/views/products/products.component';
 import { ClientSelectorComponent } from './components/ui/client-selector/client-selector.component';
+import { AddProductComponent } from './components/views/products/add-product/add-product.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { ClientSelectorComponent } from './components/ui/client-selector/client-
     AddClientComponent,
     EditClientComponent,
     ProductsComponent,
-    ClientSelectorComponent
+    ClientSelectorComponent,
+    AddProductComponent
   ],
   imports: [
     BrowserModule,

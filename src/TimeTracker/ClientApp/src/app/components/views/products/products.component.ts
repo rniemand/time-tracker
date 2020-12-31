@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { UiService } from 'src/app/services/ui.service';
 import { ClientsClient, ProductDto, ProductsClient } from 'src/app/time-tracker-api';
 
@@ -9,6 +12,12 @@ import { ClientsClient, ProductDto, ProductsClient } from 'src/app/time-tracker-
 })
 export class ProductsComponent implements OnInit {
   clientId: number = 0;
+  productsLoaded: boolean = false;
+  displayedColumns: string[] = ['productName', 'options'];
+  dataSource = new MatTableDataSource<ProductDto>();
+
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private products: ProductsClient,
@@ -23,9 +32,14 @@ export class ProductsComponent implements OnInit {
   clientSelected = (clientId: number) => {
     console.log('client selected', clientId);
 
+    this.uiService.showLoader(true);
     this.products.getAll(this.clientId).toPromise().then(
       (products: ProductDto[]) => {
-        console.log(products);
+        this.dataSource = new MatTableDataSource(products);
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        this.productsLoaded = true;
+        this.uiService.hideLoader();
       },
       this.uiService.handleClientError
     );

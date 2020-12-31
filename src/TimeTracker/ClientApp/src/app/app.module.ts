@@ -21,6 +21,8 @@ import { ProductsComponent } from './components/views/products/products.componen
 import { ClientSelectorComponent } from './components/ui/client-selector/client-selector.component';
 import { AddProductComponent } from './components/views/products/add-product/add-product.component';
 import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
+import { HomeCardComponent } from './components/ui/home-card/home-card.component';
+import { ProjectsComponent } from './components/views/projects/projects.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,9 @@ import { EditProductComponent } from './components/views/products/edit-product/e
     ProductsComponent,
     ClientSelectorComponent,
     AddProductComponent,
-    EditProductComponent
+    EditProductComponent,
+    HomeCardComponent,
+    ProjectsComponent
   ],
   imports: [
     BrowserModule,

@@ -8,27 +8,15 @@ import { LoginComponent } from './components/views/login/login.component';
 import { AddProductComponent } from './components/views/products/add-product/add-product.component';
 import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
 import { ProductsComponent } from './components/views/products/products.component';
+import { ProjectsComponent } from './components/views/projects/projects.component';
 import { TestComponent } from './components/views/test/test.component';
 import { AuthGuard } from './providers/append-token.interceptor';
 
 const routes: Routes = [
-  { 
-    path: "", 
-    component: HomeComponent
-  },
-  { 
-    path: "home", 
-    component: HomeComponent
-  },
-  { 
-    path: "test", 
-    component: TestComponent,
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: "login", 
-    component: LoginComponent
-  },
+  { path: "", component: HomeComponent },
+  { path: "home", component: HomeComponent },
+  { path: "test", component: TestComponent, canActivate: [AuthGuard] },
+  { path: "login", component: LoginComponent },
   {
     path: "clients",
     canActivate: [AuthGuard],
@@ -46,6 +34,13 @@ const routes: Routes = [
       { path: ":clientId", component: ProductsComponent },
       { path: "add/:clientId", component: AddProductComponent },
       { path: "edit/:productId", component: EditProductComponent }
+    ]
+  },
+  {
+    path: "projects",
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: ProjectsComponent }
     ]
   }
 ];

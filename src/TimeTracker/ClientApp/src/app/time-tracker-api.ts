@@ -357,12 +357,12 @@ export class ClientsClient implements IClientsClient {
     }
 }
 
-export interface IProductClient {
+export interface IProductsClient {
     getAll(clientId: number): Observable<ProductDto[]>;
 }
 
 @Injectable()
-export class ProductClient implements IProductClient {
+export class ProductsClient implements IProductsClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -373,7 +373,7 @@ export class ProductClient implements IProductClient {
     }
 
     getAll(clientId: number): Observable<ProductDto[]> {
-        let url_ = this.baseUrl + "/api/Product/products/{clientId}";
+        let url_ = this.baseUrl + "/api/Products/products/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));

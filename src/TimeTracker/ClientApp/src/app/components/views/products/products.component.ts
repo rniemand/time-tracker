@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UiService } from 'src/app/services/ui.service';
-import { ProductClient } from 'src/app/time-tracker-api';
+import { ProductsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-products',
@@ -10,12 +10,12 @@ import { ProductClient } from 'src/app/time-tracker-api';
 export class ProductsComponent implements OnInit {
 
   constructor(
-    private productClient: ProductClient,
+    private products: ProductsClient,
     private uiService: UiService
   ) { }
 
   ngOnInit(): void {
-    // this.productClient.getAll().toPromise().then();
+    // this.products.getAll().toPromise().then();
   }
 
 }

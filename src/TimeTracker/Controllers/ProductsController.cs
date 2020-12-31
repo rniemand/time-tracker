@@ -10,11 +10,11 @@ using TimeTracker.Core.WebApi.Requests;
 namespace TimeTracker.Controllers
 {
   [ApiController, Route("api/[controller]")]
-  public class ProductController : ControllerBase
+  public class ProductsController : ControllerBase
   {
     private readonly IProductService _productService;
 
-    public ProductController(IProductService productService)
+    public ProductsController(IProductService productService)
     {
       _productService = productService;
     }
@@ -24,7 +24,7 @@ namespace TimeTracker.Controllers
       [FromRoute] int clientId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProductController.GetAll) Add tests
+      // TODO: [TESTS] (ProductsController.GetAll) Add tests
       return Ok(await _productService.GetAll(request.UserId, clientId));
     }
   }

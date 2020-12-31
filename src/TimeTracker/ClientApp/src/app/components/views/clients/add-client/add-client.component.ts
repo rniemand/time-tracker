@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { UiService } from 'src/app/services/ui.service';
-import { ClientClient, ClientDto } from 'src/app/time-tracker-api';
+import { ClientsClient, ClientDto } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-add-client',
@@ -15,7 +15,7 @@ export class AddClientComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private clientClient: ClientClient,
+    private clients: ClientsClient,
     private uiService: UiService,
     private router: Router
   ) {
@@ -35,7 +35,7 @@ export class AddClientComponent implements OnInit {
     });
 
     this.uiService.showLoader(true);
-    this.clientClient.addClient(clientDto).toPromise().then(
+    this.clients.addClient(clientDto).toPromise().then(
       (client: ClientDto) => {
         this.router.navigate(['/clients']);
         this.uiService.notify(`Added Client: ${client.clientName} (${client.clientId})`);

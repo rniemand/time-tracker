@@ -131,7 +131,7 @@ export class AuthClient implements IAuthClient {
     }
 }
 
-export interface IClientClient {
+export interface IClientsClient {
     addClient(clientDto: ClientDto): Observable<ClientDto>;
     updateClient(clientDto: ClientDto): Observable<ClientDto>;
     getById(clientId: number): Observable<ClientDto>;
@@ -139,7 +139,7 @@ export interface IClientClient {
 }
 
 @Injectable()
-export class ClientClient implements IClientClient {
+export class ClientsClient implements IClientsClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -150,7 +150,7 @@ export class ClientClient implements IClientClient {
     }
 
     addClient(clientDto: ClientDto): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Client/client";
+        let url_ = this.baseUrl + "/api/Clients/client";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(clientDto);
@@ -202,7 +202,7 @@ export class ClientClient implements IClientClient {
     }
 
     updateClient(clientDto: ClientDto): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Client/client";
+        let url_ = this.baseUrl + "/api/Clients/client";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(clientDto);
@@ -254,7 +254,7 @@ export class ClientClient implements IClientClient {
     }
 
     getById(clientId: number): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Client/client/{clientId}";
+        let url_ = this.baseUrl + "/api/Clients/client/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
@@ -305,7 +305,7 @@ export class ClientClient implements IClientClient {
     }
 
     getAll(): Observable<ClientDto[]> {
-        let url_ = this.baseUrl + "/api/Client/clients";
+        let url_ = this.baseUrl + "/api/Clients/clients";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

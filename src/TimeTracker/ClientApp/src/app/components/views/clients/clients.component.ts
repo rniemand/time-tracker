@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { UiService } from 'src/app/services/ui.service';
-import { ClientDto, ClientClient } from 'src/app/time-tracker-api';
+import { ClientDto, ClientsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-clients',
@@ -19,7 +19,7 @@ export class ClientsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
-    private clients: ClientClient,
+    private clients: ClientsClient,
     private uiService: UiService
   ) { }
   

@@ -10,11 +10,11 @@ using TimeTracker.Core.WebApi.Requests;
 namespace TimeTracker.Controllers
 {
   [ApiController, Route("api/[controller]")]
-  public class ClientController : ControllerBase
+  public class ClientsController : ControllerBase
   {
     private readonly IClientService _clientService;
 
-    public ClientController(IClientService clientService)
+    public ClientsController(IClientService clientService)
     {
       _clientService = clientService;
     }
@@ -25,7 +25,7 @@ namespace TimeTracker.Controllers
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientController.AddClient) Add tests
+      // TODO: [TESTS] (ClientsController.AddClient) Add tests
       var addedClient = await _clientService.AddClient(request.UserId, clientDto);
       return Ok(addedClient);
     }
@@ -35,7 +35,7 @@ namespace TimeTracker.Controllers
       [FromRoute] int clientId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientController.GetById) Add tests
+      // TODO: [TESTS] (ClientsController.GetById) Add tests
       return Ok(await _clientService.GetById(request.UserId, clientId));
     }
 
@@ -44,7 +44,7 @@ namespace TimeTracker.Controllers
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientController.UpdateClient) Add tests
+      // TODO: [TESTS] (ClientsController.UpdateClient) Add tests
       return Ok(await _clientService.Update(request.UserId, clientDto));
     }
 
@@ -53,7 +53,7 @@ namespace TimeTracker.Controllers
     public async Task<ActionResult<List<ClientDto>>> GetAll(
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientController.GetAll) Add tests
+      // TODO: [TESTS] (ClientsController.GetAll) Add tests
       return Ok(await _clientService.GetAll(request.UserId));
     }
   }

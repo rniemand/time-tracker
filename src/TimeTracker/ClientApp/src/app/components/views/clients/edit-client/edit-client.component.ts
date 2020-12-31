@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UiService } from 'src/app/services/ui.service';
-import { ClientClient, ClientDto } from 'src/app/time-tracker-api';
+import { ClientsClient, ClientDto } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-edit-client',
@@ -16,7 +16,7 @@ export class EditClientComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private clientClient: ClientClient,
+    private clients: ClientsClient,
     private uiService: UiService,
     private router: Router
   ) {
@@ -30,7 +30,7 @@ export class EditClientComponent implements OnInit {
     this.clientId = this.route.snapshot.params.id;
 
     this.uiService.showLoader(true);
-    this.clientClient.getById(this.clientId).toPromise().then(
+    this.clients.getById(this.clientId).toPromise().then(
       (client: ClientDto) => {
         this.client = client;
 
@@ -52,7 +52,7 @@ export class EditClientComponent implements OnInit {
     });
     
     this.uiService.showLoader(true);
-    this.clientClient.updateClient(updatedClient).toPromise().then(
+    this.clients.updateClient(updatedClient).toPromise().then(
       (client: ClientDto) => {
         this.router.navigate(['/clients']);
         this.uiService.notify(`Client '${client.clientName}' updated`, 1500);

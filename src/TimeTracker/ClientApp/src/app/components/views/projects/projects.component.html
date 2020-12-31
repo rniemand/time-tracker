@@ -4,13 +4,12 @@
   </div>
 
   <div class="content-row">
-    <app-client-selector (changed)="clientSelected($event)" [(ngModel)]="clientId"></app-client-selector>
+    <app-client-selector [(ngModel)]="clientId" class="spacer"></app-client-selector>
+    <app-product-selector [clientId]="clientId" [(ngModel)]="productId" (changed)="productSelected($event)"></app-product-selector>
   </div>
+  
 
-  <!-- <div class="content-row">
-    <app-client-selector (changed)="clientSelected($event)" [(ngModel)]="clientId"></app-client-selector>
-  </div>
-
+  <!-- 
   <div class="content-row" *ngIf="productsLoaded">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 data-table">
 

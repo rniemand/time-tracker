@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { UiService } from 'src/app/services/ui.service';
+import { IntListItem, ProductsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-projects',
@@ -7,14 +9,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProjectsComponent implements OnInit {
   clientId: number = 0;
+  productId: number = 0;
+  products: IntListItem[] = [];
 
-  constructor() { }
+  constructor(
+    private productsClient: ProductsClient,
+    private uiService: UiService
+  ) { }
 
   ngOnInit(): void {
+    
   }
 
-  clientSelected = (clientId: number) => {
-    console.log('clientid', clientId);
+  productSelected = (productId: number) => {
+    console.log('productSelected', this.clientId, this.productId);
   }
 
 }

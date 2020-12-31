@@ -17,11 +17,11 @@ import { ClientsClient, IntListItem } from 'src/app/time-tracker-api';
 })
 export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
   @Output('changed') onChange = new EventEmitter<number>();
+  @Input('appearance') appearance: MatFormFieldAppearance = "outline";
+  @Input('class') class: string = "";
   clientId: number = 0;
   entries: IntListItem[] = [];
   loading: boolean = true;
-  @Input('appearance') appearance: MatFormFieldAppearance = "outline";
-  @Input('class') class: string = "";
 
   private _onChangeFn = (_: any) => { };
 

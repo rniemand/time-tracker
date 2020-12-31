@@ -31,7 +31,7 @@ VALUES
 	-- Client 1 (1) | niemandr (1)
 	(1, 1, 'Client 1 | Product A'),
 	(1, 1, 'Client 1 | Product B'),
-	(1, 1, 'Client 1 | Product C)'),
+	(1, 1, 'Client 1 | Product C'),
 	
 	-- Client 2 (2) | niemandr (1)
 	(2, 1, 'Client 2 | Product A'),

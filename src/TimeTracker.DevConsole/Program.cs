@@ -12,6 +12,7 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 
@@ -108,7 +109,9 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientRepo, ClientRepo>()
         .AddSingleton<IClientRepoQueries, ClientRepoQueries>()
         .AddSingleton<IProductRepo, ProductRepo>()
-        .AddSingleton<IProductRepoQueries, ProductRepoQueries>();
+        .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
+        .AddSingleton<IProjectRepo, ProjectRepo>()
+        .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -116,7 +119,8 @@ namespace TimeTracker.DevConsole
       services
         .AddSingleton<IUserService, UserService>()
         .AddSingleton<IClientService, ClientService>()
-        .AddSingleton<IProductService, ProductService>();
+        .AddSingleton<IProductService, ProductService>()
+        .AddSingleton<IProjectService, ProjectService>();
     }
   }
 }

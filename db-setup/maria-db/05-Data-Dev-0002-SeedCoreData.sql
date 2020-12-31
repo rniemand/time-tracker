@@ -35,4 +35,4 @@ VALUES
 	-- Client 2 (2) | niemandr (1)
 	(2, 1, 'Product A (Client 2)'),
 	(2, 1, 'Product B (Client 2)'),
-	(3, 1, 'Product 3 (Client 2)');
+	(2, 1, 'Product 3 (Client 2)');

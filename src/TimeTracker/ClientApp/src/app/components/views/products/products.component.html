@@ -3,6 +3,10 @@
     <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / Products</h1>
   </div>
 
+  <div class="content-row">
+    <app-client-selector (changed)="clientSelected($event)" [(ngModel)]="clientId"></app-client-selector>
+  </div>
+
   <!-- <div class="content-row" *ngIf="clientsLoaded">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 data-table">
 

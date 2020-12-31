@@ -18,7 +18,6 @@ namespace TimeTracker.Controllers
     {
       _clientService = clientService;
     }
-    
 
     [HttpPost, Route("client"), Authorize]
     public async Task<ActionResult<ClientDto>> AddClient(
@@ -55,6 +54,14 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (ClientsController.GetAll) Add tests
       return Ok(await _clientService.GetAll(request.UserId));
+    }
+
+    [HttpGet, Route("clients/as-list"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> GetClientList(
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (ClientsController.GetClientList) Add tests
+      return Ok(await _clientService.GetAsListItems(request.UserId));
     }
   }
 }

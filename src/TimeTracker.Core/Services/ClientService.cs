@@ -13,6 +13,7 @@ namespace TimeTracker.Core.Services
     Task<ClientDto> AddClient(int userId, ClientDto clientDto);
     Task<ClientDto> GetById(int userId, int clientId);
     Task<ClientDto> Update(int userId, ClientDto clientDto);
+    Task<List<IntListItem>> GetAsListItems(int userId);
   }
 
   public class ClientService : IClientService
@@ -32,8 +33,8 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (ClientService.GetAll) Add tests
       var dbClients = await _clientRepo.GetAll(userId);
-      
-      if(dbClients == null || dbClients.Count == 0)
+
+      if (dbClients == null || dbClients.Count == 0)
         return new List<ClientDto>();
 
       return dbClients
@@ -99,6 +100,21 @@ namespace TimeTracker.Core.Services
       return ClientDto.FromEntity(
         await _clientRepo.GetById(clientDto.ClientId)
       );
+    }
+
+    public async Task<List<IntListItem>> GetAsListItems(int userId)
+    {
+      // TODO: [TESTS] (ClientService.GetAsListItems) Add tests
+      var clientEntries = await _clientRepo.GetAll(userId);
+
+      return clientEntries
+        .AsQueryable()
+        .Select(clientEntry => new IntListItem
+        {
+          Value = clientEntry.ClientId,
+          Name = clientEntry.ClientName
+        })
+        .ToList();
     }
   }
 }

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
 namespace TimeTracker.Controllers

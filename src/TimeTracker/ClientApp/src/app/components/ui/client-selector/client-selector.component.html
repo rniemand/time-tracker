@@ -1,0 +1,6 @@
+<mat-form-field appearance="outline">
+  <mat-label>Select a client</mat-label>
+  <mat-select [(ngModel)]="clientId" (selectionChange)="valueChanged()" [disabled]="loading">
+    <mat-option *ngFor="let entry of entries" [value]="entry.value">{{ entry.name }}</mat-option>
+  </mat-select>
+</mat-form-field>

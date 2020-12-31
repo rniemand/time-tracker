@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { UiService } from 'src/app/services/ui.service';
-import { ProductDto } from 'src/app/time-tracker-api';
+import { ProductDto, ProductsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-add-product',
@@ -10,15 +11,21 @@ import { ProductDto } from 'src/app/time-tracker-api';
   styleUrls: ['./add-product.component.css']
 })
 export class AddProductComponent implements OnInit {
+  clientId: number = 0;
   addForm: FormGroup;
 
   constructor(
     private authService: AuthService,
-    private uiService: UiService
+    private uiService: UiService,
+    private route: ActivatedRoute,
+    private productsClient: ProductsClient,
+    private router: Router
   ) {
+    this.clientId = this.route.snapshot.params.clientId;
+
     this.addForm =  new FormGroup({
       'productName': new FormControl(null, [Validators.required]),
-      'clientId': new FormControl(null, [Validators.required])
+      'clientId': new FormControl(this.clientId, [Validators.required])
     });
   }
 
@@ -31,7 +38,13 @@ export class AddProductComponent implements OnInit {
       userId: this.authService.currentUser?.id ?? 0
     });
     
-    console.log(productDto);
+    this.uiService.showLoader(true);
+    this.productsClient.addProduct(productDto).toPromise().then(
+      (product: ProductDto) => {
+        this.router.navigate(['/products', this.clientId]);
+        this.uiService.notify(`Product '${product.productName}' added`, 1500);
+      },
+      this.uiService.handleClientError
+    );
   }
-
 }

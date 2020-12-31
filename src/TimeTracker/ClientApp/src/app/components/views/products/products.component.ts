@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 import { UiService } from 'src/app/services/ui.service';
 import { ClientsClient, ProductDto, ProductsClient } from 'src/app/time-tracker-api';
 
@@ -22,17 +23,22 @@ export class ProductsComponent implements OnInit {
   constructor(
     private products: ProductsClient,
     private uiService: UiService,
-    private clients: ClientsClient
+    private clients: ClientsClient,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    // this.products.getAll().toPromise().then();
+    this.clientId = this.route.snapshot.params?.clientId ?? 0;
+
+    if(this.clientId > 0) {
+      this.clientSelected(this.clientId);
+    }
   }
 
   clientSelected = (clientId: number) => {
-    console.log('client selected', clientId);
-
+    this.clientId = clientId;
     this.uiService.showLoader(true);
+
     this.products.getAll(this.clientId).toPromise().then(
       (products: ProductDto[]) => {
         this.dataSource = new MatTableDataSource(products);

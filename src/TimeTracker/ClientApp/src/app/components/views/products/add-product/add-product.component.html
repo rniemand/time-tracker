@@ -13,7 +13,7 @@
       </mat-form-field>
   
       <div fxLayout fxLayoutGap="10px">
-        <button fxFlex mat-raised-button color="warn" type="button" routerLink="/products">Cancel</button>
+        <button fxFlex mat-raised-button color="warn" type="button" [routerLink]="['/products', clientId]">Cancel</button>
         <button fxFlex mat-raised-button color="primary" type="submit" [disabled]="!addForm.valid">Add Client</button>
       </div>
     </form>

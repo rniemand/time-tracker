@@ -54,7 +54,12 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
   }
 
   writeValue(obj: any): void {
-    this.clientId = obj;
+    if(typeof(obj) === 'string') {
+      this.clientId = parseInt(obj);
+    }
+    else {
+      this.clientId = obj;
+    }
   }
 
   registerOnChange(fn: any): void {
@@ -68,5 +73,4 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
     this.clientId = clientId;
     this.valueChanged();
   }
-
 }

@@ -46,5 +46,14 @@ namespace TimeTracker.Controllers
       // TODO: [TESTS] (ProductsController.UpdateProduct) Add tests
       return Ok(await _productService.UpdateProduct(request.UserId, product));
     }
+
+    [HttpGet, Route("product/{productId}"), Authorize]
+    public async Task<ActionResult<ProductDto>> GetProductById(
+      [FromRoute] int productId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (ProductsController.GetProductById) Add tests
+      return Ok(await _productService.GetById(request.UserId, productId));
+    }
   }
 }

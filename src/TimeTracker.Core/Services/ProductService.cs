@@ -11,6 +11,7 @@ namespace TimeTracker.Core.Services
     Task<List<ProductDto>> GetAll(int userId, int clientId);
     Task<ProductDto> AddProduct(int userId, ProductDto productDto);
     Task<ProductDto> UpdateProduct(int userId, ProductDto productDto);
+    Task<ProductDto> GetById(int userId, int productId);
   }
 
   public class ProductService : IProductService
@@ -65,6 +66,26 @@ namespace TimeTracker.Core.Services
 
       await _productRepo.Update(productDto.AsProductEntity());
       var dbEntry = await _productRepo.GetById(productDto.ProductId);
+      return ProductDto.FromEntity(dbEntry);
+    }
+
+    public async Task<ProductDto> GetById(int userId, int productId)
+    {
+      // TODO: [TESTS] (ProductService.GetById) Add tests
+
+      var dbEntry = await _productRepo.GetById(productId);
+      if (dbEntry == null)
+      {
+        // TODO: [HANDLE] (ProductService.GetById) Handle this better
+        return null;
+      }
+
+      if (dbEntry.UserId != userId)
+      {
+        // TODO: [HANDLE] (ProductService.GetById) Handle this better
+        return null;
+      }
+
       return ProductDto.FromEntity(dbEntry);
     }
   }

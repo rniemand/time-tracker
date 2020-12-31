@@ -20,6 +20,7 @@ import { EditClientComponent } from './components/views/clients/edit-client/edit
 import { ProductsComponent } from './components/views/products/products.component';
 import { ClientSelectorComponent } from './components/ui/client-selector/client-selector.component';
 import { AddProductComponent } from './components/views/products/add-product/add-product.component';
+import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { AddProductComponent } from './components/views/products/add-product/add
     EditClientComponent,
     ProductsComponent,
     ClientSelectorComponent,
-    AddProductComponent
+    AddProductComponent,
+    EditProductComponent
   ],
   imports: [
     BrowserModule,

@@ -6,6 +6,7 @@ import { EditClientComponent } from './components/views/clients/edit-client/edit
 import { HomeComponent } from './components/views/home/home.component';
 import { LoginComponent } from './components/views/login/login.component';
 import { AddProductComponent } from './components/views/products/add-product/add-product.component';
+import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
 import { ProductsComponent } from './components/views/products/products.component';
 import { TestComponent } from './components/views/test/test.component';
 import { AuthGuard } from './providers/append-token.interceptor';
@@ -43,7 +44,8 @@ const routes: Routes = [
     children: [
       { path: "", component: ProductsComponent },
       { path: ":clientId", component: ProductsComponent },
-      { path: "add/:clientId", component: AddProductComponent }
+      { path: "add/:clientId", component: AddProductComponent },
+      { path: "edit/:productId", component: EditProductComponent }
     ]
   }
 ];

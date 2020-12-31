@@ -10,7 +10,7 @@ namespace TimeTracker.Core.Database.Repos
 {
   public interface IProductRepo
   {
-    Task<List<ProductEntity>> GetAll(int userId, int clientId);
+    Task<List<ProductEntity>> GetAll(int clientId);
     Task<int> Add(ProductEntity entity);
     Task<ProductEntity> GetById(int productId);
     Task<int> Update(ProductEntity entity);
@@ -31,17 +31,13 @@ namespace TimeTracker.Core.Database.Repos
       _queries = queries;
     }
 
-    public async Task<List<ProductEntity>> GetAll(int userId, int clientId)
+    public async Task<List<ProductEntity>> GetAll(int clientId)
     {
       // TODO: [TESTS] (ProductRepo.GetAll) Add tests
       return await GetList<ProductEntity>(
         nameof(GetAll),
         _queries.GetAll(),
-        new
-        {
-          UserId = userId,
-          ClientId = clientId
-        }
+        new { ClientId = clientId }
       );
     }
 

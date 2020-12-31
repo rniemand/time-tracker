@@ -412,6 +412,7 @@ export class ClientsClient implements IClientsClient {
 
 export interface IProductsClient {
     getAll(clientId: number): Observable<ProductDto[]>;
+    getClientProductsListItems(clientId: number): Observable<IntListItem[]>;
     addProduct(product: ProductDto): Observable<ProductDto>;
     updateProduct(product: ProductDto): Observable<ProductDto>;
     getProductById(productId: number): Observable<ProductDto>;
@@ -481,6 +482,61 @@ export class ProductsClient implements IProductsClient {
             }));
         }
         return _observableOf<ProductDto[]>(<any>null);
+    }
+
+    getClientProductsListItems(clientId: number): Observable<IntListItem[]> {
+        let url_ = this.baseUrl + "/api/Products/products/{clientId}/list-items";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetClientProductsListItems(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetClientProductsListItems(<any>response_);
+                } catch (e) {
+                    return <Observable<IntListItem[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IntListItem[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetClientProductsListItems(response: HttpResponseBase): Observable<IntListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(IntListItem.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IntListItem[]>(<any>null);
     }
 
     addProduct(product: ProductDto): Observable<ProductDto> {

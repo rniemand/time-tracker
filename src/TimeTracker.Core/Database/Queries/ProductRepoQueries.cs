@@ -17,7 +17,6 @@
       FROM `Products`
       WHERE
 	      `Deleted` = 0 AND
-	      `UserId` = @UserId AND
 	      `ClientId` = @ClientId
       ORDER BY `ProductName` ASC";
     }

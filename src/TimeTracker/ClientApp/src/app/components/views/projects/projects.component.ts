@@ -6,10 +6,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit {
+  clientId: number = 0;
 
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  clientSelected = (clientId: number) => {
+    console.log('clientid', clientId);
   }
 
 }

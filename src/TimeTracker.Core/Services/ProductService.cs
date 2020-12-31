@@ -12,6 +12,7 @@ namespace TimeTracker.Core.Services
     Task<ProductDto> AddProduct(int userId, ProductDto productDto);
     Task<ProductDto> UpdateProduct(int userId, ProductDto productDto);
     Task<ProductDto> GetById(int userId, int productId);
+    Task<List<IntListItem>> GetClientProductsListItems(int userId, int clientId);
   }
 
   public class ProductService : IProductService
@@ -27,7 +28,18 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (ProductService.GetAll) Add tests
 
-      var dbEntries = await _productRepo.GetAll(userId, clientId);
+      var dbEntries = await _productRepo.GetAll(clientId);
+      if (dbEntries == null || dbEntries.Count == 0)
+      {
+        // TODO: [HANDLE] (ProductService.GetAll) Handle this
+        return new List<ProductDto>();
+      }
+
+      if (dbEntries.First().UserId != userId)
+      {
+        // TODO: [HANDLE] (ProductService.GetAll) Handle this
+        return new List<ProductDto>();
+      }
 
       return dbEntries
         .AsQueryable()
@@ -87,6 +99,33 @@ namespace TimeTracker.Core.Services
       }
 
       return ProductDto.FromEntity(dbEntry);
+    }
+
+    public async Task<List<IntListItem>> GetClientProductsListItems(int userId, int clientId)
+    {
+      // TODO: [TESTS] (ProductService.GetClientProductsListItems) Add tests
+
+      var dbEntries = await _productRepo.GetAll(clientId);
+      if (dbEntries == null || dbEntries.Count == 0)
+      {
+        // TODO: [HANDLE] (ProductService.GetClientProductsListItems) Handle this
+        return new List<IntListItem>();
+      }
+
+      if (dbEntries.First().UserId != userId)
+      {
+        // TODO: [HANDLE] (ProductService.GetClientProductsListItems) Handle this
+        return new List<IntListItem>();
+      }
+
+      return dbEntries
+        .AsQueryable()
+        .Select(product => new IntListItem
+        {
+          Name = product.ProductName,
+          Value = product.ProductId
+        })
+        .ToList();
     }
   }
 }

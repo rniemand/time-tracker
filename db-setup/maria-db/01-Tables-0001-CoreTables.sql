@@ -51,16 +51,18 @@ ENGINE=InnoDB
 
 CREATE TABLE `Projects` (
 	`ProjectId` INT(11) NOT NULL AUTO_INCREMENT,
-	`ClientId` INT(11) NOT NULL DEFAULT '0',
+	`ClientId` INT(11) NULL DEFAULT NULL,
+	`ProductId` INT(11) NOT NULL DEFAULT '0',
 	`UserId` INT(11) NOT NULL DEFAULT '0',
 	`Deleted` BIT(1) NOT NULL DEFAULT b'0',
 	`DateCreatedUtc` DATETIME NOT NULL DEFAULT current_timestamp(),
 	`DateModifiedUtc` DATETIME NULL DEFAULT NULL,
 	`ProjectName` VARCHAR(256) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
 	PRIMARY KEY (`ProjectId`) USING BTREE,
-	INDEX `ClientId` (`ClientId`) USING BTREE,
 	INDEX `UserId` (`UserId`) USING BTREE,
-	INDEX `Deleted` (`Deleted`) USING BTREE
+	INDEX `Deleted` (`Deleted`) USING BTREE,
+	INDEX `ProductId` (`ProductId`) USING BTREE,
+	INDEX `ClientId` (`ClientId`) USING BTREE
 )
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB

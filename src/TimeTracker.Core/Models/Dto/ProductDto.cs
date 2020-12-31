@@ -31,6 +31,12 @@ namespace TimeTracker.Core.Models.Dto
       }
     }
 
+    public static ProductDto FromEntity(ProductEntity entity)
+    {
+      // TODO: [TESTS] (ProductDto.FromEntity) Add tests
+      return entity == null ? null : Projection.Compile()(entity);
+    }
+
     public ProductDto()
     {
       // TODO: [TESTS] (ProductDto) Add tests
@@ -41,6 +47,21 @@ namespace TimeTracker.Core.Models.Dto
       DateCreatedUtc = DateTime.UtcNow;
       DateModifiedUtc = null;
       ProductName = string.Empty;
+    }
+
+    public ProductEntity AsProductEntity()
+    {
+      // TODO: [TESTS] (ProductDto.AsProductEntity) Add tests
+      return new ProductEntity
+      {
+        UserId = UserId,
+        DateCreatedUtc = DateCreatedUtc,
+        ClientId = ClientId,
+        DateModifiedUtc = DateModifiedUtc,
+        Deleted = Deleted,
+        ProductName = ProductName,
+        ProductId = ProductId
+      };
     }
   }
 }

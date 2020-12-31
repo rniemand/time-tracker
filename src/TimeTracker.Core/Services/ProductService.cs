@@ -9,6 +9,8 @@ namespace TimeTracker.Core.Services
   public interface IProductService
   {
     Task<List<ProductDto>> GetAll(int userId, int clientId);
+    Task<ProductDto> AddProduct(int userId, ProductDto productDto);
+    Task<ProductDto> UpdateProduct(int userId, ProductDto productDto);
   }
 
   public class ProductService : IProductService
@@ -30,6 +32,40 @@ namespace TimeTracker.Core.Services
         .AsQueryable()
         .Select(ProductDto.Projection)
         .ToList();
+    }
+
+    public async Task<ProductDto> AddProduct(int userId, ProductDto productDto)
+    {
+      // TODO: [TESTS] (ProductService.AddProduct) Add tests
+      // TODO: [VALIDATION] (ProductService.AddProduct) Ensure user owns this product
+
+      var productEntity = productDto.AsProductEntity();
+      productEntity.UserId = userId;
+
+      if (await _productRepo.Add(productEntity) < 1)
+      {
+        // TODO: [HANDLE] (ProductService.AddProduct) Handle this better
+        return null;
+      }
+
+      var dbEntry = await _productRepo.GetByName(productDto.ClientId, productEntity.ProductName);
+      return ProductDto.FromEntity(dbEntry);
+    }
+
+    public async Task<ProductDto> UpdateProduct(int userId, ProductDto productDto)
+    {
+      // TODO: [TESTS] (ProductService.UpdateProduct) Add tests
+      // TODO: [VALIDATION] (ProductService.UpdateProduct) Ensure that user owns this product
+
+      if (productDto.UserId != userId)
+      {
+        // TODO: [HANDLE] (ProductService.UpdateProduct) Handle this better
+        return null;
+      }
+
+      await _productRepo.Update(productDto.AsProductEntity());
+      var dbEntry = await _productRepo.GetById(productDto.ProductId);
+      return ProductDto.FromEntity(dbEntry);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldAppearance } from '@angular/material/form-field';
 import { ClientsClient, IntListItem } from 'src/app/time-tracker-api';
@@ -15,9 +15,10 @@ import { ClientsClient, IntListItem } from 'src/app/time-tracker-api';
     }
   ]
 })
-export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
+export class ClientSelectorComponent implements OnInit, ControlValueAccessor, OnChanges {
   @Output('changed') onChange = new EventEmitter<number>();
   @Input('appearance') appearance: MatFormFieldAppearance = "outline";
+  @Input('forceDisabled') forceDisabled: boolean = false;
   @Input('class') class: string = "";
   clientId: number = 0;
   entries: IntListItem[] = [];
@@ -28,6 +29,7 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
   constructor(
     private clientsClient: ClientsClient
   ) { }
+  
 
   ngOnInit(): void {
     this.clientsClient.getClientList().toPromise().then(
@@ -44,6 +46,8 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor {
       }
     );
   }
+
+  ngOnChanges(changes: SimpleChanges): void { }
 
   valueChanged = () => {
     if (this._onChangeFn) {

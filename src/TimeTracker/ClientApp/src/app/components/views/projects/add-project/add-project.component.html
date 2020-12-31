@@ -1,0 +1,27 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation">
+      <mat-icon routerLink="/">home</mat-icon> / 
+      <a [routerLink]="['/projects', clientId, productId]">Projects</a> / 
+      Add
+    </h1>
+  </div>
+
+  <div class="content-row">
+    <form class="row" [formGroup]="addForm" (ngSubmit)="onSubmit()">
+      <app-client-selector formControlName="clientId" class="full-width" [forceDisabled]="true"></app-client-selector>
+
+      <app-product-selector [clientId]="clientId" formControlName="productId" class="full-width"></app-product-selector>
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-icon matSuffix>create</mat-icon>
+        <input matInput placeholder="Project Name" formControlName="projectName" type="text">
+      </mat-form-field>
+  
+      <div fxLayout fxLayoutGap="10px">
+        <button fxFlex mat-raised-button color="warn" type="button" [routerLink]="['/projects', clientId, productId]">Cancel</button>
+        <button fxFlex mat-raised-button color="primary" type="submit" [disabled]="!addForm.valid">Add Project</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -24,6 +24,7 @@ import { EditProductComponent } from './components/views/products/edit-product/e
 import { HomeCardComponent } from './components/ui/home-card/home-card.component';
 import { ProjectsComponent } from './components/views/projects/projects.component';
 import { ProductSelectorComponent } from './components/ui/product-selector/product-selector.component';
+import { AddProjectComponent } from './components/views/projects/add-project/add-project.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { ProductSelectorComponent } from './components/ui/product-selector/produ
     EditProductComponent,
     HomeCardComponent,
     ProjectsComponent,
-    ProductSelectorComponent
+    ProductSelectorComponent,
+    AddProjectComponent
   ],
   imports: [
     BrowserModule,

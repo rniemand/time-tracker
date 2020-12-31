@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 import { UiService } from 'src/app/services/ui.service';
-import { IntListItem, ProductsClient, ProjectDto, ProjectsClient } from 'src/app/time-tracker-api';
+import { ProjectDto, ProjectsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-projects',
@@ -22,19 +23,18 @@ export class ProjectsComponent implements OnInit {
 
   constructor(
     private uiService: UiService,
-    private projectsClient: ProjectsClient
+    private projectsClient: ProjectsClient,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    
+    this.processRoute();
   }
 
   productSelected = (productId: number) => {
     if(this.clientId <= 0 || productId <= 0)
       return;
-
-    console.log('productSelected', this.clientId, this.productId);
-
+      
     this.uiService.showLoader(true);
     this.projectsLoaded = false;
 
@@ -48,6 +48,17 @@ export class ProjectsComponent implements OnInit {
       },
       this.uiService.handleClientError
     );
+  }
+
+  // Internal methods
+  private processRoute = () => {
+    if(this.route.snapshot.params.hasOwnProperty('clientId')) {
+      this.clientId = parseInt(this.route.snapshot.params.clientId);
+    }
+
+    if(this.route.snapshot.params.hasOwnProperty('productId')) {
+      this.productId = parseInt(this.route.snapshot.params.productId);
+    }
   }
 
 }

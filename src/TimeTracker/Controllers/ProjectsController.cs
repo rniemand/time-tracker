@@ -28,6 +28,15 @@ namespace TimeTracker.Controllers
       return Ok(await _projectService.GetAllForProduct(request.UserId, productId));
     }
 
+    [HttpGet, Route("projects/list/product/{productId}"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> GetProductProjectListItems(
+      [FromRoute] int productId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (ProjectsController.GetProductProjectListItems) Add tests
+      return Ok(await _projectService.GetProductProjectListItems(request.UserId, productId));
+    }
+
 
     [HttpGet, Route("project/{projectId}"), Authorize]
     public async Task<ActionResult<ProjectDto>> GetById(

@@ -23,6 +23,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   productId: number = 0;
   loading: boolean = true;
   entries: IntListItem[] = [];
+  label: string = 'Select a client first';
 
   private _onChangeFn = (_: any) => { };
 
@@ -31,7 +32,10 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   ) { }
   
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    if(isNaN(this.clientId))
+      this.clientId = 0;
+  }
 
   valueChanged = () => {
     if (this._onChangeFn) {
@@ -51,7 +55,10 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   }
 
   writeValue(obj: any): void {
-    if(typeof(obj) === 'string') {
+    if(typeof(obj) === 'object' && isNaN(obj)) {
+      this.productId = 0;
+    }
+    else if(typeof(obj) === 'string') {
       this.productId = parseInt(obj);
     }
     else {
@@ -69,6 +76,10 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   private refreshProducts = () => {
     this.loading = true;
     this.entries = [];
+
+    if(isNaN(this.clientId) || this.clientId <= 0) {
+      return;
+    }
 
     this.productsClient.getClientProductsListItems(this.clientId).toPromise().then(
       (products: IntListItem[]) => {

@@ -9,6 +9,7 @@ import { AddProductComponent } from './components/views/products/add-product/add
 import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
 import { ProductsComponent } from './components/views/products/products.component';
 import { AddProjectComponent } from './components/views/projects/add-project/add-project.component';
+import { EditProjectComponent } from './components/views/projects/edit-project/edit-project.component';
 import { ProjectsComponent } from './components/views/projects/projects.component';
 import { TestComponent } from './components/views/test/test.component';
 import { AuthGuard } from './providers/append-token.interceptor';
@@ -42,6 +43,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: ProjectsComponent },
+      { path: 'edit/:projectId', component: EditProjectComponent },
       { path: ':clientId/:productId', component: ProjectsComponent },
       { path: 'add/:clientId/:productId', component: AddProjectComponent }
     ]

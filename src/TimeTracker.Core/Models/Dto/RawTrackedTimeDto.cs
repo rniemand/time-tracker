@@ -59,15 +59,15 @@ namespace TimeTracker.Core.Models.Dto
       ProjectId = 0;
       UserId = 0;
       Deleted = false;
-      EntryState = EntryRunningState.CurrentlyRunning;
+      EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
       EntryEndTimeUtc = null;
     }
 
-    public RawTrackedTimeEntity AsTrackedTimeEntity()
+    public RawTrackedTimeEntity AsEntity()
     {
-      // TODO: [TESTS] (RawTrackedTimeDto.AsTrackedTimeEntity) Add tests
+      // TODO: [TESTS] (RawTrackedTimeDto.AsEntity) Add tests
       return new RawTrackedTimeEntity
       {
         UserId = UserId,

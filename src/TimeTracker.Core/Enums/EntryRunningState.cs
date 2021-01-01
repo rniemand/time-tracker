@@ -2,7 +2,9 @@
 {
   public enum EntryRunningState
   {
-    CurrentlyRunning = 1,
-    Completed = 2
+    Running = 1,
+    Completed = 2,
+    Paused = 2,
+    PausedContinued = 3
   }
 }

@@ -29,7 +29,7 @@ namespace TimeTracker.Core.Database.Entities
       ProjectId = 0;
       UserId = 0;
       Deleted = false;
-      EntryState = EntryRunningState.CurrentlyRunning;
+      EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
       EntryEndTimeUtc = null;

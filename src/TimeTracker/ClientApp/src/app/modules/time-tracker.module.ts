@@ -5,7 +5,7 @@ import { AuthService } from "../services/auth.service";
 import { StorageService } from "../services/storage.service";
 import { UiService } from "../services/ui.service";
 
-import { API_BASE_URL, AuthClient, ClientsClient, ProductsClient, ProjectsClient } from "../time-tracker-api";
+import { API_BASE_URL, AuthClient, ClientsClient, ProductsClient, ProjectsClient, TrackedTimeClient } from "../time-tracker-api";
 
 export function getBaseUrl(locationStrategy: LocationStrategy, document: any): string {
   let baseHref = locationStrategy.getBaseHref();
@@ -41,7 +41,8 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
     AuthClient,
     ClientsClient,
     ProductsClient,
-    ProjectsClient
+    ProjectsClient,
+    TrackedTimeClient
   ]
 })
 export class TimeTrackerModule {}

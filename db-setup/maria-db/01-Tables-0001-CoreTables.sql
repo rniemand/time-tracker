@@ -67,3 +67,28 @@ CREATE TABLE `Projects` (
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ;
+
+CREATE TABLE `TrackedTime` (
+	`TrackedTimeId` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`ClientId` INT(11) NOT NULL DEFAULT '0',
+	`ProductId` INT(11) NOT NULL DEFAULT '0',
+	`ProjectId` INT(11) NOT NULL DEFAULT '0',
+	`UserId` INT(11) NOT NULL DEFAULT '0',
+	`Deleted` BIT(1) NOT NULL DEFAULT b'0',
+	`EntryRunning` BIT(1) NOT NULL DEFAULT b'1',
+	`EntryEndType` TINYINT(4) NOT NULL DEFAULT '0',
+	`EntryRunningTimeSec` INT(11) NOT NULL DEFAULT '0',
+	`EntryStartTimeUtc` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`EntryEndTimeUtc` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`TrackedTimeId`) USING BTREE,
+	INDEX `ClientId` (`ClientId`) USING BTREE,
+	INDEX `ProductId` (`ProductId`) USING BTREE,
+	INDEX `ProjectId` (`ProjectId`) USING BTREE,
+	INDEX `UserId` (`UserId`) USING BTREE,
+	INDEX `Deleted` (`Deleted`) USING BTREE,
+	INDEX `EntryRunning` (`EntryRunning`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+

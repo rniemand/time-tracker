@@ -111,7 +111,9 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductRepo, ProductRepo>()
         .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
-        .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>();
+        .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
+        .AddSingleton<ITrackedTimeRepo, TrackedTimeRepo>()
+        .AddSingleton<ITrackedTimeRepoQueries, TrackedTimeRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -120,7 +122,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IUserService, UserService>()
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
-        .AddSingleton<IProjectService, ProjectService>();
+        .AddSingleton<IProjectService, ProjectService>()
+        .AddSingleton<ITrackedTimeService, TrackedTimeService>();
     }
   }
 }

@@ -112,8 +112,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
-        .AddSingleton<ITrackedTimeRepo, TrackedTimeRepo>()
-        .AddSingleton<ITrackedTimeRepoQueries, TrackedTimeRepoQueries>();
+        .AddSingleton<IRawTrackedTimeRepo, RawTrackedTimeRepo>()
+        .AddSingleton<IRawTrackedTimeRepoQueries, RawRawTrackedTimeRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)

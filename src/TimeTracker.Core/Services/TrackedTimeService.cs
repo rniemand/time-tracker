@@ -10,14 +10,14 @@ namespace TimeTracker.Core.Services
   public class TrackedTimeService : ITrackedTimeService
   {
     private readonly ILoggerAdapter<TrackedTimeService> _logger;
-    private readonly ITrackedTimeRepo _trackedTimeRepo;
+    private readonly IRawTrackedTimeRepo _rawTrackedTimeRepo;
 
     public TrackedTimeService(
       ILoggerAdapter<TrackedTimeService> logger,
-      ITrackedTimeRepo trackedTimeRepo)
+      IRawTrackedTimeRepo rawTrackedTimeRepo)
     {
       _logger = logger;
-      _trackedTimeRepo = trackedTimeRepo;
+      _rawTrackedTimeRepo = rawTrackedTimeRepo;
     }
   }
 }

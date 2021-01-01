@@ -5,25 +5,26 @@ using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Models.Dto
 {
-  public class TrackedTimeDto
+  public class RawTrackedTimeDto
   {
-    public long TrackedTimeId { get; set; }
+    public long EntryId { get; set; }
+    public long ParentEntryId { get; set; }
+    public long RootParentEntryId { get; set; }
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
-    public bool EntryRunning { get; set; }
-    public EntryEndReason EntryEndType { get; set; }
+    public EntryRunningState EntryState { get; set; }
     public int EntryRunningTimeSec { get; set; }
     public DateTime EntryStartTimeUtc { get; set; }
     public DateTime? EntryEndTimeUtc { get; set; }
 
-    public static Expression<Func<TrackedTimeEntity, TrackedTimeDto>> Projection
+    public static Expression<Func<RawTrackedTimeEntity, RawTrackedTimeDto>> Projection
     {
       get
       {
-        return entity => new TrackedTimeDto
+        return entity => new RawTrackedTimeDto
         {
           UserId = entity.UserId,
           ClientId = entity.ClientId,
@@ -31,41 +32,43 @@ namespace TimeTracker.Core.Models.Dto
           ProductId = entity.ProductId,
           ProjectId = entity.ProjectId,
           EntryEndTimeUtc = entity.EntryEndTimeUtc,
-          EntryEndType = entity.EntryEndType,
-          EntryRunning = entity.EntryRunning,
+          EntryState = entity.EntryState,
           EntryRunningTimeSec = entity.EntryRunningTimeSec,
           EntryStartTimeUtc = entity.EntryStartTimeUtc,
-          TrackedTimeId = entity.TrackedTimeId
+          EntryId = entity.EntryId,
+          ParentEntryId = entity.ParentEntryId,
+          RootParentEntryId = entity.RootParentEntryId
         };
       }
     }
 
-    public static TrackedTimeDto FromEntity(TrackedTimeEntity entity)
+    public static RawTrackedTimeDto FromEntity(RawTrackedTimeEntity entity)
     {
-      // TODO: [TESTS] (TrackedTimeDto.FromEntity) Add tests
+      // TODO: [TESTS] (RawTrackedTimeDto.FromEntity) Add tests
       return entity == null ? null : Projection.Compile()(entity);
     }
 
-    public TrackedTimeDto()
+    public RawTrackedTimeDto()
     {
-      // TODO: [TESTS] (TrackedTimeDto) Add tests
-      TrackedTimeId = 0;
+      // TODO: [TESTS] (RawTrackedTimeDto) Add tests
+      EntryId = 0;
+      ParentEntryId = 0;
+      RootParentEntryId = 0;
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
       UserId = 0;
       Deleted = false;
-      EntryRunning = true;
-      EntryEndType = EntryEndReason.Unspecified;
+      EntryState = EntryRunningState.CurrentlyRunning;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
       EntryEndTimeUtc = null;
     }
 
-    public TrackedTimeEntity AsTrackedTimeEntity()
+    public RawTrackedTimeEntity AsTrackedTimeEntity()
     {
-      // TODO: [TESTS] (TrackedTimeDto.AsTrackedTimeEntity) Add tests
-      return new TrackedTimeEntity
+      // TODO: [TESTS] (RawTrackedTimeDto.AsTrackedTimeEntity) Add tests
+      return new RawTrackedTimeEntity
       {
         UserId = UserId,
         ClientId = ClientId,
@@ -73,11 +76,12 @@ namespace TimeTracker.Core.Models.Dto
         ProductId = ProductId,
         ProjectId = ProjectId,
         EntryEndTimeUtc = EntryEndTimeUtc,
-        EntryEndType = EntryEndType,
-        EntryRunning = EntryRunning,
+        EntryState = EntryState,
         EntryRunningTimeSec = EntryRunningTimeSec,
         EntryStartTimeUtc = EntryStartTimeUtc,
-        TrackedTimeId = TrackedTimeId
+        EntryId = EntryId,
+        ParentEntryId = ParentEntryId,
+        RootParentEntryId = RootParentEntryId
       };
     }
   }

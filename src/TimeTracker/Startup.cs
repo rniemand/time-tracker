@@ -129,8 +129,8 @@ namespace TimeTracker
         .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
-        .AddSingleton<ITrackedTimeRepo, TrackedTimeRepo>()
-        .AddSingleton<ITrackedTimeRepoQueries, TrackedTimeRepoQueries>();
+        .AddSingleton<IRawTrackedTimeRepo, RawTrackedTimeRepo>()
+        .AddSingleton<IRawTrackedTimeRepoQueries, RawRawTrackedTimeRepoQueries>();
     }
   }
 }

@@ -1,3 +1,18 @@
 table {
   width: 100%;
 }
+
+.start-controls {
+  vertical-align: top;
+  background-color: #6969691f;
+  padding: 10px;
+  border-radius: 10px;
+  width: 220px;
+}
+
+.running-timers {
+  vertical-align: top;
+  background-color: #424242;
+  padding: 10px;
+  border-radius: 10px;
+}

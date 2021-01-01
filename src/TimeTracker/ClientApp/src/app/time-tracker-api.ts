@@ -697,7 +697,7 @@ export class ProductsClient implements IProductsClient {
 
 export interface IProjectsClient {
     getAllForProduct(productId: number): Observable<ProjectDto[]>;
-    getProductProjectListItems(productId: number): Observable<IntListItem[]>;
+    getProjectsAsList(productId: number): Observable<IntListItem[]>;
     getById(projectId: number): Observable<ProjectDto>;
     addProject(project: ProjectDto): Observable<ProjectDto>;
     updateProject(project: ProjectDto): Observable<ProjectDto>;
@@ -769,7 +769,7 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<ProjectDto[]>(<any>null);
     }
 
-    getProductProjectListItems(productId: number): Observable<IntListItem[]> {
+    getProjectsAsList(productId: number): Observable<IntListItem[]> {
         let url_ = this.baseUrl + "/api/Projects/projects/list/product/{productId}";
         if (productId === undefined || productId === null)
             throw new Error("The parameter 'productId' must be defined.");
@@ -785,11 +785,11 @@ export class ProjectsClient implements IProjectsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetProductProjectListItems(response_);
+            return this.processGetProjectsAsList(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetProductProjectListItems(<any>response_);
+                    return this.processGetProjectsAsList(<any>response_);
                 } catch (e) {
                     return <Observable<IntListItem[]>><any>_observableThrow(e);
                 }
@@ -798,7 +798,7 @@ export class ProjectsClient implements IProjectsClient {
         }));
     }
 
-    protected processGetProductProjectListItems(response: HttpResponseBase): Observable<IntListItem[]> {
+    protected processGetProjectsAsList(response: HttpResponseBase): Observable<IntListItem[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :

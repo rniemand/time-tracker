@@ -47,10 +47,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes.hasOwnProperty('clientId')) {
-      let change = changes['clientId'];
-      if(change.previousValue != change.currentValue) {
-        this.refreshProducts();
-      }
+      this.refreshProducts();
     }
   }
 
@@ -81,6 +78,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
       return;
     }
 
+    this.label = 'Select a client first';
     this.productsClient.getClientProductsListItems(this.clientId).toPromise().then(
       (products: IntListItem[]) => {
         this.entries = products;
@@ -89,6 +87,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
           this.setProductId(this.entries[0].value ?? 0);
         }
 
+        this.label = 'Select a product';
         this.handleHardCodedProductId();
         this.loading = false;
       },

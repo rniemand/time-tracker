@@ -12,7 +12,7 @@ namespace TimeTracker.Core.Services
     Task<ProjectDto> GetById(int userId, int projectId);
     Task<ProjectDto> AddProject(int userId, ProjectDto projectDto);
     Task<ProjectDto> UpdateProject(int userId, ProjectDto projectDto);
-    Task<List<IntListItem>> GetProductProjectListItems(int userId, int productId);
+    Task<List<IntListItem>> GetProjectsAsList(int userId, int productId);
   }
 
   public class ProjectService : IProjectService
@@ -96,20 +96,20 @@ namespace TimeTracker.Core.Services
       return ProjectDto.FromEntity(await _projectRepo.GetById(projectDto.ProjectId));
     }
 
-    public async Task<List<IntListItem>> GetProductProjectListItems(int userId, int productId)
+    public async Task<List<IntListItem>> GetProjectsAsList(int userId, int productId)
     {
-      // TODO: [TESTS] (ProjectService.GetProductProjectListItems) Add tests
+      // TODO: [TESTS] (ProjectService.GetProjectsAsList) Add tests
 
       var dbEntries = await _projectRepo.GetAllForProduct(productId);
       if (dbEntries == null || dbEntries.Count <= 0)
       {
-        // TODO: [HANDLE] (ProjectService.GetProductProjectListItems) Handle this
+        // TODO: [HANDLE] (ProjectService.GetProjectsAsList) Handle this
         return new List<IntListItem>();
       }
 
       if (dbEntries.First().UserId != userId)
       {
-        // TODO: [HANDLE] (ProjectService.GetProductProjectListItems) Handle this
+        // TODO: [HANDLE] (ProjectService.GetProjectsAsList) Handle this
         return new List<IntListItem>();
       }
 

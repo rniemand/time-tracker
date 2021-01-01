@@ -26,6 +26,9 @@ import { ProjectsComponent } from './components/views/projects/projects.componen
 import { ProductSelectorComponent } from './components/ui/product-selector/product-selector.component';
 import { AddProjectComponent } from './components/views/projects/add-project/add-project.component';
 import { EditProjectComponent } from './components/views/projects/edit-project/edit-project.component';
+import { TimeLoggerComponent } from './components/ui/time-logger/time-logger.component';
+import { StartTimerComponent } from './components/ui/time-logger/start-timer/start-timer.component';
+import { ProjectSelectorComponent } from './components/ui/project-selector/project-selector.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +49,10 @@ import { EditProjectComponent } from './components/views/projects/edit-project/e
     ProjectsComponent,
     ProductSelectorComponent,
     AddProjectComponent,
-    EditProjectComponent
+    EditProjectComponent,
+    TimeLoggerComponent,
+    StartTimerComponent,
+    ProjectSelectorComponent
   ],
   imports: [
     BrowserModule,

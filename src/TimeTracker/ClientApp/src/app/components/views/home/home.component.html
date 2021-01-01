@@ -20,4 +20,8 @@
       <button mat-stroked-button class="last-btn" routerLink="/projects" fxFlex>Manage</button>
     </app-home-card>
   </div>
+
+  <div class="content-row" *ngIf="loggedIn">
+    <app-time-logger></app-time-logger>
+  </div>
 </div>

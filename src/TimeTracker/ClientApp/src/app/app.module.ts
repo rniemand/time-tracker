@@ -29,6 +29,8 @@ import { EditProjectComponent } from './components/views/projects/edit-project/e
 import { TimeLoggerComponent } from './components/ui/time-logger/time-logger.component';
 import { StartTimerComponent } from './components/ui/time-logger/start-timer/start-timer.component';
 import { ProjectSelectorComponent } from './components/ui/project-selector/project-selector.component';
+import { ListTimersComponent } from './components/ui/time-logger/list-timers/list-timers.component';
+import { RunningTimerPipe } from './pipes/running-timer.pipe';
 
 @NgModule({
   declarations: [
@@ -52,7 +54,9 @@ import { ProjectSelectorComponent } from './components/ui/project-selector/proje
     EditProjectComponent,
     TimeLoggerComponent,
     StartTimerComponent,
-    ProjectSelectorComponent
+    ProjectSelectorComponent,
+    ListTimersComponent,
+    RunningTimerPipe
   ],
   imports: [
     BrowserModule,

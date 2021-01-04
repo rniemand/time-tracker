@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using TimeTracker.Core.Models.Dto;
@@ -25,6 +26,14 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (TrackedTimeController.StartNewTimer) Add tests
       return Ok(await _trackedTimeService.StartNew(request.UserId, entryDto));
+    }
+
+    [HttpGet, Route("list-running"), Authorize]
+    public async Task<ActionResult<List<RawTrackedTimeDto>>> GetRunningTimers(
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TrackedTimeController.GetRunningTimers) Add tests
+      return Ok(await _trackedTimeService.GetRunningTimers(request.UserId));
     }
   }
 }

@@ -1,0 +1,19 @@
+.timer-entry {
+  border: 1px solid #303030;
+  border-radius: 11px;
+  margin-bottom: 5px;
+}
+  .timer-entry:hover {
+    border: 1px solid #737373;
+    cursor: pointer;
+  }
+
+  .timer-entry .project {
+    color: #edf395;
+  }
+
+  .timer-entry .time {
+    font-size: 0.8em;
+    margin-left: 4px;
+    color: #e9bcfd;
+  }

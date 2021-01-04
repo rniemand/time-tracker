@@ -15,10 +15,16 @@ namespace TimeTracker.Core.Models.Dto
     public int ProjectId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
+    public bool Running { get; set; }
     public EntryRunningState EntryState { get; set; }
     public int EntryRunningTimeSec { get; set; }
     public DateTime EntryStartTimeUtc { get; set; }
     public DateTime? EntryEndTimeUtc { get; set; }
+
+    // Optional Properties
+    public string ProductName { get; set; }
+    public string ProjectName { get; set; }
+    public string ClientName { get; set; }
 
     public static Expression<Func<RawTrackedTimeEntity, RawTrackedTimeDto>> Projection
     {
@@ -37,7 +43,11 @@ namespace TimeTracker.Core.Models.Dto
           EntryStartTimeUtc = entity.EntryStartTimeUtc,
           EntryId = entity.EntryId,
           ParentEntryId = entity.ParentEntryId,
-          RootParentEntryId = entity.RootParentEntryId
+          RootParentEntryId = entity.RootParentEntryId,
+          Running = entity.Running,
+          ProductName = entity.ProductName,
+          ProjectName = entity.ProjectName,
+          ClientName = entity.ClientName
         };
       }
     }
@@ -59,10 +69,14 @@ namespace TimeTracker.Core.Models.Dto
       ProjectId = 0;
       UserId = 0;
       Deleted = false;
+      Running = true;
       EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
       EntryEndTimeUtc = null;
+      ProductName = string.Empty;
+      ProjectName = string.Empty;
+      ClientName = string.Empty;
     }
 
     public RawTrackedTimeEntity AsEntity()
@@ -81,7 +95,11 @@ namespace TimeTracker.Core.Models.Dto
         EntryStartTimeUtc = EntryStartTimeUtc,
         EntryId = EntryId,
         ParentEntryId = ParentEntryId,
-        RootParentEntryId = RootParentEntryId
+        RootParentEntryId = RootParentEntryId,
+        Running = Running,
+        ProductName = ProductName,
+        ProjectName = ProjectName,
+        ClientName = ClientName
       };
     }
   }

@@ -1,0 +1,10 @@
+<mat-list role="list">
+  <mat-list-item role="listitem" class="timer-entry" *ngFor="let timer of timers">
+    <span fxFlex>
+      <span class="project">{{ timer.projectName }}</span>
+      <span class="time">{{ timer.entryStartTimeUtc | runningTimer }}</span>
+    </span>
+    <mat-icon>pause</mat-icon>
+    <mat-icon>stop</mat-icon>
+  </mat-list-item>
+</mat-list>

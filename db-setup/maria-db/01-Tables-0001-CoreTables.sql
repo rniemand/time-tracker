@@ -77,6 +77,7 @@ CREATE TABLE `RawTrackedTime` (
 	`ProjectId` INT(11) NOT NULL DEFAULT '0',
 	`UserId` INT(11) NOT NULL DEFAULT '0',
 	`Deleted` BIT(1) NOT NULL DEFAULT b'0',
+	`Running` BIT(1) NOT NULL DEFAULT b'1',
 	`EntryState` TINYINT(4) NOT NULL DEFAULT '1',
 	`EntryRunningTimeSec` INT(11) NOT NULL DEFAULT '0',
 	`EntryStartTimeUtc` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
@@ -91,5 +92,6 @@ CREATE TABLE `RawTrackedTime` (
 )
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
+AUTO_INCREMENT=2
 ;
 

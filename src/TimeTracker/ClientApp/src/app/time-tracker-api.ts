@@ -982,6 +982,7 @@ export class ProjectsClient implements IProjectsClient {
 
 export interface ITrackedTimeClient {
     startNewTimer(entryDto: RawTrackedTimeDto): Observable<RawTrackedTimeDto>;
+    getRunningTimers(): Observable<RawTrackedTimeDto[]>;
 }
 
 @Injectable()
@@ -1045,6 +1046,58 @@ export class TrackedTimeClient implements ITrackedTimeClient {
             }));
         }
         return _observableOf<RawTrackedTimeDto>(<any>null);
+    }
+
+    getRunningTimers(): Observable<RawTrackedTimeDto[]> {
+        let url_ = this.baseUrl + "/api/TrackedTime/list-running";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRunningTimers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRunningTimers(<any>response_);
+                } catch (e) {
+                    return <Observable<RawTrackedTimeDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<RawTrackedTimeDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetRunningTimers(response: HttpResponseBase): Observable<RawTrackedTimeDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(RawTrackedTimeDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RawTrackedTimeDto[]>(<any>null);
     }
 }
 
@@ -1373,10 +1426,14 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
     projectId?: number;
     userId?: number;
     deleted?: boolean;
+    running?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
     entryEndTimeUtc?: Date | undefined;
+    productName?: string | undefined;
+    projectName?: string | undefined;
+    clientName?: string | undefined;
 
     constructor(data?: IRawTrackedTimeDto) {
         if (data) {
@@ -1397,10 +1454,14 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
             this.projectId = _data["projectId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
+            this.running = _data["running"];
             this.entryState = _data["entryState"];
             this.entryRunningTimeSec = _data["entryRunningTimeSec"];
             this.entryStartTimeUtc = _data["entryStartTimeUtc"] ? new Date(_data["entryStartTimeUtc"].toString()) : <any>undefined;
             this.entryEndTimeUtc = _data["entryEndTimeUtc"] ? new Date(_data["entryEndTimeUtc"].toString()) : <any>undefined;
+            this.productName = _data["productName"];
+            this.projectName = _data["projectName"];
+            this.clientName = _data["clientName"];
         }
     }
 
@@ -1421,10 +1482,14 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
         data["projectId"] = this.projectId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
+        data["running"] = this.running;
         data["entryState"] = this.entryState;
         data["entryRunningTimeSec"] = this.entryRunningTimeSec;
         data["entryStartTimeUtc"] = this.entryStartTimeUtc ? this.entryStartTimeUtc.toISOString() : <any>undefined;
         data["entryEndTimeUtc"] = this.entryEndTimeUtc ? this.entryEndTimeUtc.toISOString() : <any>undefined;
+        data["productName"] = this.productName;
+        data["projectName"] = this.projectName;
+        data["clientName"] = this.clientName;
         return data; 
     }
 }
@@ -1438,10 +1503,14 @@ export interface IRawTrackedTimeDto {
     projectId?: number;
     userId?: number;
     deleted?: boolean;
+    running?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
     entryEndTimeUtc?: Date | undefined;
+    productName?: string | undefined;
+    projectName?: string | undefined;
+    clientName?: string | undefined;
 }
 
 export enum EntryRunningState {

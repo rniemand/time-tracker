@@ -13,10 +13,16 @@ namespace TimeTracker.Core.Database.Entities
     public int ProjectId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
+    public bool Running { get; set; }
     public EntryRunningState EntryState { get; set; }
     public int EntryRunningTimeSec { get; set; }
     public DateTime EntryStartTimeUtc { get; set; }
     public DateTime? EntryEndTimeUtc { get; set; }
+
+    // Optional Properties
+    public string ProductName { get; set; }
+    public string ProjectName { get; set; }
+    public string ClientName { get; set; }
 
     public RawTrackedTimeEntity()
     {
@@ -29,10 +35,14 @@ namespace TimeTracker.Core.Database.Entities
       ProjectId = 0;
       UserId = 0;
       Deleted = false;
+      Running = true;
       EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
       EntryEndTimeUtc = null;
+      ProductName = string.Empty;
+      ProjectName = string.Empty;
+      ClientName = string.Empty;
     }
   }
 }

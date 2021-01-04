@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
@@ -12,6 +13,7 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<int> StartNew(RawTrackedTimeEntity entity);
     Task<RawTrackedTimeEntity> GetCurrentEntry(RawTrackedTimeEntity entity);
+    Task<List<RawTrackedTimeEntity>> GetRunningTimers(int userId);
   }
 
   public class RawTrackedTimeRepo : BaseRepo<RawTrackedTimeRepo>, IRawTrackedTimeRepo
@@ -38,6 +40,16 @@ namespace TimeTracker.Core.Database.Repos
     {
       // TODO: [TESTS] (RawTrackedTimeRepo.GetCurrentEntry) Add tests
       return await GetSingle<RawTrackedTimeEntity>(nameof(GetCurrentEntry), _queries.GetCurrentEntry(), entity);
+    }
+
+    public async Task<List<RawTrackedTimeEntity>> GetRunningTimers(int userId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.GetRunningTimers) Add tests
+      return await GetList<RawTrackedTimeEntity>(
+        nameof(GetRunningTimers),
+        _queries.GetRunningTimers(),
+        new { UserId = userId }
+      );
     }
   }
 }

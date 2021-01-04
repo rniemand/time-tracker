@@ -20,6 +20,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 const modules = [
   MatSidenavModule,
@@ -43,7 +44,8 @@ const modules = [
   MatTooltipModule,
   MatSortModule,
   MatPaginatorModule,
-  MatSelectModule
+  MatSelectModule,
+  MatExpansionModule
 ];
 
 

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Models.Dto;
@@ -8,6 +10,7 @@ namespace TimeTracker.Core.Services
   public interface ITrackedTimeService
   {
     Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto);
+    Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId);
   }
 
   public class TrackedTimeService : ITrackedTimeService
@@ -38,6 +41,14 @@ namespace TimeTracker.Core.Services
       return RawTrackedTimeDto.FromEntity(
         await _rawTrackedTimeRepo.GetCurrentEntry(entryDto.AsEntity())
       );
+    }
+
+    public async Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId)
+    {
+      // TODO: [TESTS] (TrackedTimeService.GetRunningTimers) Add tests
+
+      var dbEntries = await _rawTrackedTimeRepo.GetRunningTimers(userId);
+      return dbEntries.AsQueryable().Select(RawTrackedTimeDto.Projection).ToList();
     }
   }
 }

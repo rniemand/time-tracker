@@ -11,7 +11,7 @@
     string FlagAsResumed();
     string SetRootTimerId();
     string StopTimer();
-    string CompleteTimer();
+    string CompleteTimerSet();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -126,7 +126,7 @@
          `RawTimerId` = @RawTimerId";
     }
 
-    public string CompleteTimer()
+    public string CompleteTimerSet()
     {
       return @"UPDATE `RawTimers`
       SET

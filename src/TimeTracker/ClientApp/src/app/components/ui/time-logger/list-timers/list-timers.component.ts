@@ -53,6 +53,25 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     );
   }
 
+  stop = (timer: RawTimerDto) => {
+    let rawTimerId = timer?.rawTimerId ?? 0;
+    if(rawTimerId == 0)
+      return;
+
+    if(!confirm(`Stop timer: ${timer.projectName} (${timer.productName})?`)) {
+      return;
+    }
+
+    this.uiService.showLoader(true);
+    this.timersClient.stopTimer(rawTimerId).toPromise().then(
+      (success: boolean) => {
+        this.refreshTimers();
+        if(success) { this.uiService.notify('Timer stopped'); }
+      },
+      this.uiService.handleClientError
+    );
+  }
+
   refresh = () => {
     this.refreshTimers();
   }

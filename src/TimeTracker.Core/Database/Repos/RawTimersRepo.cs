@@ -19,7 +19,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> SpawnResumedTimer(RawTimerEntity timerEntity);
     Task<int> SetRootTimerId(long rawTimerId, long rootTimerId);
     Task<int> StopTimer(long rawTimerId);
-    Task<int> CompleteTimer(long rootTimerId);
+    Task<int> CompleteTimerSet(long rootTimerId);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -142,12 +142,12 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> CompleteTimer(long rootTimerId)
+    public async Task<int> CompleteTimerSet(long rootTimerId)
     {
-      // TODO: [TESTS] (RawTimersRepo.CompleteTimer) Add tests
+      // TODO: [TESTS] (RawTimersRepo.CompleteTimerSet) Add tests
       return await ExecuteAsync(
-        nameof(CompleteTimer),
-        _queries.CompleteTimer(),
+        nameof(CompleteTimerSet),
+        _queries.CompleteTimerSet(),
         new
         {
           RootTimerId = rootTimerId

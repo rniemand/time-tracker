@@ -41,3 +41,11 @@
     color: #ff9191;
     cursor: pointer;
   }
+
+.controls {
+  text-align: right;
+}
+  .controls .refresh:hover {
+    color: #a6d1f7;
+    cursor: pointer;
+  }

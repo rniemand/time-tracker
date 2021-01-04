@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Enums;
@@ -20,14 +19,10 @@ namespace TimeTracker.Core.Services
 
   public class RawTimerService : IRawTimerService
   {
-    private readonly ILoggerAdapter<RawTimerService> _logger;
     private readonly IRawTimersRepo _rawTimersRepo;
 
-    public RawTimerService(
-      ILoggerAdapter<RawTimerService> logger,
-      IRawTimersRepo rawTimersRepo)
+    public RawTimerService(IRawTimersRepo rawTimersRepo)
     {
-      _logger = logger;
       _rawTimersRepo = rawTimersRepo;
     }
 
@@ -125,8 +120,27 @@ namespace TimeTracker.Core.Services
     public async Task<bool> StopTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.StopTimer) Add tests
+      var dbTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+      if (dbTimer == null || dbTimer.UserId != userId)
+      {
+        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
+        return false;
+      }
 
-      return false;
+      if (await _rawTimersRepo.StopTimer(rawTimerId) == 0)
+      {
+        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
+        return false;
+      }
+
+      // ReSharper disable once ConvertIfStatementToReturnStatement
+      if (await _rawTimersRepo.CompleteTimerSet(dbTimer.RootTimerId) == 0)
+      {
+        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
+        return false;
+      }
+
+      return true;
     }
   }
 }

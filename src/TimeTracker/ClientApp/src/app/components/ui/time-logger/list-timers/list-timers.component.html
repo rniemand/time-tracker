@@ -1,3 +1,7 @@
+<div class="controls">
+  <mat-icon class="refresh" (click)="refresh()">refresh</mat-icon>
+</div>
+
 <mat-list role="list">
   <mat-list-item role="listitem" class="timer-entry" *ngFor="let timer of timers">
     <span fxFlex>
@@ -7,6 +11,6 @@
     </span>
     <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>
     <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState === 2">play_arrow</mat-icon>
-    <mat-icon class="stop">stop</mat-icon>
+    <mat-icon class="stop" (click)="stop(timer)">stop</mat-icon>
   </mat-list-item>
 </mat-list>

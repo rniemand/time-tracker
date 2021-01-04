@@ -29,8 +29,18 @@ namespace TimeTracker.DevConsole
 
       // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
 
-      var configuration = _serviceProvider.GetService<IConfiguration>();
-      var connectionString = configuration.GetConnectionString("TimeTracker");
+      var optionsService = _serviceProvider.GetService<IOptionsService>();
+
+
+      var options = optionsService.GenerateRawOptions("RunningTimers", 1)
+        .ConfigureAwait(false)
+        .GetAwaiter()
+        .GetResult();
+
+      var hasOption = options.HasOption("RunningTimers","MaxLength.Min");
+      var intOption = options.GetIntOption("RunningTimers","MaxLength.Min");
+      var boolOption = options.GetBoolOption("RunningTimers","Logging.Enabled", true);
+
 
       Console.WriteLine("Hello World!");
     }
@@ -100,7 +110,9 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
         .AddSingleton<IRawTimersRepo, RawTimersRepo>()
-        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>();
+        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>()
+        .AddSingleton<IOptionRepo, OptionRepo>()
+        .AddSingleton<IOptionRepoQueries, OptionRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -110,7 +122,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<IRawTimerService, RawTimerService>();
+        .AddSingleton<IRawTimerService, RawTimerService>()
+        .AddSingleton<IOptionsService, OptionsService>();
     }
   }
 }

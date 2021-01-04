@@ -28,14 +28,11 @@ export class TimerSeriesDialog implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.data);
-
     this.timersClient.getTimerSeries(this.data.rootTimerId).toPromise().then(
       (entries: RawTimerDto[]) => {
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
-        // this.clientsLoaded = true;
       },
       (error: any) => {
         console.error(error);

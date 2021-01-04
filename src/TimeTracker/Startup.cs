@@ -100,9 +100,9 @@ namespace TimeTracker
       // http://corntab.com/ <- UI for building CRON expressions
 
       RecurringJob.AddOrUpdate(
-        "Hangfire Test (5 min)",
-        () => new TestHangfireJob(serviceProvider).Run(),
-        "*/5 * * * *"
+        "Sweep long running timers",
+        () => new SweepLongRunningTimers(serviceProvider).Run(),
+        "* * * * *"
       );
     }
 
@@ -124,7 +124,8 @@ namespace TimeTracker
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<IRawTimerService, RawTimerService>();
+        .AddSingleton<IRawTimerService, RawTimerService>()
+        .AddSingleton<IOptionsService, OptionsService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)
@@ -152,7 +153,9 @@ namespace TimeTracker
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
         .AddSingleton<IRawTimersRepo, RawTimersRepo>()
-        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>();
+        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>()
+        .AddSingleton<IOptionRepo, OptionRepo>()
+        .AddSingleton<IOptionRepoQueries, OptionRepoQueries>();
     }
 
     private void ConfigureServices_Hangfire(IServiceCollection services)

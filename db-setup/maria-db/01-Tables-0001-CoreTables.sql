@@ -92,3 +92,20 @@ ENGINE=InnoDB
 AUTO_INCREMENT=7
 ;
 
+CREATE TABLE `Options` (
+	`OptionId` INT(11) NOT NULL AUTO_INCREMENT,
+	`Deleted` BIT(1) NOT NULL DEFAULT b'0',
+	`IsCollection` BIT(1) NOT NULL DEFAULT b'0',
+	`UserId` INT(11) NOT NULL DEFAULT '0',
+	`OptionType` VARCHAR(16) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`OptionCategory` VARCHAR(128) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`OptionKey` VARCHAR(128) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`OptionValue` VARCHAR(512) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
+	PRIMARY KEY (`OptionId`) USING BTREE,
+	INDEX `Deleted` (`Deleted`) USING BTREE,
+	INDEX `IsCollection` (`IsCollection`) USING BTREE,
+	INDEX `UserId` (`UserId`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;

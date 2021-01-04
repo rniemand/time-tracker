@@ -94,3 +94,16 @@ VALUES
 -- RawTimers
 -- =====================================================================================
 TRUNCATE TABLE `RawTimers`;
+
+
+-- =====================================================================================
+-- Options
+-- =====================================================================================
+TRUNCATE TABLE `Options`;
+
+INSERT INTO `Options`
+	(`UserId`, `OptionType`, `OptionCategory`, `OptionKey`, `OptionValue`)
+VALUES
+	(1, 'int', 'RunningTimers', 'MaxLength.Min', '5'),
+	(0, 'int', 'RunningTimers', 'MaxLength.Min', '480'),
+	(0, 'bool', 'RunningTimers', 'Logging.Enabled', 'false');

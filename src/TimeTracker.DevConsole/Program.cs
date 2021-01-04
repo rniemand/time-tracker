@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,6 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 
@@ -29,21 +29,8 @@ namespace TimeTracker.DevConsole
 
       // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
 
-      var userService = _serviceProvider.GetService<IUserService>();
-      
-      var authenticationResponse = userService.Authenticate(new AuthenticationRequest
-        {
-          Username = "niemandr",
-          Password = "password"
-        })
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
-
-      var userDto = userService.GetFromToken(authenticationResponse.Token)
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
+      var configuration = _serviceProvider.GetService<IConfiguration>();
+      var connectionString = configuration.GetConnectionString("TimeTracker");
 
       Console.WriteLine("Hello World!");
     }

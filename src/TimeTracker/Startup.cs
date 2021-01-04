@@ -1,3 +1,7 @@
+using System;
+using System.Transactions;
+using Hangfire;
+using Hangfire.MySql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +15,6 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Middleware;
 
@@ -35,6 +38,9 @@ namespace TimeTracker
       ConfigureServices_Helpers(services);
       ConfigureServices_DbCore(services);
       ConfigureServices_Repos(services);
+      ConfigureServices_Hangfire(services);
+
+      services.AddMvc();
 
       services.AddSpaStaticFiles(configuration =>
       {
@@ -60,6 +66,7 @@ namespace TimeTracker
       }
 
       app.UseRouting();
+      app.UseHangfireDashboard();
 
       app.UseMiddleware<JwtMiddleware>();
       app.UseAuthorization();
@@ -131,6 +138,32 @@ namespace TimeTracker
         .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
         .AddSingleton<IRawTimersRepo, RawTimersRepo>()
         .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>();
+    }
+
+    private void ConfigureServices_Hangfire(IServiceCollection services)
+    {
+      services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseStorage(new MySqlStorage(
+          Configuration.GetConnectionString("TimeTracker"),
+          new MySqlStorageOptions
+          {
+            TransactionIsolationLevel = IsolationLevel.ReadCommitted,
+            QueuePollInterval = TimeSpan.FromSeconds(15),
+            JobExpirationCheckInterval = TimeSpan.FromHours(1),
+            CountersAggregateInterval = TimeSpan.FromMinutes(5),
+            PrepareSchemaIfNecessary = true,
+            DashboardJobListLimit = 50000,
+            TransactionTimeout = TimeSpan.FromMinutes(1),
+            TablesPrefix = "Hangfire"
+          })));
+
+      services.AddHangfireServer(options =>
+      {
+        options.WorkerCount = 1;
+      });
     }
   }
 }

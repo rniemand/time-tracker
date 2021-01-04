@@ -43,7 +43,15 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
   }
 
   writeValue(obj: any): void {
-    console.log('writeValue', obj);
+    if(typeof(obj) === 'object' && isNaN(obj)) {
+      this.projectId = 0;
+    }
+    else if(typeof(obj) === 'string') {
+      this.projectId = parseInt(obj);
+    }
+    else {
+      this.projectId = obj;
+    }
   }
 
   registerOnChange(fn: any): void {

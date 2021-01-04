@@ -1,13 +1,13 @@
 <div>
-  <app-client-selector [(ngModel)]="clientId" class="stretched"></app-client-selector>
+  <app-client-selector [(ngModel)]="clientId" (changed)="clientChanged()" class="stretched"></app-client-selector>
 </div>
 
 <div>
-  <app-product-selector [(ngModel)]="productId" [clientId]="clientId" class="stretched"></app-product-selector>
+  <app-product-selector [(ngModel)]="productId" (changed)="productChanged()" [clientId]="clientId" class="stretched"></app-product-selector>
 </div>
 
 <div>
-  <app-project-selector [(ngModel)]="projectId" [productId]="productId" (changed)="onProjectChange()" class="stretched"></app-project-selector>
+  <app-project-selector [(ngModel)]="projectId" (changed)="projectChanged()" [productId]="productId" (changed)="onProjectChange()" class="stretched"></app-project-selector>
 </div>
 
 <div>

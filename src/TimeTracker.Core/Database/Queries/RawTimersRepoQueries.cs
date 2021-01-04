@@ -13,6 +13,8 @@
     string StopTimer();
     string CompleteTimerSet();
     string GetTimerSeries();
+    string GetUsersWithRunningTimers();
+    string GetLongRunningTimers();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -68,7 +70,8 @@
 	      `EntryState` = 2,
         `Completed` = 0,
 	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
-	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
+	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`)),
+        `TimerNotes` = @TimerNotes
       WHERE
 	      `RawTimerId` = @RawTimerId";
     }
@@ -151,6 +154,32 @@
       WHERE
 	      `RootTimerId` = @RootTimerId
       ORDER BY `RawTimerId` ASC";
+    }
+
+    public string GetUsersWithRunningTimers()
+    {
+      return @"SELECT
+ 	      DISTINCT(u.`UserId`) AS 'Key',
+	      u.`Username` AS 'Value'
+      FROM `RawTimers` t
+	      INNER JOIN `Users` u ON u.`UserId` = t.`UserId`
+      WHERE
+	      `Completed` = 0 AND
+	      `Running` = 1 AND
+	      `EntryState` = 1";
+    }
+
+    public string GetLongRunningTimers()
+    {
+      return @"SELECT *
+      FROM `RawTimers`
+      WHERE
+	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `Completed` = 0 AND
+	      `Running` = 1 AND
+	      `EntryState` = 1 AND
+	      `EntryStartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL -@ThresholdSec SECOND)";
     }
   }
 }

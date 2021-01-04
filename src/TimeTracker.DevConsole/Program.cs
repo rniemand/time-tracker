@@ -13,6 +13,7 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 
@@ -29,17 +30,11 @@ namespace TimeTracker.DevConsole
 
       // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
 
-      var optionsService = _serviceProvider.GetService<IOptionsService>();
-
-
-      var options = optionsService.GenerateRawOptions("RunningTimers", 1)
+      new SweepLongRunningTimers(_serviceProvider)
+        .Run()
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
-
-      var hasOption = options.HasOption("RunningTimers","MaxLength.Min");
-      var intOption = options.GetIntOption("RunningTimers","MaxLength.Min");
-      var boolOption = options.GetBoolOption("RunningTimers","Logging.Enabled", true);
 
 
       Console.WriteLine("Hello World!");

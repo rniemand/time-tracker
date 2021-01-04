@@ -6,7 +6,7 @@ namespace TimeTracker.Core.Services
 {
   public interface IOptionsService
   {
-    Task<RawOptions> GenerateRawOptions(string category, int userId);
+    Task<RawOptions> GenerateOptions(string category, int userId);
   }
 
   public class OptionsService : IOptionsService
@@ -18,10 +18,10 @@ namespace TimeTracker.Core.Services
       _optionRepo = optionRepo;
     }
 
-    public async Task<RawOptions> GenerateRawOptions(string category, int userId)
+    public async Task<RawOptions> GenerateOptions(string category, int userId)
     {
       // TODO: [TESTS] (OptionsService.GetRawOptionsForCategory) Add tests
-      var generated = new RawOptions();
+      var generated = new RawOptions(category);
 
       var dbOptions = await _optionRepo.GetRawOptionsForCategory(category, userId);
 

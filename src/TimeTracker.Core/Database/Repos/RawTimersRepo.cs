@@ -13,7 +13,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> StartNew(RawTimerEntity timerEntity);
     Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity timerEntity);
     Task<List<RawTimerEntity>> GetRunningTimers(int userId);
-    Task<int> PauseTimer(long rawTimerId);
+    Task<int> PauseTimer(long rawTimerId, string notes);
     Task<RawTimerEntity> GetByRawTimerId(long rawTimerId);
     Task<int> FlagAsResumed(long rawTimerId);
     Task<int> SpawnResumedTimer(RawTimerEntity timerEntity);
@@ -21,6 +21,8 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> StopTimer(long rawTimerId);
     Task<int> CompleteTimerSet(long rootTimerId);
     Task<List<RawTimerEntity>> GetTimerSeries(long rootTimerId);
+    Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers();
+    Task<List<RawTimerEntity>> GetLongRunningTimers(int userId, int thresholdSec);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -70,7 +72,7 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> PauseTimer(long rawTimerId)
+    public async Task<int> PauseTimer(long rawTimerId, string notes)
     {
       // TODO: [TESTS] (RawTimersRepo.PauseTimer) Add tests
       return await ExecuteAsync(
@@ -78,7 +80,8 @@ namespace TimeTracker.Core.Database.Repos
         _queries.PauseTimer(),
         new
         {
-          RawTimerId = rawTimerId
+          RawTimerId = rawTimerId,
+          TimerNotes = notes
         }
       );
     }
@@ -165,6 +168,29 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           RootTimerId = rootTimerId
+        }
+      );
+    }
+
+    public async Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers()
+    {
+      // TODO: [TESTS] (RawTimersRepo.GetUsersWithRunningTimers) Add tests
+      return await GetList<KeyValueEntity<int, string>>(
+        nameof(GetUsersWithRunningTimers),
+        _queries.GetUsersWithRunningTimers()
+      );
+    }
+
+    public async Task<List<RawTimerEntity>> GetLongRunningTimers(int userId, int thresholdSec)
+    {
+      // TODO: [TESTS] (RawTimersRepo.GetLongRunningTimers) Add tests
+      return await GetList<RawTimerEntity>(
+        nameof(GetLongRunningTimers),
+        _queries.GetLongRunningTimers(),
+        new
+        {
+          UserId = userId,
+          ThresholdSec = thresholdSec
         }
       );
     }

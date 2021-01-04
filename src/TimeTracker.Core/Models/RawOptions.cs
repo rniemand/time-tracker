@@ -8,10 +8,20 @@ namespace TimeTracker.Core.Models
   public class RawOptions
   {
     public Dictionary<string, OptionEntity> Options { get; set; }
+    public string DefaultCategory { get; set; }
 
     public RawOptions()
     {
+      // TODO: [TESTS] (RawOptions) Add tests
       Options = new Dictionary<string, OptionEntity>();
+      DefaultCategory = string.Empty;
+    }
+
+    public RawOptions(string defaultCategory)
+      : this()
+    {
+      // TODO: [TESTS] (RawOptions) Add tests
+      DefaultCategory = defaultCategory;
     }
 
 
@@ -41,6 +51,12 @@ namespace TimeTracker.Core.Models
     {
       // TODO: [TESTS] (RawOptions.HasOption) Add tests
       return Options.ContainsKey(GenerateDictionaryKey(category, key));
+    }
+
+    public int GetIntOption(string key, int fallback = 0)
+    {
+      // TODO: [TESTS] (RawOptions.GetIntOption) Add tests
+      return GetIntOption(DefaultCategory, key, fallback);
     }
 
     public int GetIntOption(string category, string key, int fallback = 0)

@@ -84,12 +84,13 @@ CREATE TABLE `RawTimers` (
 	`EntryRunningTimeSec` INT(11) NOT NULL DEFAULT '0',
 	`EntryStartTimeUtc` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
 	`EntryEndTimeUtc` DATETIME NULL DEFAULT NULL,
+	`TimerNotes` VARCHAR(512) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
 	PRIMARY KEY (`RawTimerId`) USING BTREE,
 	INDEX `UserId` (`UserId`) USING BTREE
 )
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
-AUTO_INCREMENT=7
+AUTO_INCREMENT=21
 ;
 
 CREATE TABLE `Options` (

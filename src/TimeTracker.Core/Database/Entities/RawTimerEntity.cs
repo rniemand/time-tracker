@@ -20,6 +20,7 @@ namespace TimeTracker.Core.Database.Entities
     public int EntryRunningTimeSec { get; set; }
     public DateTime EntryStartTimeUtc { get; set; }
     public DateTime? EntryEndTimeUtc { get; set; }
+    public string TimerNotes { get; set; }
 
     // Optional Properties
     public string ProductName { get; set; }
@@ -43,6 +44,7 @@ namespace TimeTracker.Core.Database.Entities
       EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
+      TimerNotes = string.Empty;
       EntryEndTimeUtc = null;
       ProductName = string.Empty;
       ProjectName = string.Empty;

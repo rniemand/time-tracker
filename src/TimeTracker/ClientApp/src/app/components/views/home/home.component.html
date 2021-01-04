@@ -9,19 +9,19 @@
 
   <div class="content-row" *ngIf="loggedIn" fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="8px">
     <app-home-card title="Clients" icon="group">
-      <button mat-stroked-button class="last-btn" routerLink="/clients" fxFlex>Manage</button>
+      <button mat-stroked-button class="last-btn" [routerLink]="['/clients']" fxFlex>Manage</button>
     </app-home-card>
 
     <app-home-card title="Products" icon="inventory_2">
-      <button mat-stroked-button class="last-btn" routerLink="/products" fxFlex>Manage</button>
+      <button mat-stroked-button class="last-btn" [routerLink]="['/products', this.clientId]" fxFlex>Manage</button>
     </app-home-card>
 
     <app-home-card title="Projects" icon="work_outline">
-      <button mat-stroked-button class="last-btn" routerLink="/projects" fxFlex>Manage</button>
+      <button mat-stroked-button class="last-btn" [routerLink]="['/projects', this.clientId, this.productId]" fxFlex>Manage</button>
     </app-home-card>
   </div>
 
   <div class="content-row" *ngIf="loggedIn">
-    <app-time-logger></app-time-logger>
+    <app-time-logger (onEvent)="timeLoggerEvent($event)"></app-time-logger>
   </div>
 </div>

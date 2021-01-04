@@ -3,6 +3,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { TimeLoggerEvent } from '../time-logger.component';
 
 const KEY_VIEW_STATE = 'tt.start_timer.state';
 
@@ -18,7 +19,7 @@ interface ViewState {
   styleUrls: ['./start-timer.component.css']
 })
 export class StartTimerComponent implements OnInit, AfterViewInit {
-  @Output() timerCreated = new EventEmitter<void>();
+  @Output('onEvent') onEvent = new EventEmitter<TimeLoggerEvent>();
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
@@ -56,7 +57,11 @@ export class StartTimerComponent implements OnInit, AfterViewInit {
     this.uiService.showLoader(true);
     this.timersClient.startNewTimer(newEntry).toPromise().then(
       (entry: RawTimerDto) => {
-        this.timerCreated.emit();
+        this.onEvent.emit({
+          type: 'timer.created',
+          source: 'StartTimerComponent',
+          data: entry
+        });
       },
       this.uiService.handleClientError
     );
@@ -88,6 +93,16 @@ export class StartTimerComponent implements OnInit, AfterViewInit {
     };
 
     this.storage.setItem(KEY_VIEW_STATE, state);
+
+    this.onEvent.emit({
+      type: 'state_changed',
+      source: 'StartTimerComponent',
+      data: {
+        clientId: this.clientId,
+        productId: this.productId,
+        projectId: this.projectId
+      }
+    });
   }
 
   private loadViewState = () => {

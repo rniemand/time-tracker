@@ -7,6 +7,10 @@
     border: 1px solid #737373;
   }
 
+  .timer-entry.running {
+    background-color: #4fa24e1f;
+  }
+
   .timer-entry .project {
     color: #edf395;
   }

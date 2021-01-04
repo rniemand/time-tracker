@@ -56,7 +56,7 @@
 	      rtt.`UserId` = @UserId AND
 	      rtt.`Completed` = 0 AND
         rtt.`Running` = 1
-      ORDER BY `RootTimerId`, `EntryStartTimeUtc` ASC";
+      ORDER BY `EntryState`, `RootTimerId`, `EntryStartTimeUtc` ASC";
     }
 
     public string PauseTimer()

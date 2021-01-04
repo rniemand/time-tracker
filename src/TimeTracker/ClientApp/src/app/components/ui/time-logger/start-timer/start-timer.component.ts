@@ -69,10 +69,13 @@ export class StartTimerComponent implements OnInit, AfterViewInit {
 
   // Template methods
   clientChanged = () => {
+    this.productId = 0;
+    this.projectId = 0;
     this.saveViewState();
   }
 
   productChanged = () => {
+    this.projectId = 0;
     this.saveViewState();
   }
 

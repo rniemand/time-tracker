@@ -29,6 +29,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  // Template methods
   pause = (timer: RawTimerDto) => {
     let entryId = timer?.rawTimerId ?? 0;
     if(entryId == 0) return;
@@ -74,6 +76,14 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
   refresh = () => {
     this.refreshTimers();
+  }
+
+  getClass = (timer: RawTimerDto) => {
+    if(timer.entryState === 1) {
+      return ['timer-entry', 'running'];
+    }
+
+    return ['timer-entry'];
   }
 
 

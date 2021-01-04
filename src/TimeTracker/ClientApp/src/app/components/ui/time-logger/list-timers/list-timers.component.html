@@ -3,7 +3,7 @@
 </div>
 
 <mat-list role="list">
-  <mat-list-item role="listitem" class="timer-entry" *ngFor="let timer of timers">
+  <mat-list-item role="listitem" [class]="getClass(timer)" *ngFor="let timer of timers">
     <span fxFlex>
       <span class="project">{{ timer.projectName }}</span>
       <span class="time">{{ timer.entryStartTimeUtc | runningTimer:timer.entryRunningTimeSec:flipFlop }}</span>

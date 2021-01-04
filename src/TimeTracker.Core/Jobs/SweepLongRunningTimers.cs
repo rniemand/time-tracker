@@ -24,26 +24,28 @@ namespace TimeTracker.Core.Jobs
 
     public async Task Run()
     {
+      // TODO: [TESTS] (SweepLongRunningTimers.Run) Add tests
       var users = await _rawTimersRepo.GetUsersWithRunningTimers();
 
       foreach (var keyValueEntity in users)
       {
-        var userId = keyValueEntity.Key;
-        var options = await _optionService.GenerateOptions("RunningTimers", userId);
-        var intOption = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
-        var timers = await _rawTimersRepo.GetLongRunningTimers(userId, intOption);
-
-
-        foreach (var timer in timers)
-        {
-          await _timerService.PauseTimer(userId, timer.RawTimerId, "auto-paused");
-
-        }
-
-
+        await ProcessUserTimers(keyValueEntity.Key);
       }
+    }
 
-      await Task.CompletedTask;
+
+    // Internal methods
+    private async Task ProcessUserTimers(int userId)
+    {
+      // TODO: [TESTS] (SweepLongRunningTimers.ProcessUserTimers) Add tests
+      var options = await _optionService.GenerateOptions("RunningTimers", userId);
+      var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
+      var timers = await _rawTimersRepo.GetLongRunningTimers(userId, maxRunTimeSec);
+
+      foreach (var timer in timers)
+      {
+        await _timerService.PauseTimer(userId, timer.RawTimerId, "auto-paused");
+      }
     }
   }
 }

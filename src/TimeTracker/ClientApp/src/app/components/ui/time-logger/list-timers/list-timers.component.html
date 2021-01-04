@@ -1,4 +1,8 @@
 <div class="controls">
+  <mat-checkbox [(ngModel)]="autoRefresh" class="checkbox-fix">
+    Auto-Refresh
+    <span class="countdown" *ngIf="autoRefresh">({{remaining}})</span>
+  </mat-checkbox>
   <mat-icon class="refresh" (click)="refresh()">refresh</mat-icon>
 </div>
 

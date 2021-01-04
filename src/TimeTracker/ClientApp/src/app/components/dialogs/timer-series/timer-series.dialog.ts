@@ -15,7 +15,7 @@ export interface TimerSeriesDialogData {
   styleUrls: ['./timer-series.dialog.css']
 })
 export class TimerSeriesDialog implements OnInit {
-  displayedColumns: string[] = ['clientName', 'productName', 'projectName', 'entryEndTimeUtc', 'entryState', 'entryRunningTimeSec', 'options'];
+  displayedColumns: string[] = ['client', 'product', 'project', 'endTime', 'state', 'length', 'notes'];
   dataSource = new MatTableDataSource<RawTimerDto>();
 
   @ViewChild(MatSort) sort!: MatSort;

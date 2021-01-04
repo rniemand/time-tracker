@@ -13,6 +13,8 @@ import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 export class ListTimersComponent implements OnInit, OnDestroy {
   timers: RawTimerDto[] = [];
   flipFlop: boolean = false;
+  remaining: number = 10;
+  autoRefresh: boolean = true;
 
   private _interval: any = null;
 
@@ -23,7 +25,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   ) { }
   
   ngOnInit(): void {
-    this._interval = setInterval(() => { this.flipFlop = !this.flipFlop; }, 1000);
+    this._interval = setInterval(this.tick, 1000);
     this.refreshTimers();
   }
 
@@ -110,10 +112,20 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.timersClient.getRunningTimers().toPromise().then(
       (timers: RawTimerDto[]) => {
         this.timers = timers;
+        this.remaining = 10;
         this.uiService.hideLoader();
       },
       this.uiService.handleClientError
     );
+  }
+
+  private tick = () => {
+    this.flipFlop = !this.flipFlop;
+    this.remaining -= 1;
+
+    if(this.remaining == 0) {
+      this.refreshTimers();
+    }
   }
 
 }

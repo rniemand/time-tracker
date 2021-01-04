@@ -1645,6 +1645,7 @@ export class RawTimerDto implements IRawTimerDto {
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
     entryEndTimeUtc?: Date | undefined;
+    timerNotes?: string | undefined;
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
@@ -1675,6 +1676,7 @@ export class RawTimerDto implements IRawTimerDto {
             this.entryRunningTimeSec = _data["entryRunningTimeSec"];
             this.entryStartTimeUtc = _data["entryStartTimeUtc"] ? new Date(_data["entryStartTimeUtc"].toString()) : <any>undefined;
             this.entryEndTimeUtc = _data["entryEndTimeUtc"] ? new Date(_data["entryEndTimeUtc"].toString()) : <any>undefined;
+            this.timerNotes = _data["timerNotes"];
             this.productName = _data["productName"];
             this.projectName = _data["projectName"];
             this.clientName = _data["clientName"];
@@ -1705,6 +1707,7 @@ export class RawTimerDto implements IRawTimerDto {
         data["entryRunningTimeSec"] = this.entryRunningTimeSec;
         data["entryStartTimeUtc"] = this.entryStartTimeUtc ? this.entryStartTimeUtc.toISOString() : <any>undefined;
         data["entryEndTimeUtc"] = this.entryEndTimeUtc ? this.entryEndTimeUtc.toISOString() : <any>undefined;
+        data["timerNotes"] = this.timerNotes;
         data["productName"] = this.productName;
         data["projectName"] = this.projectName;
         data["clientName"] = this.clientName;
@@ -1728,6 +1731,7 @@ export interface IRawTimerDto {
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
     entryEndTimeUtc?: Date | undefined;
+    timerNotes?: string | undefined;
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;

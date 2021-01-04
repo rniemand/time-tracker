@@ -42,7 +42,7 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.PauseTimer) Add tests
-      return Ok(await _rawTimerService.PauseTimer(request.UserId, rawTimerId));
+      return Ok(await _rawTimerService.PauseTimer(request.UserId, rawTimerId, "user-paused"));
     }
 
     [HttpGet, Route("resume-timer/{rawTimerId}"), Authorize]

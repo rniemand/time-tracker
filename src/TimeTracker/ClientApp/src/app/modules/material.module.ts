@@ -21,6 +21,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 const modules = [
   MatSidenavModule,
@@ -45,7 +46,8 @@ const modules = [
   MatSortModule,
   MatPaginatorModule,
   MatSelectModule,
-  MatExpansionModule
+  MatExpansionModule,
+  MatCheckboxModule
 ];
 
 

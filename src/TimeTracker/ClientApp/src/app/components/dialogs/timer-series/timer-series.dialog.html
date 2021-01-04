@@ -2,46 +2,39 @@
 <div mat-dialog-content>
   <div class="mat-elevation-z8 entries">
     <table mat-table [dataSource]="dataSource" matSort class="data-table">
-      <ng-container matColumnDef="clientName">
+      <ng-container matColumnDef="client">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Client </th>
         <td mat-cell *matCellDef="let timer"> {{timer.clientName}} </td>
       </ng-container>
   
-      <ng-container matColumnDef="productName">
+      <ng-container matColumnDef="product">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Product </th>
         <td mat-cell *matCellDef="let timer"> {{timer.productName}} </td>
       </ng-container>
   
-      <ng-container matColumnDef="projectName">
+      <ng-container matColumnDef="project">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Project </th>
         <td mat-cell *matCellDef="let timer"> {{timer.projectName}} </td>
       </ng-container>
   
-      <ng-container matColumnDef="entryState">
+      <ng-container matColumnDef="state">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> State </th>
         <td mat-cell *matCellDef="let timer"> {{timer.entryState | entryState}} </td>
       </ng-container>
   
-      <ng-container matColumnDef="entryEndTimeUtc">
+      <ng-container matColumnDef="endTime">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Time </th>
         <td mat-cell *matCellDef="let timer"> {{timer.entryEndTimeUtc | date:'short'}} </td>
       </ng-container>
   
-      <ng-container matColumnDef="entryRunningTimeSec">
+      <ng-container matColumnDef="length">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Length </th>
         <td mat-cell *matCellDef="let timer"> {{timer.entryRunningTimeSec | runningTimer}} </td>
       </ng-container>
-  
-      <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> &nbsp; </th>
-        <td mat-cell *matCellDef="let timer" class="options-td">
-          <!-- <button mat-icon-button [routerLink]="['/products', client.clientId]">
-            <mat-icon>inventory_2</mat-icon>
-          </button>
-          <button mat-icon-button [routerLink]="['/clients', 'edit', client.clientId]">
-            <mat-icon>edit</mat-icon>
-          </button> -->
-        </td>
+      
+      <ng-container matColumnDef="notes">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Notes </th>
+        <td mat-cell *matCellDef="let timer"> {{timer.timerNotes}} </td>
       </ng-container>
   
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

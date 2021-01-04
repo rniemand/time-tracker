@@ -53,3 +53,9 @@
     color: #a6d1f7;
     cursor: pointer;
   }
+
+.checkbox-fix {
+  padding-right: 4px;
+  vertical-align: top;
+  padding-top: 2px;
+}

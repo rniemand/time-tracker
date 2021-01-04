@@ -15,6 +15,10 @@ export class RunningTimerPipe implements PipeTransform {
     if(!value || !(value instanceof Date))
       return '00:00:00';
 
+    if(typeof(args[0]) === 'number' && args[0] > 0) {
+      return this.toHumanTime(args[0]);
+    }
+
     let runningSeconds = Math.floor(((new Date()).getTime() - (value as Date).getTime()) / 1000);
     return this.toHumanTime(runningSeconds);
   }

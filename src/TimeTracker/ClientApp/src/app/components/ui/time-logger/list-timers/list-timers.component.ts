@@ -37,4 +37,22 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
   }
 
+  pause = (timer: RawTrackedTimeDto) => {
+    let entryId = timer?.entryId ?? 0;
+    if(entryId == 0) return;
+
+    this.uiService.showLoader(true);
+    this.trackedTimeClient.pauseTimer(entryId).toPromise().then(
+      (updatedTimer: RawTrackedTimeDto) => {
+        console.log(updatedTimer);
+        this.uiService.hideLoader();
+      },
+      this.uiService.handleClientError
+    );
+  }
+
+  resume = (timer: RawTrackedTimeDto) => {
+    console.log('resume', timer);
+  }
+
 }

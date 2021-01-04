@@ -5,7 +5,6 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Queries;
-using TimeTracker.Core.Models.Dto;
 
 namespace TimeTracker.Core.Database.Repos
 {
@@ -14,6 +13,11 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> StartNew(RawTrackedTimeEntity entity);
     Task<RawTrackedTimeEntity> GetCurrentEntry(RawTrackedTimeEntity entity);
     Task<List<RawTrackedTimeEntity>> GetRunningTimers(int userId);
+    Task<int> PauseTimer(long entryId);
+    Task<RawTrackedTimeEntity> GetByEntryId(long entryId);
+    Task<int> FlagAsResumed(RawTrackedTimeEntity entity);
+    Task<int> SpawnResumedTimer(RawTrackedTimeEntity entity);
+    Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId);
   }
 
   public class RawTrackedTimeRepo : BaseRepo<RawTrackedTimeRepo>, IRawTrackedTimeRepo
@@ -49,6 +53,60 @@ namespace TimeTracker.Core.Database.Repos
         nameof(GetRunningTimers),
         _queries.GetRunningTimers(),
         new { UserId = userId }
+      );
+    }
+
+    public async Task<int> PauseTimer(long entryId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.PauseTimer) Add tests
+      return await ExecuteAsync(
+        nameof(PauseTimer),
+        _queries.PauseTimer(),
+        new { EntryId = entryId }
+      );
+    }
+
+    public async Task<RawTrackedTimeEntity> GetByEntryId(long entryId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.GetByEntryId) Add tests
+      return await GetSingle<RawTrackedTimeEntity>(
+        nameof(GetByEntryId),
+        _queries.GetByEntryId(),
+        new { EntryId = entryId }
+      );
+    }
+
+    public async Task<int> FlagAsResumed(RawTrackedTimeEntity entity)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.FlagAsResumed) Add tests
+      return await ExecuteAsync(
+        nameof(FlagAsResumed),
+        _queries.FlagAsResumed(),
+        entity
+      );
+    }
+
+    public async Task<int> SpawnResumedTimer(RawTrackedTimeEntity entity)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.SpawnResumedTimer) Add tests
+      return await ExecuteAsync(
+        nameof(SpawnResumedTimer),
+        _queries.SpawnResumedTimer(),
+        entity
+      );
+    }
+
+    public async Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.SetRootParentEntryId) Add tests
+      return await ExecuteAsync(
+        nameof(SetRootParentEntryId),
+        _queries.SetRootParentEntryId(),
+        new
+        {
+          EntryId = entryId,
+          RootParentEntryId = rootParentEntryId
+        }
       );
     }
   }

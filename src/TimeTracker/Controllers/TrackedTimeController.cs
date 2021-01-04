@@ -35,5 +35,14 @@ namespace TimeTracker.Controllers
       // TODO: [TESTS] (TrackedTimeController.GetRunningTimers) Add tests
       return Ok(await _trackedTimeService.GetRunningTimers(request.UserId));
     }
+
+    [HttpGet, Route("pause-timer/{entryId}"), Authorize]
+    public async Task<ActionResult<RawTrackedTimeDto>> PauseTimer(
+      [FromRoute] long entryId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TrackedTimeController.PauseTimer) Add tests
+      return Ok(await _trackedTimeService.PauseTimer(request.UserId, entryId));
+    }
   }
 }

@@ -17,3 +17,11 @@
     margin-left: 4px;
     color: #e9bcfd;
   }
+
+  .timer-entry .pause:hover {
+    color: #b181c5;
+  }
+
+  .timer-entry .resume:hover {
+    color: #92d689;
+  }

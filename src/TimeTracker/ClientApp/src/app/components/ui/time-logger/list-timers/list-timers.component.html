@@ -2,9 +2,10 @@
   <mat-list-item role="listitem" class="timer-entry" *ngFor="let timer of timers">
     <span fxFlex>
       <span class="project">{{ timer.projectName }}</span>
-      <span class="time">{{ timer.entryStartTimeUtc | runningTimer:flipFlop }}</span>
+      <span class="time">{{ timer.entryStartTimeUtc | runningTimer:timer.entryRunningTimeSec:flipFlop }}</span>
     </span>
-    <mat-icon>pause</mat-icon>
-    <mat-icon>stop</mat-icon>
+    <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>
+    <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState === 2">play_arrow</mat-icon>
+    <mat-icon class="stop">stop</mat-icon>
   </mat-list-item>
 </mat-list>

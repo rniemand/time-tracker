@@ -5,6 +5,11 @@
     string StartNew();
     string GetCurrentEntry();
     string GetRunningTimers();
+    string PauseTimer();
+    string GetByEntryId();
+    string SpawnResumedTimer();
+    string FlagAsResumed();
+    string SetRootParentEntryId();
   }
 
   public class RawRawTrackedTimeRepoQueries : IRawTrackedTimeRepoQueries
@@ -49,6 +54,59 @@
 	      rtt.`UserId` = @UserId AND
 	      rtt.`Running` = 1
       ORDER BY `EntryStartTimeUtc` ASC";
+    }
+
+    public string PauseTimer()
+    {
+      return @"UPDATE `RawTrackedTime`
+      SET
+	      `Running` = 1,
+	      `EntryState` = 2,
+	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
+	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
+      WHERE
+	      `EntryId` = @EntryId";
+    }
+
+    public string GetByEntryId()
+    {
+      return @"SELECT *
+      FROM `RawTrackedTime`
+      WHERE
+	      `EntryId` = @EntryId";
+    }
+
+    public string SpawnResumedTimer()
+    {
+      return @"INSERT INTO `RawTrackedTime`
+	      (
+          `ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`,
+          `ProjectId`, `UserId`, `Running`, `EntryState`
+        )
+      VALUES
+	      (
+          @ParentEntryId, @RootParentEntryId, @ClientId, @ProductId,
+          @ProjectId, @UserId, @Running, @EntryState
+        )";
+    }
+
+    public string FlagAsResumed()
+    {
+      return @"UPDATE `RawTrackedTime`
+      SET
+	      `RootParentEntryId` = @RootParentEntryId,
+	      `Running` = @Running
+      WHERE
+	      `EntryId` = @EntryId";
+    }
+
+    public string SetRootParentEntryId()
+    {
+      return @"UPDATE `RawTrackedTime`
+      SET
+	      `RootParentEntryId` = @RootParentEntryId
+      WHERE
+	      `EntryId` = @EntryId";
     }
   }
 }

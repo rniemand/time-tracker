@@ -12,6 +12,9 @@ interface MappedTime {
 export class RunningTimerPipe implements PipeTransform {
 
   transform(value: unknown, ...args: unknown[]): unknown {
+    if(typeof(value) === 'number')
+      return this.toHumanTime(value);
+
     if(!value || !(value instanceof Date))
       return '00:00:00';
 
@@ -24,6 +27,10 @@ export class RunningTimerPipe implements PipeTransform {
   }
 
   private toHumanTime = (seconds: number) => {
+    if(seconds == 0)
+      return '-';
+    
+
     let mapped: MappedTime = { hours: '00', mins: '00', seconds: '00' };
 
     if(seconds >= 3600) {

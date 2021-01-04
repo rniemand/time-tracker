@@ -32,6 +32,7 @@ import { ProjectSelectorComponent } from './components/ui/project-selector/proje
 import { ListTimersComponent } from './components/ui/time-logger/list-timers/list-timers.component';
 import { RunningTimerPipe } from './pipes/running-timer.pipe';
 import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-series.dialog';
+import { EntryStatePipe } from './pipes/entry-state.pipe';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-serie
     ProjectSelectorComponent,
     ListTimersComponent,
     RunningTimerPipe,
-    TimerSeriesDialog
+    TimerSeriesDialog,
+    EntryStatePipe
   ],
   imports: [
     BrowserModule,

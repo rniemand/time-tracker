@@ -25,10 +25,6 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._interval = setInterval(() => { this.flipFlop = !this.flipFlop; }, 1000);
     this.refreshTimers();
-
-    setTimeout(() => {
-      this.showSeries({ rootTimerId: 8 });
-    }, 500);
   }
 
   ngOnDestroy(): void {

@@ -19,7 +19,7 @@
   
       <ng-container matColumnDef="entryState">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> State </th>
-        <td mat-cell *matCellDef="let timer"> {{timer.entryState}} </td>
+        <td mat-cell *matCellDef="let timer"> {{timer.entryState | entryState}} </td>
       </ng-container>
   
       <ng-container matColumnDef="entryEndTimeUtc">
@@ -29,7 +29,7 @@
   
       <ng-container matColumnDef="entryRunningTimeSec">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Length </th>
-        <td mat-cell *matCellDef="let timer"> {{timer.entryRunningTimeSec}} </td>
+        <td mat-cell *matCellDef="let timer"> {{timer.entryRunningTimeSec | runningTimer}} </td>
       </ng-container>
   
       <ng-container matColumnDef="options">

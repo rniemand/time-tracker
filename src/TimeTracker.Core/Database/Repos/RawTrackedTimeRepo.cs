@@ -15,7 +15,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<RawTrackedTimeEntity>> GetRunningTimers(int userId);
     Task<int> PauseTimer(long entryId);
     Task<RawTrackedTimeEntity> GetByEntryId(long entryId);
-    Task<int> FlagAsResumed(RawTrackedTimeEntity entity);
+    Task<int> FlagAsResumed(long entryId);
     Task<int> SpawnResumedTimer(RawTrackedTimeEntity entity);
     Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId);
   }
@@ -76,13 +76,13 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> FlagAsResumed(RawTrackedTimeEntity entity)
+    public async Task<int> FlagAsResumed(long entryId)
     {
       // TODO: [TESTS] (RawTrackedTimeRepo.FlagAsResumed) Add tests
       return await ExecuteAsync(
         nameof(FlagAsResumed),
         _queries.FlagAsResumed(),
-        entity
+        new { EntryId = entryId }
       );
     }
 

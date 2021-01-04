@@ -18,6 +18,9 @@
       <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> &nbsp; </th>
         <td mat-cell *matCellDef="let product" class="options-td">
+          <button mat-icon-button [routerLink]="['/projects', product.clientId, product.productId]">
+            <mat-icon>work_outline</mat-icon>
+          </button>
           <button mat-icon-button [routerLink]="['/products', 'edit', product.productId]">
             <mat-icon>edit</mat-icon>
           </button>

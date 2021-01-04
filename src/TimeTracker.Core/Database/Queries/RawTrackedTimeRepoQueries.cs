@@ -61,7 +61,7 @@
     {
       return @"UPDATE `RawTrackedTime`
       SET
-	      `Running` = 0,
+	      `Running` = 1,
 	      `EntryState` = 2,
         `Completed` = 0,
 	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
@@ -96,8 +96,8 @@
     {
       return @"UPDATE `RawTrackedTime`
       SET
-	      `RootParentEntryId` = @RootParentEntryId,
-	      `Running` = @Running
+	      `Running` = 0,
+	      `Completed` = 0
       WHERE
 	      `EntryId` = @EntryId";
     }

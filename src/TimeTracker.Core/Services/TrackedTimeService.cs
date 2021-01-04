@@ -13,7 +13,7 @@ namespace TimeTracker.Core.Services
   {
     Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto);
     Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId);
-    Task<RawTrackedTimeDto> PauseTimer(int userId, long entryId);
+    Task<bool> PauseTimer(int userId, long entryId);
     Task<bool> ResumeTimer(int userId, long entryId);
   }
 
@@ -62,7 +62,7 @@ namespace TimeTracker.Core.Services
       return dbEntries.AsQueryable().Select(RawTrackedTimeDto.Projection).ToList();
     }
 
-    public async Task<RawTrackedTimeDto> PauseTimer(int userId, long entryId)
+    public async Task<bool> PauseTimer(int userId, long entryId)
     {
       // TODO: [TESTS] (TrackedTimeService.PauseTimer) Add tests
 
@@ -70,17 +70,16 @@ namespace TimeTracker.Core.Services
       if (dbEntry == null || dbEntry.UserId != userId)
       {
         // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
-        return null;
+        return false;
       }
 
       if (await _rawTrackedTimeRepo.PauseTimer(entryId) <= 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
-        return null;
+        return false;
       }
 
-      dbEntry = await _rawTrackedTimeRepo.GetByEntryId(entryId);
-      return RawTrackedTimeDto.FromEntity(dbEntry);
+      return true;
     }
 
     public async Task<bool> ResumeTimer(int userId, long entryId)
@@ -108,6 +107,12 @@ namespace TimeTracker.Core.Services
       };
 
       if (await _rawTrackedTimeRepo.SpawnResumedTimer(resumedEntity) == 0)
+      {
+        // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+        return false;
+      }
+
+      if (await _rawTrackedTimeRepo.FlagAsResumed(entryId) == 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
         return false;

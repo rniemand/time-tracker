@@ -15,6 +15,7 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Middleware;
 
@@ -48,7 +49,7 @@ namespace TimeTracker
       });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
     {
       if (env.IsDevelopment())
       {
@@ -67,6 +68,7 @@ namespace TimeTracker
 
       app.UseRouting();
       app.UseHangfireDashboard();
+      Configure_HangfireJobs(serviceProvider);
 
       app.UseMiddleware<JwtMiddleware>();
       app.UseAuthorization();
@@ -89,6 +91,19 @@ namespace TimeTracker
           spa.UseProxyToSpaDevelopmentServer("http://localhost:4200/");
         }
       });
+    }
+
+
+    // Configure() related methods
+    private static void Configure_HangfireJobs(IServiceProvider serviceProvider)
+    {
+      // http://corntab.com/ <- UI for building CRON expressions
+
+      RecurringJob.AddOrUpdate(
+        "Hangfire Test (5 min)",
+        () => new TestHangfireJob(serviceProvider).Run(),
+        "*/5 * * * *"
+      );
     }
 
 

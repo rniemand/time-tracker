@@ -11,10 +11,11 @@ namespace TimeTracker.Core.Services
 {
   public interface IRawTimerService
   {
-    Task<RawTimerDto> StartNew(int userId, RawTimerDto entryDto);
+    Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto);
     Task<List<RawTimerDto>> GetRunningTimers(int userId);
-    Task<bool> PauseTimer(int userId, long entryId);
-    Task<bool> ResumeTimer(int userId, long entryId);
+    Task<bool> PauseTimer(int userId, long rawTimerId);
+    Task<bool> ResumeTimer(int userId, long rawTimerId);
+    Task<bool> StopTimer(int userId, long rawTimerId);
   }
 
   public class RawTimerService : IRawTimerService
@@ -30,10 +31,10 @@ namespace TimeTracker.Core.Services
       _rawTimersRepo = rawTimersRepo;
     }
 
-    public async Task<RawTimerDto> StartNew(int userId, RawTimerDto entryDto)
+    public async Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.StartNew) Add tests
-      var entryEntity = entryDto.AsEntity();
+      var entryEntity = timerDto.AsEntity();
       entryEntity.UserId = userId;
 
       if (await _rawTimersRepo.StartNew(entryEntity) <= 0)
@@ -43,14 +44,14 @@ namespace TimeTracker.Core.Services
       }
 
       var dbEntry = await _rawTimersRepo.GetCurrentEntry(entryEntity);
-      var rootId = dbEntry.EntryId;
-      if (await _rawTimersRepo.SetRootParentEntryId(rootId, rootId) == 0)
+      var rootId = dbEntry.RawTimerId;
+      if (await _rawTimersRepo.SetRootTimerId(rootId, rootId) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
         return null;
       }
 
-      dbEntry.RootParentEntryId = rootId;
+      dbEntry.RootTimerId = rootId;
       return RawTimerDto.FromEntity(dbEntry);
     }
 
@@ -62,18 +63,18 @@ namespace TimeTracker.Core.Services
       return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
 
-    public async Task<bool> PauseTimer(int userId, long entryId)
+    public async Task<bool> PauseTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.PauseTimer) Add tests
 
-      var dbEntry = await _rawTimersRepo.GetByEntryId(entryId);
+      var dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
       if (dbEntry == null || dbEntry.UserId != userId)
       {
         // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
         return false;
       }
 
-      if (await _rawTimersRepo.PauseTimer(entryId) <= 0)
+      if (await _rawTimersRepo.PauseTimer(rawTimerId) <= 0)
       {
         // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
         return false;
@@ -82,11 +83,11 @@ namespace TimeTracker.Core.Services
       return true;
     }
 
-    public async Task<bool> ResumeTimer(int userId, long entryId)
+    public async Task<bool> ResumeTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.ResumeTimer) Add tests
 
-      var parentEntry = await _rawTimersRepo.GetByEntryId(entryId);
+      var parentEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
       if (parentEntry == null || parentEntry.UserId != userId)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
@@ -95,8 +96,8 @@ namespace TimeTracker.Core.Services
 
       var resumedEntity = new RawTimerEntity
       {
-        ParentEntryId = parentEntry.EntryId,
-        RootParentEntryId = parentEntry.RootParentEntryId,
+        ParentTimerId = parentEntry.RawTimerId,
+        RootTimerId = parentEntry.RootTimerId,
         ClientId = parentEntry.ClientId,
         ProductId = parentEntry.ProductId,
         ProjectId = parentEntry.ProjectId,
@@ -112,13 +113,20 @@ namespace TimeTracker.Core.Services
         return false;
       }
 
-      if (await _rawTimersRepo.FlagAsResumed(entryId) == 0)
+      if (await _rawTimersRepo.FlagAsResumed(rawTimerId) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
 
       return true;
+    }
+
+    public async Task<bool> StopTimer(int userId, long rawTimerId)
+    {
+      // TODO: [TESTS] (RawTimerService.StopTimer) Add tests
+
+      return false;
     }
   }
 }

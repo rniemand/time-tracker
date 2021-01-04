@@ -981,9 +981,9 @@ export class ProjectsClient implements IProjectsClient {
 }
 
 export interface ITimersClient {
-    startNewTimer(entryDto: RawTrackedTimeDto): Observable<RawTrackedTimeDto>;
-    getRunningTimers(): Observable<RawTrackedTimeDto[]>;
-    pauseTimer(entryId: number): Observable<RawTrackedTimeDto>;
+    startNewTimer(entryDto: RawTimerDto): Observable<RawTimerDto>;
+    getRunningTimers(): Observable<RawTimerDto[]>;
+    pauseTimer(entryId: number): Observable<RawTimerDto>;
     resumeTimer(entryId: number): Observable<boolean>;
 }
 
@@ -998,7 +998,7 @@ export class TimersClient implements ITimersClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    startNewTimer(entryDto: RawTrackedTimeDto): Observable<RawTrackedTimeDto> {
+    startNewTimer(entryDto: RawTimerDto): Observable<RawTimerDto> {
         let url_ = this.baseUrl + "/api/Timers/start-new";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1021,14 +1021,14 @@ export class TimersClient implements ITimersClient {
                 try {
                     return this.processStartNewTimer(<any>response_);
                 } catch (e) {
-                    return <Observable<RawTrackedTimeDto>><any>_observableThrow(e);
+                    return <Observable<RawTimerDto>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<RawTrackedTimeDto>><any>_observableThrow(response_);
+                return <Observable<RawTimerDto>><any>_observableThrow(response_);
         }));
     }
 
-    protected processStartNewTimer(response: HttpResponseBase): Observable<RawTrackedTimeDto> {
+    protected processStartNewTimer(response: HttpResponseBase): Observable<RawTimerDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1039,7 +1039,7 @@ export class TimersClient implements ITimersClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RawTrackedTimeDto.fromJS(resultData200);
+            result200 = RawTimerDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1047,10 +1047,10 @@ export class TimersClient implements ITimersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RawTrackedTimeDto>(<any>null);
+        return _observableOf<RawTimerDto>(<any>null);
     }
 
-    getRunningTimers(): Observable<RawTrackedTimeDto[]> {
+    getRunningTimers(): Observable<RawTimerDto[]> {
         let url_ = this.baseUrl + "/api/Timers/list-running";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1069,14 +1069,14 @@ export class TimersClient implements ITimersClient {
                 try {
                     return this.processGetRunningTimers(<any>response_);
                 } catch (e) {
-                    return <Observable<RawTrackedTimeDto[]>><any>_observableThrow(e);
+                    return <Observable<RawTimerDto[]>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<RawTrackedTimeDto[]>><any>_observableThrow(response_);
+                return <Observable<RawTimerDto[]>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetRunningTimers(response: HttpResponseBase): Observable<RawTrackedTimeDto[]> {
+    protected processGetRunningTimers(response: HttpResponseBase): Observable<RawTimerDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1090,7 +1090,7 @@ export class TimersClient implements ITimersClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(RawTrackedTimeDto.fromJS(item));
+                    result200!.push(RawTimerDto.fromJS(item));
             }
             return _observableOf(result200);
             }));
@@ -1099,10 +1099,10 @@ export class TimersClient implements ITimersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RawTrackedTimeDto[]>(<any>null);
+        return _observableOf<RawTimerDto[]>(<any>null);
     }
 
-    pauseTimer(entryId: number): Observable<RawTrackedTimeDto> {
+    pauseTimer(entryId: number): Observable<RawTimerDto> {
         let url_ = this.baseUrl + "/api/Timers/pause-timer/{entryId}";
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
@@ -1124,14 +1124,14 @@ export class TimersClient implements ITimersClient {
                 try {
                     return this.processPauseTimer(<any>response_);
                 } catch (e) {
-                    return <Observable<RawTrackedTimeDto>><any>_observableThrow(e);
+                    return <Observable<RawTimerDto>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<RawTrackedTimeDto>><any>_observableThrow(response_);
+                return <Observable<RawTimerDto>><any>_observableThrow(response_);
         }));
     }
 
-    protected processPauseTimer(response: HttpResponseBase): Observable<RawTrackedTimeDto> {
+    protected processPauseTimer(response: HttpResponseBase): Observable<RawTimerDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1142,7 +1142,7 @@ export class TimersClient implements ITimersClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RawTrackedTimeDto.fromJS(resultData200);
+            result200 = RawTimerDto.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1150,7 +1150,7 @@ export class TimersClient implements ITimersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RawTrackedTimeDto>(<any>null);
+        return _observableOf<RawTimerDto>(<any>null);
     }
 
     resumeTimer(entryId: number): Observable<boolean> {
@@ -1521,10 +1521,10 @@ export interface IProjectDto {
     projectName?: string | undefined;
 }
 
-export class RawTrackedTimeDto implements IRawTrackedTimeDto {
-    entryId?: number;
-    parentEntryId?: number;
-    rootParentEntryId?: number;
+export class RawTimerDto implements IRawTimerDto {
+    rawTimerId?: number;
+    parentTimerId?: number;
+    rootTimerId?: number;
     clientId?: number;
     productId?: number;
     projectId?: number;
@@ -1541,7 +1541,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
     projectName?: string | undefined;
     clientName?: string | undefined;
 
-    constructor(data?: IRawTrackedTimeDto) {
+    constructor(data?: IRawTimerDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1552,9 +1552,9 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
 
     init(_data?: any) {
         if (_data) {
-            this.entryId = _data["entryId"];
-            this.parentEntryId = _data["parentEntryId"];
-            this.rootParentEntryId = _data["rootParentEntryId"];
+            this.rawTimerId = _data["rawTimerId"];
+            this.parentTimerId = _data["parentTimerId"];
+            this.rootTimerId = _data["rootTimerId"];
             this.clientId = _data["clientId"];
             this.productId = _data["productId"];
             this.projectId = _data["projectId"];
@@ -1573,18 +1573,18 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
         }
     }
 
-    static fromJS(data: any): RawTrackedTimeDto {
+    static fromJS(data: any): RawTimerDto {
         data = typeof data === 'object' ? data : {};
-        let result = new RawTrackedTimeDto();
+        let result = new RawTimerDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["entryId"] = this.entryId;
-        data["parentEntryId"] = this.parentEntryId;
-        data["rootParentEntryId"] = this.rootParentEntryId;
+        data["rawTimerId"] = this.rawTimerId;
+        data["parentTimerId"] = this.parentTimerId;
+        data["rootTimerId"] = this.rootTimerId;
         data["clientId"] = this.clientId;
         data["productId"] = this.productId;
         data["projectId"] = this.projectId;
@@ -1604,10 +1604,10 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
     }
 }
 
-export interface IRawTrackedTimeDto {
-    entryId?: number;
-    parentEntryId?: number;
-    rootParentEntryId?: number;
+export interface IRawTimerDto {
+    rawTimerId?: number;
+    parentTimerId?: number;
+    rootTimerId?: number;
     clientId?: number;
     productId?: number;
     projectId?: number;

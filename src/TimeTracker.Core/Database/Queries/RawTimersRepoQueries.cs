@@ -6,10 +6,10 @@
     string GetCurrentEntry();
     string GetRunningTimers();
     string PauseTimer();
-    string GetByEntryId();
+    string GetByRawTimerId();
     string SpawnResumedTimer();
     string FlagAsResumed();
-    string SetRootParentEntryId();
+    string SetRootTimerId();
     string StopTimer();
     string CompleteTimer();
   }
@@ -19,9 +19,9 @@
     public string StartNew()
     {
       return @"INSERT INTO `RawTimers`
-	      (`ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryState`, `Running`)
+	      (`ParentTimerId`, `RootTimerId`, `ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryState`, `Running`)
       VALUES
-	      (@ParentEntryId, @RootParentEntryId, @ClientId, @ProductId, @ProjectId, @UserId, @EntryState, 1)";
+	      (@ParentTimerId, @RootTimerId, @ClientId, @ProductId, @ProjectId, @UserId, @EntryState, 1)";
     }
 
     public string GetCurrentEntry()
@@ -29,8 +29,8 @@
       return @"SELECT *
       FROM `RawTimers`
       WHERE
-	      `ParentEntryId` = @ParentEntryId AND
-	      `RootParentEntryId` = @RootParentEntryId AND
+	      `ParentTimerId` = @ParentTimerId AND
+	      `RootTimerId` = @RootTimerId AND
 	      `ClientId` = @ClientId AND
 	      `ProductId` = @ProductId AND
 	      `ProjectId` = @ProjectId AND
@@ -56,7 +56,7 @@
 	      rtt.`UserId` = @UserId AND
 	      rtt.`Completed` = 0 AND
         rtt.`Running` = 1
-      ORDER BY `RootParentEntryId`, `EntryStartTimeUtc` ASC";
+      ORDER BY `RootTimerId`, `EntryStartTimeUtc` ASC";
     }
 
     public string PauseTimer()
@@ -69,27 +69,27 @@
 	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
       WHERE
-	      `EntryId` = @EntryId";
+	      `RawTimerId` = @RawTimerId";
     }
 
-    public string GetByEntryId()
+    public string GetByRawTimerId()
     {
       return @"SELECT *
       FROM `RawTimers`
       WHERE
-	      `EntryId` = @EntryId";
+	      `RawTimerId` = @RawTimerId";
     }
 
     public string SpawnResumedTimer()
     {
       return @"INSERT INTO `RawTimers`
 	      (
-          `ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`,
+          `ParentTimerId`, `RootTimerId`, `ClientId`, `ProductId`,
           `ProjectId`, `UserId`, `Running`, `EntryState`, `Completed`
         )
       VALUES
 	      (
-          @ParentEntryId, @RootParentEntryId, @ClientId, @ProductId,
+          @ParentTimerId, @RootTimerId, @ClientId, @ProductId,
           @ProjectId, @UserId, @Running, @EntryState, @Completed
         )";
     }
@@ -101,16 +101,16 @@
 	      `Running` = 0,
 	      `Completed` = 0
       WHERE
-	      `EntryId` = @EntryId";
+	      `RawTimerId` = @RawTimerId";
     }
 
-    public string SetRootParentEntryId()
+    public string SetRootTimerId()
     {
       return @"UPDATE `RawTimers`
       SET
-	      `RootParentEntryId` = @RootParentEntryId
+	      `RootTimerId` = @RootTimerId
       WHERE
-	      `EntryId` = @EntryId";
+	      `RawTimerId` = @RawTimerId";
     }
 
     public string StopTimer()
@@ -123,7 +123,7 @@
          `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
          `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
       WHERE
-         `EntryId` = @EntryId";
+         `RawTimerId` = @RawTimerId";
     }
 
     public string CompleteTimer()
@@ -133,7 +133,7 @@
 	      `Running` = 0,
 	      `Completed` = 1
       WHERE
-	      `RootParentEntryId` = @RootParentEntryId";
+	      `RootTimerId` = @RootTimerId";
     }
   }
 }

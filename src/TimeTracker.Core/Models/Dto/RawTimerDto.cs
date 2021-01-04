@@ -7,9 +7,9 @@ namespace TimeTracker.Core.Models.Dto
 {
   public class RawTimerDto
   {
-    public long EntryId { get; set; }
-    public long ParentEntryId { get; set; }
-    public long RootParentEntryId { get; set; }
+    public long RawTimerId { get; set; }
+    public long ParentTimerId { get; set; }
+    public long RootTimerId { get; set; }
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
@@ -43,9 +43,9 @@ namespace TimeTracker.Core.Models.Dto
           EntryState = entity.EntryState,
           EntryRunningTimeSec = entity.EntryRunningTimeSec,
           EntryStartTimeUtc = entity.EntryStartTimeUtc,
-          EntryId = entity.EntryId,
-          ParentEntryId = entity.ParentEntryId,
-          RootParentEntryId = entity.RootParentEntryId,
+          RawTimerId = entity.RawTimerId,
+          ParentTimerId = entity.ParentTimerId,
+          RootTimerId = entity.RootTimerId,
           Running = entity.Running,
           ProductName = entity.ProductName,
           ProjectName = entity.ProjectName,
@@ -65,9 +65,9 @@ namespace TimeTracker.Core.Models.Dto
     public RawTimerDto()
     {
       // TODO: [TESTS] (RawTimerDto) Add tests
-      EntryId = 0;
-      ParentEntryId = 0;
-      RootParentEntryId = 0;
+      RawTimerId = 0;
+      ParentTimerId = 0;
+      RootTimerId = 0;
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
@@ -99,9 +99,9 @@ namespace TimeTracker.Core.Models.Dto
         EntryState = EntryState,
         EntryRunningTimeSec = EntryRunningTimeSec,
         EntryStartTimeUtc = EntryStartTimeUtc,
-        EntryId = EntryId,
-        ParentEntryId = ParentEntryId,
-        RootParentEntryId = RootParentEntryId,
+        RawTimerId = RawTimerId,
+        ParentTimerId = ParentTimerId,
+        RootTimerId = RootTimerId,
         Running = Running,
         ProductName = ProductName,
         ProjectName = ProjectName,

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { UiService } from 'src/app/services/ui.service';
-import { RawTrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
+import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-start-timer',
@@ -27,9 +27,9 @@ export class StartTimerComponent implements OnInit {
   }
 
   startTimer = () => {
-    let newEntry = new RawTrackedTimeDto({
-      'parentEntryId': 0,
-      'rootParentEntryId': 0,
+    let newEntry = new RawTimerDto({
+      'parentTimerId': 0,
+      'rootTimerId': 0,
       'clientId': this.clientId,
       'productId': this.productId,
       'projectId': this.projectId,
@@ -38,7 +38,7 @@ export class StartTimerComponent implements OnInit {
     
     this.uiService.showLoader(true);
     this.timersClient.startNewTimer(newEntry).toPromise().then(
-      (entry: RawTrackedTimeDto) => {
+      (entry: RawTimerDto) => {
         this.timerCreated.emit();
       },
       this.uiService.handleClientError

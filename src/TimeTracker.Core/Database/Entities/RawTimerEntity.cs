@@ -5,9 +5,9 @@ namespace TimeTracker.Core.Database.Entities
 {
   public class RawTimerEntity
   {
-    public long EntryId { get; set; }
-    public long ParentEntryId { get; set; }
-    public long RootParentEntryId { get; set; }
+    public long RawTimerId { get; set; }
+    public long ParentTimerId { get; set; }
+    public long RootTimerId { get; set; }
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
@@ -29,9 +29,9 @@ namespace TimeTracker.Core.Database.Entities
     public RawTimerEntity()
     {
       // TODO: [TESTS] (RawTimerEntity) Add tests
-      EntryId = 0;
-      ParentEntryId = 0;
-      RootParentEntryId = 0;
+      RawTimerId = 0;
+      ParentTimerId = 0;
+      RootTimerId = 0;
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;

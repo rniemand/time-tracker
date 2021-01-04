@@ -10,16 +10,16 @@ namespace TimeTracker.Core.Database.Repos
 {
   public interface IRawTimersRepo
   {
-    Task<int> StartNew(RawTimerEntity entity);
-    Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity entity);
+    Task<int> StartNew(RawTimerEntity timerEntity);
+    Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity timerEntity);
     Task<List<RawTimerEntity>> GetRunningTimers(int userId);
-    Task<int> PauseTimer(long entryId);
-    Task<RawTimerEntity> GetByEntryId(long entryId);
-    Task<int> FlagAsResumed(long entryId);
-    Task<int> SpawnResumedTimer(RawTimerEntity entity);
-    Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId);
-    Task<int> StopTimer(long entryId);
-    Task<int> CompleteTimer(long rootParentEntryId);
+    Task<int> PauseTimer(long rawTimerId);
+    Task<RawTimerEntity> GetByRawTimerId(long rawTimerId);
+    Task<int> FlagAsResumed(long rawTimerId);
+    Task<int> SpawnResumedTimer(RawTimerEntity timerEntity);
+    Task<int> SetRootTimerId(long rawTimerId, long rootTimerId);
+    Task<int> StopTimer(long rawTimerId);
+    Task<int> CompleteTimer(long rootTimerId);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -36,16 +36,24 @@ namespace TimeTracker.Core.Database.Repos
       _queries = queries;
     }
 
-    public async Task<int> StartNew(RawTimerEntity entity)
+    public async Task<int> StartNew(RawTimerEntity timerEntity)
     {
       // TODO: [TESTS] (RawTimersRepo.StartNew) Add tests
-      return await ExecuteAsync(nameof(StartNew), _queries.StartNew(), entity);
+      return await ExecuteAsync(
+        nameof(StartNew),
+        _queries.StartNew(),
+        timerEntity
+      );
     }
 
-    public async Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity entity)
+    public async Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity timerEntity)
     {
       // TODO: [TESTS] (RawTimersRepo.GetCurrentEntry) Add tests
-      return await GetSingle<RawTimerEntity>(nameof(GetCurrentEntry), _queries.GetCurrentEntry(), entity);
+      return await GetSingle<RawTimerEntity>(
+        nameof(GetCurrentEntry),
+        _queries.GetCurrentEntry(),
+        timerEntity
+      );
     }
 
     public async Task<List<RawTimerEntity>> GetRunningTimers(int userId)
@@ -54,81 +62,96 @@ namespace TimeTracker.Core.Database.Repos
       return await GetList<RawTimerEntity>(
         nameof(GetRunningTimers),
         _queries.GetRunningTimers(),
-        new { UserId = userId }
+        new
+        {
+          UserId = userId
+        }
       );
     }
 
-    public async Task<int> PauseTimer(long entryId)
+    public async Task<int> PauseTimer(long rawTimerId)
     {
       // TODO: [TESTS] (RawTimersRepo.PauseTimer) Add tests
       return await ExecuteAsync(
         nameof(PauseTimer),
         _queries.PauseTimer(),
-        new { EntryId = entryId }
+        new
+        {
+          RawTimerId = rawTimerId
+        }
       );
     }
 
-    public async Task<RawTimerEntity> GetByEntryId(long entryId)
+    public async Task<RawTimerEntity> GetByRawTimerId(long rawTimerId)
     {
-      // TODO: [TESTS] (RawTimersRepo.GetByEntryId) Add tests
+      // TODO: [TESTS] (RawTimersRepo.GetByRawTimerId) Add tests
       return await GetSingle<RawTimerEntity>(
-        nameof(GetByEntryId),
-        _queries.GetByEntryId(),
-        new { EntryId = entryId }
+        nameof(GetByRawTimerId),
+        _queries.GetByRawTimerId(),
+        new
+        {
+          RawTimerId = rawTimerId
+        }
       );
     }
 
-    public async Task<int> FlagAsResumed(long entryId)
+    public async Task<int> FlagAsResumed(long rawTimerId)
     {
       // TODO: [TESTS] (RawTimersRepo.FlagAsResumed) Add tests
       return await ExecuteAsync(
         nameof(FlagAsResumed),
         _queries.FlagAsResumed(),
-        new { EntryId = entryId }
+        new
+        {
+          RawTimerId = rawTimerId
+        }
       );
     }
 
-    public async Task<int> SpawnResumedTimer(RawTimerEntity entity)
+    public async Task<int> SpawnResumedTimer(RawTimerEntity timerEntity)
     {
       // TODO: [TESTS] (RawTimersRepo.SpawnResumedTimer) Add tests
       return await ExecuteAsync(
         nameof(SpawnResumedTimer),
         _queries.SpawnResumedTimer(),
-        entity
+        timerEntity
       );
     }
 
-    public async Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId)
+    public async Task<int> SetRootTimerId(long rawTimerId, long rootTimerId)
     {
-      // TODO: [TESTS] (RawTimersRepo.SetRootParentEntryId) Add tests
+      // TODO: [TESTS] (RawTimersRepo.SetRootTimerId) Add tests
       return await ExecuteAsync(
-        nameof(SetRootParentEntryId),
-        _queries.SetRootParentEntryId(),
+        nameof(SetRootTimerId),
+        _queries.SetRootTimerId(),
         new
         {
-          EntryId = entryId,
-          RootParentEntryId = rootParentEntryId
+          RawTimerId = rawTimerId,
+          RootTimerId = rootTimerId
         }
       );
     }
 
-    public async Task<int> StopTimer(long entryId)
+    public async Task<int> StopTimer(long rawTimerId)
     {
       // TODO: [TESTS] (RawTimersRepo.StopTimer) Add tests
       return await ExecuteAsync(
         nameof(StopTimer),
         _queries.StopTimer(),
-        new { EntryId = entryId }
+        new { RawTimerId = rawTimerId }
       );
     }
 
-    public async Task<int> CompleteTimer(long rootParentEntryId)
+    public async Task<int> CompleteTimer(long rootTimerId)
     {
       // TODO: [TESTS] (RawTimersRepo.CompleteTimer) Add tests
       return await ExecuteAsync(
         nameof(CompleteTimer),
         _queries.CompleteTimer(),
-        new { RootParentEntryId = rootParentEntryId }
+        new
+        {
+          RootTimerId = rootTimerId
+        }
       );
     }
   }

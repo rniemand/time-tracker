@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTrackedTimeDto, TrackedTimeClient } from 'src/app/time-tracker-api';
@@ -9,6 +9,7 @@ import { RawTrackedTimeDto, TrackedTimeClient } from 'src/app/time-tracker-api';
   styleUrls: ['./start-timer.component.css']
 })
 export class StartTimerComponent implements OnInit {
+  @Output() timerCreated = new EventEmitter<void>();
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
@@ -38,8 +39,7 @@ export class StartTimerComponent implements OnInit {
     this.uiService.showLoader(true);
     this.trackedTimeClient.startNewTimer(newEntry).toPromise().then(
       (entry: RawTrackedTimeDto) => {
-        console.log(entry);
-        this.uiService.hideLoader();
+        this.timerCreated.emit();
       },
       this.uiService.handleClientError
     );

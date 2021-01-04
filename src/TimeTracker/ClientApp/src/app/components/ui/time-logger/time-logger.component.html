@@ -7,10 +7,10 @@
     <table>
       <tr>
         <td class="start-controls">
-          <app-start-timer></app-start-timer>
+          <app-start-timer (timerCreated)="timerCreated()"></app-start-timer>
         </td>
         <td class="running-timers">
-          <app-list-timers></app-list-timers>
+          <app-list-timers #runningTimers></app-list-timers>
         </td>
       </tr>
     </table>

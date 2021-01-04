@@ -4,7 +4,6 @@
   {
     Running = 1,
     Completed = 2,
-    Paused = 2,
-    PausedContinued = 3
+    Paused = 2
   }
 }

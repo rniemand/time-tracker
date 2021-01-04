@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ListTimersComponent } from './list-timers/list-timers.component';
 
 @Component({
   selector: 'app-time-logger',
@@ -6,10 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./time-logger.component.css']
 })
 export class TimeLoggerComponent implements OnInit {
+  @ViewChild('runningTimers', { static: true }) runningTimers!: ListTimersComponent;
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnInit(): void { }
+
+  timerCreated = () => {
+    this.runningTimers.refresh();
   }
 
 }

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Razor.Language;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rn.NetCore.Common.Logging;
+using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Enums;
 using TimeTracker.Core.Models.Dto;
 
 namespace TimeTracker.Core.Services
@@ -14,7 +14,7 @@ namespace TimeTracker.Core.Services
     Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto);
     Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId);
     Task<RawTrackedTimeDto> PauseTimer(int userId, long entryId);
-    Task<RawTrackedTimeDto> ResumeTimer(int userId, long entryId);
+    Task<bool> ResumeTimer(int userId, long entryId);
   }
 
   public class TrackedTimeService : ITrackedTimeService
@@ -83,7 +83,7 @@ namespace TimeTracker.Core.Services
       return RawTrackedTimeDto.FromEntity(dbEntry);
     }
 
-    public async Task<RawTrackedTimeDto> ResumeTimer(int userId, long entryId)
+    public async Task<bool> ResumeTimer(int userId, long entryId)
     {
       // TODO: [TESTS] (TrackedTimeService.ResumeTimer) Add tests
 
@@ -91,23 +91,29 @@ namespace TimeTracker.Core.Services
       if (parentEntry == null || parentEntry.UserId != userId)
       {
         // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
-        return null;
+        return false;
       }
 
+      var resumedEntity = new RawTrackedTimeEntity
+      {
+        ParentEntryId = parentEntry.EntryId,
+        RootParentEntryId = parentEntry.RootParentEntryId,
+        ClientId = parentEntry.ClientId,
+        ProductId = parentEntry.ProductId,
+        ProjectId = parentEntry.ProjectId,
+        UserId = parentEntry.UserId,
+        Running = true,
+        EntryState = EntryRunningState.Running,
+        Completed = false
+      };
 
+      if (await _rawTrackedTimeRepo.SpawnResumedTimer(resumedEntity) == 0)
+      {
+        // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+        return false;
+      }
 
-
-      /*
-       *  return @"UPDATE `RawTrackedTime`
-      SET
-	      `RootParentEntryId` = @RootParentEntryId,
-	      `Running` = @Running
-      WHERE
-	      `EntryId` = @EntryId";
-       */
-
-
-      return null;
+      return true;
     }
   }
 }

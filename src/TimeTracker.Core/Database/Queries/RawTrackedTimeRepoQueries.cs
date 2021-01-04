@@ -52,7 +52,8 @@
       WHERE
 	      rtt.`Deleted` = 0 AND
 	      rtt.`UserId` = @UserId AND
-	      rtt.`Completed` = 0
+	      rtt.`Completed` = 0 AND
+        rtt.`Running` = 1
       ORDER BY `EntryStartTimeUtc` ASC";
     }
 
@@ -82,12 +83,12 @@
       return @"INSERT INTO `RawTrackedTime`
 	      (
           `ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`,
-          `ProjectId`, `UserId`, `Running`, `EntryState`
+          `ProjectId`, `UserId`, `Running`, `EntryState`, `Completed`
         )
       VALUES
 	      (
           @ParentEntryId, @RootParentEntryId, @ClientId, @ProductId,
-          @ProjectId, @UserId, @Running, @EntryState
+          @ProjectId, @UserId, @Running, @EntryState, @Completed
         )";
     }
 

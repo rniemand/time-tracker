@@ -43,7 +43,18 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   }
 
   resume = (timer: RawTrackedTimeDto) => {
-    console.log('resume', timer);
+    let entryId = timer?.entryId ?? 0;
+    if(entryId == 0) return;
+
+    this.uiService.showLoader(true);
+    this.trackedTimeClient.resumeTimer(entryId).toPromise().then(
+      (success: boolean) => { this.refreshTimers(); },
+      this.uiService.handleClientError
+    );
+  }
+
+  refresh = () => {
+    this.refreshTimers();
   }
 
 

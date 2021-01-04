@@ -16,6 +16,7 @@ namespace TimeTracker.Core.Models.Dto
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
+    public bool Completed { get; set; }
     public EntryRunningState EntryState { get; set; }
     public int EntryRunningTimeSec { get; set; }
     public DateTime EntryStartTimeUtc { get; set; }
@@ -47,7 +48,8 @@ namespace TimeTracker.Core.Models.Dto
           Running = entity.Running,
           ProductName = entity.ProductName,
           ProjectName = entity.ProjectName,
-          ClientName = entity.ClientName
+          ClientName = entity.ClientName,
+          Completed = entity.Completed
         };
       }
     }
@@ -70,6 +72,7 @@ namespace TimeTracker.Core.Models.Dto
       UserId = 0;
       Deleted = false;
       Running = true;
+      Completed = false;
       EntryState = EntryRunningState.Running;
       EntryRunningTimeSec = 0;
       EntryStartTimeUtc = DateTime.UtcNow;
@@ -99,7 +102,8 @@ namespace TimeTracker.Core.Models.Dto
         Running = Running,
         ProductName = ProductName,
         ProjectName = ProjectName,
-        ClientName = ClientName
+        ClientName = ClientName,
+        Completed = Completed
       };
     }
   }

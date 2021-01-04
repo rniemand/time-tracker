@@ -52,7 +52,7 @@
       WHERE
 	      rtt.`Deleted` = 0 AND
 	      rtt.`UserId` = @UserId AND
-	      rtt.`Running` = 1
+	      rtt.`Completed` = 0
       ORDER BY `EntryStartTimeUtc` ASC";
     }
 
@@ -60,8 +60,9 @@
     {
       return @"UPDATE `RawTrackedTime`
       SET
-	      `Running` = 1,
+	      `Running` = 0,
 	      `EntryState` = 2,
+        `Completed` = 0,
 	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
       WHERE

@@ -78,17 +78,17 @@ CREATE TABLE `RawTrackedTime` (
 	`UserId` INT(11) NOT NULL DEFAULT '0',
 	`Deleted` BIT(1) NOT NULL DEFAULT b'0',
 	`Running` BIT(1) NOT NULL DEFAULT b'1',
+	`Completed` INT(11) NOT NULL DEFAULT '0',
 	`EntryState` TINYINT(4) NOT NULL DEFAULT '1',
 	`EntryRunningTimeSec` INT(11) NOT NULL DEFAULT '0',
 	`EntryStartTimeUtc` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
 	`EntryEndTimeUtc` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`EntryId`) USING BTREE,
-	INDEX `ClientId` (`ClientId`) USING BTREE,
-	INDEX `ProductId` (`ProductId`) USING BTREE,
-	INDEX `ProjectId` (`ProjectId`) USING BTREE,
 	INDEX `UserId` (`UserId`) USING BTREE,
 	INDEX `Deleted` (`Deleted`) USING BTREE,
-	INDEX `EntryState` (`EntryState`) USING BTREE
+	INDEX `EntryState` (`EntryState`) USING BTREE,
+	INDEX `Running` (`Running`) USING BTREE,
+	INDEX `Completed` (`Completed`) USING BTREE
 )
 COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB

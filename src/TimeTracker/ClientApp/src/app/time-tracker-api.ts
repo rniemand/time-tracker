@@ -1479,6 +1479,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
     userId?: number;
     deleted?: boolean;
     running?: boolean;
+    completed?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
@@ -1507,6 +1508,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
             this.running = _data["running"];
+            this.completed = _data["completed"];
             this.entryState = _data["entryState"];
             this.entryRunningTimeSec = _data["entryRunningTimeSec"];
             this.entryStartTimeUtc = _data["entryStartTimeUtc"] ? new Date(_data["entryStartTimeUtc"].toString()) : <any>undefined;
@@ -1535,6 +1537,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
         data["running"] = this.running;
+        data["completed"] = this.completed;
         data["entryState"] = this.entryState;
         data["entryRunningTimeSec"] = this.entryRunningTimeSec;
         data["entryStartTimeUtc"] = this.entryStartTimeUtc ? this.entryStartTimeUtc.toISOString() : <any>undefined;
@@ -1556,6 +1559,7 @@ export interface IRawTrackedTimeDto {
     userId?: number;
     deleted?: boolean;
     running?: boolean;
+    completed?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;

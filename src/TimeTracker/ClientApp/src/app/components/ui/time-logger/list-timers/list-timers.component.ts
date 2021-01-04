@@ -19,16 +19,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   ) { }
   
   ngOnInit(): void {
-    this.timers = [];
-
     this._interval = setInterval(() => { this.flipFlop = !this.flipFlop; }, 1000);
-
-    this.trackedTimeClient.getRunningTimers().toPromise().then(
-      (timers: RawTrackedTimeDto[]) => {
-        this.timers = timers;
-      },
-      this.uiService.handleClientError
-    );
+    this.refreshTimers();
   }
 
   ngOnDestroy(): void {
@@ -44,8 +36,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.uiService.showLoader(true);
     this.trackedTimeClient.pauseTimer(entryId).toPromise().then(
       (updatedTimer: RawTrackedTimeDto) => {
-        console.log(updatedTimer);
-        this.uiService.hideLoader();
+        this.refreshTimers();
       },
       this.uiService.handleClientError
     );
@@ -53,6 +44,21 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
   resume = (timer: RawTrackedTimeDto) => {
     console.log('resume', timer);
+  }
+
+
+  // Internal methods
+  private refreshTimers = () => {
+    this.timers = [];
+    this.uiService.showLoader(true);
+
+    this.trackedTimeClient.getRunningTimers().toPromise().then(
+      (timers: RawTrackedTimeDto[]) => {
+        this.timers = timers;
+        this.uiService.hideLoader();
+      },
+      this.uiService.handleClientError
+    );
   }
 
 }

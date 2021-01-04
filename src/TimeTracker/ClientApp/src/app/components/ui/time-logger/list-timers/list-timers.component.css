@@ -5,7 +5,6 @@
 }
   .timer-entry:hover {
     border: 1px solid #737373;
-    cursor: pointer;
   }
 
   .timer-entry .project {
@@ -18,10 +17,27 @@
     color: #e9bcfd;
   }
 
+  .timer-entry .multi {
+    padding-left: 3px;
+    color: #a5deb6;
+    font-size: 0.8em;
+  }
+    .timer-entry .multi:hover {
+      color: #bbeace;
+      cursor: pointer;
+    }
+
   .timer-entry .pause:hover {
-    color: #b181c5;
+    color: #edef86;
+    cursor: pointer;
   }
 
   .timer-entry .resume:hover {
     color: #92d689;
+    cursor: pointer;
+  }
+
+  .timer-entry .stop:hover {
+    color: #ff9191;
+    cursor: pointer;
   }

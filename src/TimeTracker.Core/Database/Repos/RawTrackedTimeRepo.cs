@@ -18,6 +18,8 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> FlagAsResumed(long entryId);
     Task<int> SpawnResumedTimer(RawTrackedTimeEntity entity);
     Task<int> SetRootParentEntryId(long entryId, long rootParentEntryId);
+    Task<int> StopTimer(long entryId);
+    Task<int> CompleteTimer(long rootParentEntryId);
   }
 
   public class RawTrackedTimeRepo : BaseRepo<RawTrackedTimeRepo>, IRawTrackedTimeRepo
@@ -107,6 +109,26 @@ namespace TimeTracker.Core.Database.Repos
           EntryId = entryId,
           RootParentEntryId = rootParentEntryId
         }
+      );
+    }
+
+    public async Task<int> StopTimer(long entryId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.StopTimer) Add tests
+      return await ExecuteAsync(
+        nameof(StopTimer),
+        _queries.StopTimer(),
+        new { EntryId = entryId }
+      );
+    }
+
+    public async Task<int> CompleteTimer(long rootParentEntryId)
+    {
+      // TODO: [TESTS] (RawTrackedTimeRepo.CompleteTimer) Add tests
+      return await ExecuteAsync(
+        nameof(CompleteTimer),
+        _queries.CompleteTimer(),
+        new { RootParentEntryId = rootParentEntryId }
       );
     }
   }

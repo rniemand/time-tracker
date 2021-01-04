@@ -10,6 +10,8 @@
     string SpawnResumedTimer();
     string FlagAsResumed();
     string SetRootParentEntryId();
+    string StopTimer();
+    string CompleteTimer();
   }
 
   public class RawRawTrackedTimeRepoQueries : IRawTrackedTimeRepoQueries
@@ -54,7 +56,7 @@
 	      rtt.`UserId` = @UserId AND
 	      rtt.`Completed` = 0 AND
         rtt.`Running` = 1
-      ORDER BY `EntryStartTimeUtc` ASC";
+      ORDER BY `RootParentEntryId`, `EntryStartTimeUtc` ASC";
     }
 
     public string PauseTimer()
@@ -109,6 +111,29 @@
 	      `RootParentEntryId` = @RootParentEntryId
       WHERE
 	      `EntryId` = @EntryId";
+    }
+
+    public string StopTimer()
+    {
+      return @"UPDATE `RawTrackedTime`
+      SET
+         `Running` = 0,
+         `EntryState` = 3,
+	      `Completed` = 0,
+         `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
+         `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
+      WHERE
+         `EntryId` = @EntryId";
+    }
+
+    public string CompleteTimer()
+    {
+      return @"UPDATE `RawTrackedTime`
+      SET
+	      `Running` = 0,
+	      `Completed` = 1
+      WHERE
+	      `RootParentEntryId` = @RootParentEntryId";
     }
   }
 }

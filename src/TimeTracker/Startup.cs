@@ -102,7 +102,7 @@ namespace TimeTracker
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<ITrackedTimeService, TrackedTimeService>();
+        .AddSingleton<IRawTimerService, RawTimerService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)

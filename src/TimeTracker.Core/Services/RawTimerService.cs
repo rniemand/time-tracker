@@ -9,36 +9,36 @@ using TimeTracker.Core.Models.Dto;
 
 namespace TimeTracker.Core.Services
 {
-  public interface ITrackedTimeService
+  public interface IRawTimerService
   {
-    Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto);
-    Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId);
+    Task<RawTimerDto> StartNew(int userId, RawTimerDto entryDto);
+    Task<List<RawTimerDto>> GetRunningTimers(int userId);
     Task<bool> PauseTimer(int userId, long entryId);
     Task<bool> ResumeTimer(int userId, long entryId);
   }
 
-  public class TrackedTimeService : ITrackedTimeService
+  public class RawTimerService : IRawTimerService
   {
-    private readonly ILoggerAdapter<TrackedTimeService> _logger;
+    private readonly ILoggerAdapter<RawTimerService> _logger;
     private readonly IRawTimersRepo _rawTimersRepo;
 
-    public TrackedTimeService(
-      ILoggerAdapter<TrackedTimeService> logger,
+    public RawTimerService(
+      ILoggerAdapter<RawTimerService> logger,
       IRawTimersRepo rawTimersRepo)
     {
       _logger = logger;
       _rawTimersRepo = rawTimersRepo;
     }
 
-    public async Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto)
+    public async Task<RawTimerDto> StartNew(int userId, RawTimerDto entryDto)
     {
-      // TODO: [TESTS] (TrackedTimeService.StartNew) Add tests
+      // TODO: [TESTS] (RawTimerService.StartNew) Add tests
       var entryEntity = entryDto.AsEntity();
       entryEntity.UserId = userId;
 
       if (await _rawTimersRepo.StartNew(entryEntity) <= 0)
       {
-        // TODO: [HANDLE] (TrackedTimeService.StartNew) Handle this
+        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
         return null;
       }
 
@@ -46,36 +46,36 @@ namespace TimeTracker.Core.Services
       var rootId = dbEntry.EntryId;
       if (await _rawTimersRepo.SetRootParentEntryId(rootId, rootId) == 0)
       {
-        // TODO: [HANDLE] (TrackedTimeService.StartNew) Handle this
+        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
         return null;
       }
 
       dbEntry.RootParentEntryId = rootId;
-      return RawTrackedTimeDto.FromEntity(dbEntry);
+      return RawTimerDto.FromEntity(dbEntry);
     }
 
-    public async Task<List<RawTrackedTimeDto>> GetRunningTimers(int userId)
+    public async Task<List<RawTimerDto>> GetRunningTimers(int userId)
     {
-      // TODO: [TESTS] (TrackedTimeService.GetRunningTimers) Add tests
+      // TODO: [TESTS] (RawTimerService.GetRunningTimers) Add tests
 
       var dbEntries = await _rawTimersRepo.GetRunningTimers(userId);
-      return dbEntries.AsQueryable().Select(RawTrackedTimeDto.Projection).ToList();
+      return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
 
     public async Task<bool> PauseTimer(int userId, long entryId)
     {
-      // TODO: [TESTS] (TrackedTimeService.PauseTimer) Add tests
+      // TODO: [TESTS] (RawTimerService.PauseTimer) Add tests
 
       var dbEntry = await _rawTimersRepo.GetByEntryId(entryId);
       if (dbEntry == null || dbEntry.UserId != userId)
       {
-        // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
+        // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
         return false;
       }
 
       if (await _rawTimersRepo.PauseTimer(entryId) <= 0)
       {
-        // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
+        // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
         return false;
       }
 
@@ -84,16 +84,16 @@ namespace TimeTracker.Core.Services
 
     public async Task<bool> ResumeTimer(int userId, long entryId)
     {
-      // TODO: [TESTS] (TrackedTimeService.ResumeTimer) Add tests
+      // TODO: [TESTS] (RawTimerService.ResumeTimer) Add tests
 
       var parentEntry = await _rawTimersRepo.GetByEntryId(entryId);
       if (parentEntry == null || parentEntry.UserId != userId)
       {
-        // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
 
-      var resumedEntity = new RawTrackedTimeEntity
+      var resumedEntity = new RawTimerEntity
       {
         ParentEntryId = parentEntry.EntryId,
         RootParentEntryId = parentEntry.RootParentEntryId,
@@ -108,13 +108,13 @@ namespace TimeTracker.Core.Services
 
       if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
       {
-        // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
 
       if (await _rawTimersRepo.FlagAsResumed(entryId) == 0)
       {
-        // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
 

@@ -5,7 +5,7 @@ using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Models.Dto
 {
-  public class RawTrackedTimeDto
+  public class RawTimerDto
   {
     public long EntryId { get; set; }
     public long ParentEntryId { get; set; }
@@ -28,11 +28,11 @@ namespace TimeTracker.Core.Models.Dto
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
 
-    public static Expression<Func<RawTrackedTimeEntity, RawTrackedTimeDto>> Projection
+    public static Expression<Func<RawTimerEntity, RawTimerDto>> Projection
     {
       get
       {
-        return entity => new RawTrackedTimeDto
+        return entity => new RawTimerDto
         {
           UserId = entity.UserId,
           ClientId = entity.ClientId,
@@ -56,15 +56,15 @@ namespace TimeTracker.Core.Models.Dto
       }
     }
 
-    public static RawTrackedTimeDto FromEntity(RawTrackedTimeEntity entity)
+    public static RawTimerDto FromEntity(RawTimerEntity entity)
     {
-      // TODO: [TESTS] (RawTrackedTimeDto.FromEntity) Add tests
+      // TODO: [TESTS] (RawTimerDto.FromEntity) Add tests
       return entity == null ? null : Projection.Compile()(entity);
     }
 
-    public RawTrackedTimeDto()
+    public RawTimerDto()
     {
-      // TODO: [TESTS] (RawTrackedTimeDto) Add tests
+      // TODO: [TESTS] (RawTimerDto) Add tests
       EntryId = 0;
       ParentEntryId = 0;
       RootParentEntryId = 0;
@@ -85,10 +85,10 @@ namespace TimeTracker.Core.Models.Dto
       ClientName = string.Empty;
     }
 
-    public RawTrackedTimeEntity AsEntity()
+    public RawTimerEntity AsEntity()
     {
-      // TODO: [TESTS] (RawTrackedTimeDto.AsEntity) Add tests
-      return new RawTrackedTimeEntity
+      // TODO: [TESTS] (RawTimerDto.AsEntity) Add tests
+      return new RawTimerEntity
       {
         UserId = UserId,
         ClientId = ClientId,

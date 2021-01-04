@@ -3,7 +3,7 @@ using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Database.Entities
 {
-  public class RawTrackedTimeEntity
+  public class RawTimerEntity
   {
     public long EntryId { get; set; }
     public long ParentEntryId { get; set; }
@@ -26,9 +26,9 @@ namespace TimeTracker.Core.Database.Entities
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
 
-    public RawTrackedTimeEntity()
+    public RawTimerEntity()
     {
-      // TODO: [TESTS] (RawTrackedTimeEntity) Add tests
+      // TODO: [TESTS] (RawTimerEntity) Add tests
       EntryId = 0;
       ParentEntryId = 0;
       RootParentEntryId = 0;

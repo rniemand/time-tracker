@@ -12,37 +12,37 @@ namespace TimeTracker.Controllers
   [ApiController, Route("api/[controller]")]
   public class TimersController : ControllerBase
   {
-    private readonly ITrackedTimeService _trackedTimeService;
+    private readonly IRawTimerService _rawTimerService;
 
-    public TimersController(ITrackedTimeService trackedTimeService)
+    public TimersController(IRawTimerService rawTimerService)
     {
-      _trackedTimeService = trackedTimeService;
+      _rawTimerService = rawTimerService;
     }
 
     [HttpPost, Route("start-new"), Authorize]
-    public async Task<ActionResult<RawTrackedTimeDto>> StartNewTimer(
-      [FromBody] RawTrackedTimeDto entryDto,
+    public async Task<ActionResult<RawTimerDto>> StartNewTimer(
+      [FromBody] RawTimerDto entryDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
-      return Ok(await _trackedTimeService.StartNew(request.UserId, entryDto));
+      return Ok(await _rawTimerService.StartNew(request.UserId, entryDto));
     }
 
     [HttpGet, Route("list-running"), Authorize]
-    public async Task<ActionResult<List<RawTrackedTimeDto>>> GetRunningTimers(
+    public async Task<ActionResult<List<RawTimerDto>>> GetRunningTimers(
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
-      return Ok(await _trackedTimeService.GetRunningTimers(request.UserId));
+      return Ok(await _rawTimerService.GetRunningTimers(request.UserId));
     }
 
     [HttpGet, Route("pause-timer/{entryId}"), Authorize]
-    public async Task<ActionResult<RawTrackedTimeDto>> PauseTimer(
+    public async Task<ActionResult<RawTimerDto>> PauseTimer(
       [FromRoute] long entryId,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.PauseTimer) Add tests
-      return Ok(await _trackedTimeService.PauseTimer(request.UserId, entryId));
+      return Ok(await _rawTimerService.PauseTimer(request.UserId, entryId));
     }
 
     [HttpGet, Route("resume-timer/{entryId}"), Authorize]
@@ -51,7 +51,7 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
-      return Ok(await _trackedTimeService.ResumeTimer(request.UserId, entryId));
+      return Ok(await _rawTimerService.ResumeTimer(request.UserId, entryId));
     }
   }
 }

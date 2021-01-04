@@ -10,11 +10,11 @@ using TimeTracker.Core.WebApi.Requests;
 namespace TimeTracker.Controllers
 {
   [ApiController, Route("api/[controller]")]
-  public class TrackedTimeController : ControllerBase
+  public class TimersController : ControllerBase
   {
     private readonly ITrackedTimeService _trackedTimeService;
 
-    public TrackedTimeController(ITrackedTimeService trackedTimeService)
+    public TimersController(ITrackedTimeService trackedTimeService)
     {
       _trackedTimeService = trackedTimeService;
     }
@@ -24,7 +24,7 @@ namespace TimeTracker.Controllers
       [FromBody] RawTrackedTimeDto entryDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TrackedTimeController.StartNewTimer) Add tests
+      // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
       return Ok(await _trackedTimeService.StartNew(request.UserId, entryDto));
     }
 
@@ -32,7 +32,7 @@ namespace TimeTracker.Controllers
     public async Task<ActionResult<List<RawTrackedTimeDto>>> GetRunningTimers(
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TrackedTimeController.GetRunningTimers) Add tests
+      // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
       return Ok(await _trackedTimeService.GetRunningTimers(request.UserId));
     }
 
@@ -41,7 +41,7 @@ namespace TimeTracker.Controllers
       [FromRoute] long entryId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TrackedTimeController.PauseTimer) Add tests
+      // TODO: [TESTS] (TimersController.PauseTimer) Add tests
       return Ok(await _trackedTimeService.PauseTimer(request.UserId, entryId));
     }
 
@@ -50,7 +50,7 @@ namespace TimeTracker.Controllers
       [FromRoute] long entryId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TrackedTimeController.ResumeTimer) Add tests
+      // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
       return Ok(await _trackedTimeService.ResumeTimer(request.UserId, entryId));
     }
   }

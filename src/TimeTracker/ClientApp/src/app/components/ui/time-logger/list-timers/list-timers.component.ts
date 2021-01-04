@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UiService } from 'src/app/services/ui.service';
-import { RawTrackedTimeDto, TrackedTimeClient } from 'src/app/time-tracker-api';
+import { RawTrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-list-timers',
@@ -14,7 +14,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   private _interval: any = null;
 
   constructor(
-    private trackedTimeClient: TrackedTimeClient,
+    private timersClient: TimersClient,
     private uiService: UiService
   ) { }
   
@@ -34,7 +34,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     if(entryId == 0) return;
 
     this.uiService.showLoader(true);
-    this.trackedTimeClient.pauseTimer(entryId).toPromise().then(
+    this.timersClient.pauseTimer(entryId).toPromise().then(
       (updatedTimer: RawTrackedTimeDto) => {
         this.refreshTimers();
       },
@@ -47,7 +47,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     if(entryId == 0) return;
 
     this.uiService.showLoader(true);
-    this.trackedTimeClient.resumeTimer(entryId).toPromise().then(
+    this.timersClient.resumeTimer(entryId).toPromise().then(
       (success: boolean) => { this.refreshTimers(); },
       this.uiService.handleClientError
     );
@@ -63,7 +63,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.timers = [];
     this.uiService.showLoader(true);
 
-    this.trackedTimeClient.getRunningTimers().toPromise().then(
+    this.timersClient.getRunningTimers().toPromise().then(
       (timers: RawTrackedTimeDto[]) => {
         this.timers = timers;
         this.uiService.hideLoader();

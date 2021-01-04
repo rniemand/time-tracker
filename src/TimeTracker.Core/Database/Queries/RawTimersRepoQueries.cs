@@ -1,6 +1,6 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface IRawTrackedTimeRepoQueries
+  public interface IRawTimersRepoQueries
   {
     string StartNew();
     string GetCurrentEntry();
@@ -14,11 +14,11 @@
     string CompleteTimer();
   }
 
-  public class RawRawTrackedTimeRepoQueries : IRawTrackedTimeRepoQueries
+  public class RawTimersRepoQueries : IRawTimersRepoQueries
   {
     public string StartNew()
     {
-      return @"INSERT INTO `RawTrackedTime`
+      return @"INSERT INTO `RawTimers`
 	      (`ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryState`, `Running`)
       VALUES
 	      (@ParentEntryId, @RootParentEntryId, @ClientId, @ProductId, @ProjectId, @UserId, @EntryState, 1)";
@@ -27,7 +27,7 @@
     public string GetCurrentEntry()
     {
       return @"SELECT *
-      FROM `RawTrackedTime`
+      FROM `RawTimers`
       WHERE
 	      `ParentEntryId` = @ParentEntryId AND
 	      `RootParentEntryId` = @RootParentEntryId AND
@@ -47,7 +47,7 @@
 	      prod.`ProductName`,
 	      proj.`ProjectName`,
 	      cli.`ClientName`
-      FROM `RawTrackedTime` rtt
+      FROM `RawTimers` rtt
 	      INNER JOIN `Products` prod ON rtt.`ProductId` = prod.`ProductId`
 	      INNER JOIN `Projects` proj ON rtt.`ProjectId` = proj.`ProjectId`
 	      INNER JOIN `Clients` cli ON prod.`ClientId` = cli.`ClientId`
@@ -61,7 +61,7 @@
 
     public string PauseTimer()
     {
-      return @"UPDATE `RawTrackedTime`
+      return @"UPDATE `RawTimers`
       SET
 	      `Running` = 1,
 	      `EntryState` = 2,
@@ -75,14 +75,14 @@
     public string GetByEntryId()
     {
       return @"SELECT *
-      FROM `RawTrackedTime`
+      FROM `RawTimers`
       WHERE
 	      `EntryId` = @EntryId";
     }
 
     public string SpawnResumedTimer()
     {
-      return @"INSERT INTO `RawTrackedTime`
+      return @"INSERT INTO `RawTimers`
 	      (
           `ParentEntryId`, `RootParentEntryId`, `ClientId`, `ProductId`,
           `ProjectId`, `UserId`, `Running`, `EntryState`, `Completed`
@@ -96,7 +96,7 @@
 
     public string FlagAsResumed()
     {
-      return @"UPDATE `RawTrackedTime`
+      return @"UPDATE `RawTimers`
       SET
 	      `Running` = 0,
 	      `Completed` = 0
@@ -106,7 +106,7 @@
 
     public string SetRootParentEntryId()
     {
-      return @"UPDATE `RawTrackedTime`
+      return @"UPDATE `RawTimers`
       SET
 	      `RootParentEntryId` = @RootParentEntryId
       WHERE
@@ -115,7 +115,7 @@
 
     public string StopTimer()
     {
-      return @"UPDATE `RawTrackedTime`
+      return @"UPDATE `RawTimers`
       SET
          `Running` = 0,
          `EntryState` = 3,
@@ -128,7 +128,7 @@
 
     public string CompleteTimer()
     {
-      return @"UPDATE `RawTrackedTime`
+      return @"UPDATE `RawTimers`
       SET
 	      `Running` = 0,
 	      `Completed` = 1

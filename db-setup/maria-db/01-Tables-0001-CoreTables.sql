@@ -68,7 +68,7 @@ COLLATE='utf8mb4_general_ci'
 ENGINE=InnoDB
 ;
 
-CREATE TABLE `RawTrackedTime` (
+CREATE TABLE `RawTimers` (
 	`EntryId` BIGINT(20) NOT NULL AUTO_INCREMENT,
 	`ParentEntryId` BIGINT(20) NOT NULL DEFAULT '0',
 	`RootParentEntryId` BIGINT(20) NOT NULL DEFAULT '0',

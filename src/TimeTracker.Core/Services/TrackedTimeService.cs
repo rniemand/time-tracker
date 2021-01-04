@@ -20,14 +20,14 @@ namespace TimeTracker.Core.Services
   public class TrackedTimeService : ITrackedTimeService
   {
     private readonly ILoggerAdapter<TrackedTimeService> _logger;
-    private readonly IRawTrackedTimeRepo _rawTrackedTimeRepo;
+    private readonly IRawTimersRepo _rawTimersRepo;
 
     public TrackedTimeService(
       ILoggerAdapter<TrackedTimeService> logger,
-      IRawTrackedTimeRepo rawTrackedTimeRepo)
+      IRawTimersRepo rawTimersRepo)
     {
       _logger = logger;
-      _rawTrackedTimeRepo = rawTrackedTimeRepo;
+      _rawTimersRepo = rawTimersRepo;
     }
 
     public async Task<RawTrackedTimeDto> StartNew(int userId, RawTrackedTimeDto entryDto)
@@ -36,15 +36,15 @@ namespace TimeTracker.Core.Services
       var entryEntity = entryDto.AsEntity();
       entryEntity.UserId = userId;
 
-      if (await _rawTrackedTimeRepo.StartNew(entryEntity) <= 0)
+      if (await _rawTimersRepo.StartNew(entryEntity) <= 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.StartNew) Handle this
         return null;
       }
 
-      var dbEntry = await _rawTrackedTimeRepo.GetCurrentEntry(entryEntity);
+      var dbEntry = await _rawTimersRepo.GetCurrentEntry(entryEntity);
       var rootId = dbEntry.EntryId;
-      if (await _rawTrackedTimeRepo.SetRootParentEntryId(rootId, rootId) == 0)
+      if (await _rawTimersRepo.SetRootParentEntryId(rootId, rootId) == 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.StartNew) Handle this
         return null;
@@ -58,7 +58,7 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (TrackedTimeService.GetRunningTimers) Add tests
 
-      var dbEntries = await _rawTrackedTimeRepo.GetRunningTimers(userId);
+      var dbEntries = await _rawTimersRepo.GetRunningTimers(userId);
       return dbEntries.AsQueryable().Select(RawTrackedTimeDto.Projection).ToList();
     }
 
@@ -66,14 +66,14 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (TrackedTimeService.PauseTimer) Add tests
 
-      var dbEntry = await _rawTrackedTimeRepo.GetByEntryId(entryId);
+      var dbEntry = await _rawTimersRepo.GetByEntryId(entryId);
       if (dbEntry == null || dbEntry.UserId != userId)
       {
         // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
         return false;
       }
 
-      if (await _rawTrackedTimeRepo.PauseTimer(entryId) <= 0)
+      if (await _rawTimersRepo.PauseTimer(entryId) <= 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
         return false;
@@ -86,7 +86,7 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (TrackedTimeService.ResumeTimer) Add tests
 
-      var parentEntry = await _rawTrackedTimeRepo.GetByEntryId(entryId);
+      var parentEntry = await _rawTimersRepo.GetByEntryId(entryId);
       if (parentEntry == null || parentEntry.UserId != userId)
       {
         // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
@@ -106,13 +106,13 @@ namespace TimeTracker.Core.Services
         Completed = false
       };
 
-      if (await _rawTrackedTimeRepo.SpawnResumedTimer(resumedEntity) == 0)
+      if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
         return false;
       }
 
-      if (await _rawTrackedTimeRepo.FlagAsResumed(entryId) == 0)
+      if (await _rawTimersRepo.FlagAsResumed(entryId) == 0)
       {
         // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
         return false;

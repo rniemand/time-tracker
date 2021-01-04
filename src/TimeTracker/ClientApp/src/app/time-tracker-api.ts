@@ -980,7 +980,7 @@ export class ProjectsClient implements IProjectsClient {
     }
 }
 
-export interface ITrackedTimeClient {
+export interface ITimersClient {
     startNewTimer(entryDto: RawTrackedTimeDto): Observable<RawTrackedTimeDto>;
     getRunningTimers(): Observable<RawTrackedTimeDto[]>;
     pauseTimer(entryId: number): Observable<RawTrackedTimeDto>;
@@ -988,7 +988,7 @@ export interface ITrackedTimeClient {
 }
 
 @Injectable()
-export class TrackedTimeClient implements ITrackedTimeClient {
+export class TimersClient implements ITimersClient {
     private http: HttpClient;
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -999,7 +999,7 @@ export class TrackedTimeClient implements ITrackedTimeClient {
     }
 
     startNewTimer(entryDto: RawTrackedTimeDto): Observable<RawTrackedTimeDto> {
-        let url_ = this.baseUrl + "/api/TrackedTime/start-new";
+        let url_ = this.baseUrl + "/api/Timers/start-new";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(entryDto);
@@ -1051,7 +1051,7 @@ export class TrackedTimeClient implements ITrackedTimeClient {
     }
 
     getRunningTimers(): Observable<RawTrackedTimeDto[]> {
-        let url_ = this.baseUrl + "/api/TrackedTime/list-running";
+        let url_ = this.baseUrl + "/api/Timers/list-running";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1103,7 +1103,7 @@ export class TrackedTimeClient implements ITrackedTimeClient {
     }
 
     pauseTimer(entryId: number): Observable<RawTrackedTimeDto> {
-        let url_ = this.baseUrl + "/api/TrackedTime/pause-timer/{entryId}";
+        let url_ = this.baseUrl + "/api/Timers/pause-timer/{entryId}";
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
@@ -1154,7 +1154,7 @@ export class TrackedTimeClient implements ITrackedTimeClient {
     }
 
     resumeTimer(entryId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/TrackedTime/resume-timer/{entryId}";
+        let url_ = this.baseUrl + "/api/Timers/resume-timer/{entryId}";
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
@@ -1532,6 +1532,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
     deleted?: boolean;
     running?: boolean;
     completed?: boolean;
+    processed?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
@@ -1561,6 +1562,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
             this.deleted = _data["deleted"];
             this.running = _data["running"];
             this.completed = _data["completed"];
+            this.processed = _data["processed"];
             this.entryState = _data["entryState"];
             this.entryRunningTimeSec = _data["entryRunningTimeSec"];
             this.entryStartTimeUtc = _data["entryStartTimeUtc"] ? new Date(_data["entryStartTimeUtc"].toString()) : <any>undefined;
@@ -1590,6 +1592,7 @@ export class RawTrackedTimeDto implements IRawTrackedTimeDto {
         data["deleted"] = this.deleted;
         data["running"] = this.running;
         data["completed"] = this.completed;
+        data["processed"] = this.processed;
         data["entryState"] = this.entryState;
         data["entryRunningTimeSec"] = this.entryRunningTimeSec;
         data["entryStartTimeUtc"] = this.entryStartTimeUtc ? this.entryStartTimeUtc.toISOString() : <any>undefined;
@@ -1612,6 +1615,7 @@ export interface IRawTrackedTimeDto {
     deleted?: boolean;
     running?: boolean;
     completed?: boolean;
+    processed?: boolean;
     entryState?: EntryRunningState;
     entryRunningTimeSec?: number;
     entryStartTimeUtc?: Date;
@@ -1623,8 +1627,8 @@ export interface IRawTrackedTimeDto {
 
 export enum EntryRunningState {
     Running = 1,
-    Completed = 2,
     Paused = 2,
+    Completed = 3,
 }
 
 export class SwaggerException extends Error {

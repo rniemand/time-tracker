@@ -62,5 +62,14 @@ namespace TimeTracker.Controllers
       // TODO: [TESTS] (TimersController.StopTimer) Add tests
       return Ok(await _rawTimerService.StopTimer(request.UserId, rawTimerId));
     }
+
+    [HttpGet, Route("timer-series/{rootTimerId}"), Authorize]
+    public async Task<ActionResult<List<RawTimerDto>>> GetTimerSeries(
+      [FromRoute] long rootTimerId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
+      return Ok(await _rawTimerService.GetTimerSeries(request.UserId, rootTimerId));
+    }
   }
 }

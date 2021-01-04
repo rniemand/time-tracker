@@ -1,0 +1,12 @@
+.entries {
+  border-top: 2px solid #3c3b3b;
+  margin-bottom: 16px;
+}
+
+.mat-dialog-title {
+  text-align: center;
+}
+
+.data-table {
+  width: 100%;
+}

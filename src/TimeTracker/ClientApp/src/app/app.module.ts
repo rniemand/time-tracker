@@ -31,6 +31,7 @@ import { StartTimerComponent } from './components/ui/time-logger/start-timer/sta
 import { ProjectSelectorComponent } from './components/ui/project-selector/project-selector.component';
 import { ListTimersComponent } from './components/ui/time-logger/list-timers/list-timers.component';
 import { RunningTimerPipe } from './pipes/running-timer.pipe';
+import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-series.dialog';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { RunningTimerPipe } from './pipes/running-timer.pipe';
     StartTimerComponent,
     ProjectSelectorComponent,
     ListTimersComponent,
-    RunningTimerPipe
+    RunningTimerPipe,
+    TimerSeriesDialog
   ],
   imports: [
     BrowserModule,

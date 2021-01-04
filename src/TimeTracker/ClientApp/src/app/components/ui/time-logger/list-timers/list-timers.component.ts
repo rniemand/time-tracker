@@ -1,4 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
+import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 
@@ -15,12 +18,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
   constructor(
     private timersClient: TimersClient,
-    private uiService: UiService
+    private uiService: UiService,
+    public dialog: MatDialog
   ) { }
   
   ngOnInit(): void {
     this._interval = setInterval(() => { this.flipFlop = !this.flipFlop; }, 1000);
     this.refreshTimers();
+
+    setTimeout(() => {
+      this.showSeries({ rootTimerId: 8 });
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -84,6 +92,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
 
     return ['timer-entry'];
+  }
+
+  showSeries = (timer: RawTimerDto) => {
+    let dialogData: TimerSeriesDialogData = {
+      rootTimerId: timer?.rootTimerId ?? 0
+    };
+
+    this.dialog.open(TimerSeriesDialog, {
+      ...DIALOG_DEFAULTS,
+      data: dialogData
+    });
   }
 
 

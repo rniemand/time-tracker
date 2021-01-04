@@ -20,6 +20,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> SetRootTimerId(long rawTimerId, long rootTimerId);
     Task<int> StopTimer(long rawTimerId);
     Task<int> CompleteTimerSet(long rootTimerId);
+    Task<List<RawTimerEntity>> GetTimerSeries(long rootTimerId);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -148,6 +149,19 @@ namespace TimeTracker.Core.Database.Repos
       return await ExecuteAsync(
         nameof(CompleteTimerSet),
         _queries.CompleteTimerSet(),
+        new
+        {
+          RootTimerId = rootTimerId
+        }
+      );
+    }
+
+    public async Task<List<RawTimerEntity>> GetTimerSeries(long rootTimerId)
+    {
+      // TODO: [TESTS] (RawTimersRepo.GetTimerSeries) Add tests
+      return await GetList<RawTimerEntity>(
+        nameof(GetTimerSeries),
+        _queries.GetTimerSeries(),
         new
         {
           RootTimerId = rootTimerId

@@ -12,6 +12,7 @@
     string SetRootTimerId();
     string StopTimer();
     string CompleteTimerSet();
+    string GetTimerSeries();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -134,6 +135,22 @@
 	      `Completed` = 1
       WHERE
 	      `RootTimerId` = @RootTimerId";
+    }
+
+    public string GetTimerSeries()
+    {
+      return @"SELECT
+	      raw.*,
+	      prod.`ProductName`,
+	      proj.`ProjectName`,
+	      cli.`ClientName`
+      FROM `RawTimers` raw
+	      INNER JOIN `Products` prod ON prod.`ProductId` = raw.`ProductId`
+	      INNER JOIN `Projects` proj ON proj.`ProjectId` = raw.`ProjectId`
+	      INNER JOIN `Clients` cli ON cli.`ClientId` = raw.`ClientId`
+      WHERE
+	      `RootTimerId` = @RootTimerId
+      ORDER BY `RawTimerId` ASC";
     }
   }
 }

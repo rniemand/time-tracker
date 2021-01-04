@@ -15,6 +15,7 @@ namespace TimeTracker.Core.Services
     Task<bool> PauseTimer(int userId, long rawTimerId);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
     Task<bool> StopTimer(int userId, long rawTimerId);
+    Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId);
   }
 
   public class RawTimerService : IRawTimerService
@@ -141,6 +142,25 @@ namespace TimeTracker.Core.Services
       }
 
       return true;
+    }
+
+    public async Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId)
+    {
+      // TODO: [TESTS] (RawTimerService.GetTimerSeries) Add tests
+      var dbEntries = await _rawTimersRepo.GetTimerSeries(rootTimerId);
+      if (dbEntries == null || dbEntries.Count == 0)
+      {
+        // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
+        return new List<RawTimerDto>();
+      }
+
+      if (dbEntries.First().UserId != userId)
+      {
+        // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
+        return new List<RawTimerDto>();
+      }
+
+      return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
   }
 }

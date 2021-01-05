@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 import { TimeLoggerEvent } from '../../ui/time-logger/time-logger.component';
 
 @Component({
@@ -13,16 +14,29 @@ export class HomeComponent implements OnInit, OnDestroy {
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
-  testDate: Date = new Date(2020, 1, 4, 17, 48, 1);
+  timer?: RawTimerDto;
 
   private subscriptions: Subscription[] = [];
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private timersClient: TimersClient
   ) { }
 
   ngOnInit(): void {
     this.loggedIn = this.authService.loggedIn;
+
+
+    this.timersClient.getRunningTimers().toPromise().then(
+      (timers: RawTimerDto[]) => {
+        if(timers.length > 0) {
+          this.timer = timers[0];
+        }
+      },
+      (error: any) => {
+        console.error(error);
+      }
+    );
 
     this.subscriptions.push(this.authService.authChanged.subscribe(
       (loggedIn: boolean) => {

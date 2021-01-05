@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Rn.NetCore.Common.Logging;
+using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
@@ -8,11 +10,15 @@ using TimeTracker.Core.WebApi.Attributes;
 namespace TimeTracker.Controllers
 {
   [ApiController, Route("api/[controller]")]
-  public class AuthController : ControllerBase
+  public class AuthController : BaseController<AuthController>
   {
     private readonly IUserService _userService;
 
-    public AuthController(IUserService userService)
+    public AuthController(
+      ILoggerAdapter<AuthController> logger,
+      IMetricService metrics,
+      IUserService userService
+    ) : base(logger, metrics)
     {
       _userService = userService;
     }

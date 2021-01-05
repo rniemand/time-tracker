@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
+using Rn.NetCore.Common.Logging;
+using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Attributes;
@@ -10,11 +12,15 @@ using TimeTracker.Core.WebApi.Requests;
 namespace TimeTracker.Controllers
 {
   [ApiController, Route("api/[controller]")]
-  public class ProductsController : ControllerBase
+  public class ProductsController : BaseController<ProductsController>
   {
     private readonly IProductService _productService;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(
+      ILoggerAdapter<ProductsController> logger,
+      IMetricService metrics,
+      IProductService productService
+    ) : base(logger, metrics)
     {
       _productService = productService;
     }

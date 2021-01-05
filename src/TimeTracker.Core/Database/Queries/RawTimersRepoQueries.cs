@@ -199,7 +199,8 @@
       SET
 	      `EntryStartTimeUtc` = @EntryStartTimeUtc,
 	      `EntryRunningTimeSec` = @EntryRunningTimeSec,
-	      `EntryEndTimeUtc` = DATE_ADD(@EntryStartTimeUtc, INTERVAL @EntryRunningTimeSec SECOND)
+	      `EntryEndTimeUtc` = DATE_ADD(@EntryStartTimeUtc, INTERVAL @EntryRunningTimeSec SECOND),
+        `TimerNotes` = @TimerNotes
       WHERE
 	      `RawTimerId` = @RawTimerId";
     }

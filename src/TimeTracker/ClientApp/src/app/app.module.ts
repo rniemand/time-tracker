@@ -34,7 +34,7 @@ import { RunningTimerPipe } from './pipes/running-timer.pipe';
 import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-series.dialog';
 import { EntryStatePipe } from './pipes/entry-state.pipe';
 import { EditTimerEntryDialog } from './components/dialogs/edit-timer-entry/edit-timer-entry.dialog';
-import { DateTimeEditorComponent } from './components/ui/date-time-editor/date-time-editor.component';
+import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-timer-entry.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +64,7 @@ import { DateTimeEditorComponent } from './components/ui/date-time-editor/date-t
     TimerSeriesDialog,
     EntryStatePipe,
     EditTimerEntryDialog,
-    DateTimeEditorComponent
+    EditTimerEntryComponent
   ],
   imports: [
     BrowserModule,

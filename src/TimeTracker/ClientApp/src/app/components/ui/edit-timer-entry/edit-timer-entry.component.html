@@ -1,5 +1,6 @@
 <form class="edit-form" [formGroup]="editForm" (ngSubmit)="onSubmit()">
   <div class="stretched" fxLayout="row wrap" fxLayoutAlign="space-evenly start">
+    <!-- Start Time -->
     <div class="control-row">
       <h1>Start Time</h1>
 
@@ -33,6 +34,7 @@
       </div>
     </div>
 
+    <!-- Running Duration -->
     <div class="control-row">
       <h1>Running Duration</h1>
 
@@ -55,8 +57,16 @@
         <mat-slider thumbLabel tickInterval="1" min="0" max="12" formControlName="durationHour" (change)="durationHoursChanged()" fxFlex="100px"></mat-slider>
         <mat-slider thumbLabel tickInterval="1" min="0" max="59" formControlName="durationMin" (change)="durationMinsChanged()" fxFlex></mat-slider>
       </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="notes">
+          <mat-label>Timer Entry Notes</mat-label>
+          <textarea matInput maxlength="512" placeholder="Notes here" formControlName="notes" (keyup)="notesChanged()" (change)="notesChanged()"></textarea>
+        </mat-form-field>
+      </div>
     </div>
 
+    <!-- Calculated -->
     <div class="control-row calculated">
       <h1>Calculated Duration</h1>
 

@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RawTimerDto } from 'src/app/time-tracker-api';
-import { DateTimeEditorEvent } from '../../ui/date-time-editor/date-time-editor.component';
+import { DateTimeEditorEvent } from '../../ui/edit-timer-entry/edit-timer-entry.component';
 import { TimerSeriesDialog } from '../timer-series/timer-series.dialog';
 
 export interface EditTimerEntryDialogData {
@@ -10,10 +10,11 @@ export interface EditTimerEntryDialogData {
   durationSeconds?: number;
   okClicked?: boolean;
   outcome?: string;
+  notes?: string;
 }
 
 @Component({
-  selector: 'app-edit-timer-entry',
+  selector: 'app-edit-timer-entry-dialog',
   templateUrl: './edit-timer-entry.dialog.html',
   styleUrls: ['./edit-timer-entry.dialog.css']
 })
@@ -21,6 +22,7 @@ export class EditTimerEntryDialog implements OnInit {
   timer?: RawTimerDto;
   startDate?: Date;
   durationSeconds: number = 0;
+  notes?: string;
   hasChange: boolean = false;
 
   constructor(
@@ -39,6 +41,7 @@ export class EditTimerEntryDialog implements OnInit {
     this.startDate = e.startDate;
     this.durationSeconds = e?.durationSec ?? 0;
     this.hasChange = true;
+    this.notes = e?.notes ?? '';
   }
 
   closeDialog(okClicked: boolean): void {
@@ -47,7 +50,8 @@ export class EditTimerEntryDialog implements OnInit {
       startDate: this.startDate,
       durationSeconds: this.durationSeconds,
       okClicked: okClicked,
-      outcome: 'user-closed'
+      outcome: 'user-closed',
+      notes: this.notes
     });
   }
 

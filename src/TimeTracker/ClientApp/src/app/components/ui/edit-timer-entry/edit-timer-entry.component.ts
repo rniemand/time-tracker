@@ -15,21 +15,22 @@ export interface DateTimeEditorEvent {
   timer?: RawTimerDto;
   startDate?: Date;
   durationSec?: number;
+  notes?: string;
 }
 
 @Component({
-  selector: 'app-date-time-editor',
-  templateUrl: './date-time-editor.component.html',
-  styleUrls: ['./date-time-editor.component.css'],
+  selector: 'app-edit-timer-entry',
+  templateUrl: './edit-timer-entry.component.html',
+  styleUrls: ['./edit-timer-entry.component.css'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DateTimeEditorComponent),
+      useExisting: forwardRef(() => EditTimerEntryComponent),
       multi: true
     }
   ]
 })
-export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
+export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
   @Output('changed') onChanged = new EventEmitter<DateTimeEditorEvent>();
   editForm: FormGroup;
   pickedDate = new FormControl(new Date());
@@ -52,6 +53,7 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
       'durationHour': new FormControl(0, [Validators.required]),
       'durationMin': new FormControl(0, [Validators.required]),
       'durationSeconds': new FormControl(0, [Validators.required]),
+      'notes': new FormControl(0, [Validators.required]),
     });
   }
   
@@ -134,6 +136,10 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
     this.calculateValues();
   }
 
+  notesChanged = () => {
+    this.calculateValues();
+  }
+
 
   // Internal methods
   private setRawTimer = (timer: RawTimerDto) => {
@@ -159,7 +165,8 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
       'seconds': date.getSeconds(),
       'durationHour': duration.hours,
       'durationMin': duration.minutes,
-      'durationSeconds': duration.seconds
+      'durationSeconds': duration.seconds,
+      'notes': timer.timerNotes
     });
 
     this.calculateValues();
@@ -187,6 +194,22 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
     return duration;
   }
 
+  private workTotalSeconds = (formData: any) => {
+    let totalSeconds = 0;
+    totalSeconds += (3600 * formData.durationHour);
+    totalSeconds += (60 * formData.durationMin);
+    totalSeconds += formData.durationSeconds;
+    return totalSeconds;
+  }
+
+  private getHumanDuration = (formData: any, totalSeconds: number) => {
+    let hours = (formData.durationHour as number).toString().padStart(2, '0');
+    let mins = (formData.durationMin as number).toString().padStart(2, '0');
+    let secs = (formData.durationSeconds as number).toString().padStart(2, '0');
+    
+    return `${hours}:${mins}:${secs} (${totalSeconds} seconds)`;
+  }
+
   private calculateValues = () => {
     let formData = this.editForm.value;
     let totalSeconds = this.workTotalSeconds(formData);
@@ -207,23 +230,8 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
       type: 'valueChanged',
       timer: this._timer,
       durationSec: totalSeconds,
-      startDate: this.startDate
+      startDate: this.startDate,
+      notes: formData.notes
     });
-  }
-
-  private workTotalSeconds = (formData: any) => {
-    let totalSeconds = 0;
-    totalSeconds += (3600 * formData.durationHour);
-    totalSeconds += (60 * formData.durationMin);
-    totalSeconds += formData.durationSeconds;
-    return totalSeconds;
-  }
-
-  private getHumanDuration = (formData: any, totalSeconds: number) => {
-    let hours = (formData.durationHour as number).toString().padStart(2, '0');
-    let mins = (formData.durationMin as number).toString().padStart(2, '0');
-    let secs = (formData.durationSeconds as number).toString().padStart(2, '0');
-    
-    return `${hours}:${mins}:${secs} (${totalSeconds} seconds)`;
   }
 }

@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Edit Timer Entry</h1>
 <div mat-dialog-content>
-  <app-date-time-editor *ngIf="timer" [(ngModel)]="timer" (changed)="entryChanged($event)"></app-date-time-editor>
+  <app-edit-timer-entry *ngIf="timer" [(ngModel)]="timer" (changed)="entryChanged($event)"></app-edit-timer-entry>
 </div>
 <div mat-dialog-actions>
   <button mat-flat-button color="warn" (click)="closeDialog(false)" fxFlex>Cancel</button>

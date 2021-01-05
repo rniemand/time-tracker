@@ -72,7 +72,8 @@ export class TimerSeriesDialog implements OnInit {
         let updatedTimer = new RawTimerDto({
           ...castResult.timer,
           'entryStartTimeUtc': castResult.startDate,
-          'entryRunningTimeSec': castResult.durationSeconds
+          'entryRunningTimeSec': castResult.durationSeconds,
+          'timerNotes': castResult.notes
         });
 
         this.uiService.showLoader(true);

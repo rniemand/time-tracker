@@ -22,7 +22,6 @@
   </div>
 
   <div class="content-row" *ngIf="loggedIn">
-    <app-date-time-editor *ngIf="timer" [(ngModel)]="timer"></app-date-time-editor>
     <app-time-logger (onEvent)="timeLoggerEvent($event)"></app-time-logger>
   </div>
 </div>

@@ -81,5 +81,14 @@ namespace TimeTracker.Controllers
       // TODO: [TESTS] (TimersController.UpdateNotes) Add tests
       return Ok(await _rawTimerService.UpdateNotes(request.UserId, rawTimerId, notes));
     }
+
+    [HttpPost, Route("update-duration"), Authorize]
+    public async Task<ActionResult<bool>> UpdateTimerDuration(
+      [FromBody] RawTimerDto timerDto,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
+      return Ok(await _rawTimerService.UpdateTimerDuration(request.UserId, timerDto));
+    }
   }
 }

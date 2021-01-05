@@ -58,9 +58,7 @@ export class TimerSeriesDialog implements OnInit {
   }
 
   editEntry = (timer: RawTimerDto) => {
-    let dialogData: EditTimerEntryDialogData = {
-      entry: timer
-    };
+    let dialogData: EditTimerEntryDialogData = { timer: timer };
 
     let dialogRef = this.dialog.open(EditTimerEntryDialog, {
       ...DIALOG_DEFAULTS,
@@ -68,7 +66,21 @@ export class TimerSeriesDialog implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.refreshTable();
+      if(result && result?.outcome == 'user-closed' && result?.okClicked) {
+        let castResult = result as EditTimerEntryDialogData;
+
+        let updatedTimer = new RawTimerDto({
+          ...castResult.timer,
+          'entryStartTimeUtc': castResult.startDate,
+          'entryRunningTimeSec': castResult.durationSeconds
+        });
+
+        this.uiService.showLoader(true);
+        this.timersClient.updateTimerDuration(updatedTimer).toPromise().then(
+          (success: boolean) => { this.refreshTable(); },
+          this.uiService.handleClientError
+        );
+      }
     });
   }
 
@@ -76,6 +88,15 @@ export class TimerSeriesDialog implements OnInit {
   private refreshTable = () => {
     this.timersClient.getTimerSeries(this.data.rootTimerId).toPromise().then(
       (entries: RawTimerDto[]) => {
+
+        // for(var i = 0; i < entries.length; i++) {
+        //   if(entries[i]?.entryEndTimeUtc) {
+        //     console.log('here', entries[i].entryEndTimeUtc, entries[i].entryEndTimeUtc!.toLocaleString());
+        //     entries[i].entryEndTimeUtc = new Date(entries[i].entryEndTimeUtc!.toLocaleString());
+        //   }
+        // }
+
+
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
@@ -83,5 +104,4 @@ export class TimerSeriesDialog implements OnInit {
       this.uiService.handleClientError
     );
   }
-
 }

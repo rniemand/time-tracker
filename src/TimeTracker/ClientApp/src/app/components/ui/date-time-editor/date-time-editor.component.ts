@@ -1,7 +1,21 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { EventEmitter } from '@angular/core';
+import { Component, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { RawTimerDto } from 'src/app/time-tracker-api';
+
+interface TimeDuration {
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+export interface DateTimeEditorEvent {
+  type: string;
+  timer?: RawTimerDto;
+  startDate?: Date;
+  durationSec?: number;
+}
 
 @Component({
   selector: 'app-date-time-editor',
@@ -16,16 +30,16 @@ import { RawTimerDto } from 'src/app/time-tracker-api';
   ]
 })
 export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
+  @Output('changed') onChanged = new EventEmitter<DateTimeEditorEvent>();
   editForm: FormGroup;
   pickedDate = new FormControl(new Date());
   maxDate = new Date();
-  hour: number = 0;
-
   duration: string = '-';
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: Date = undefined;
+  endDate?: Date = undefined;
   
   private _onChangeFn = (_: any) => { };
+  private _timer?: RawTimerDto = undefined;
 
   constructor() {
     this.editForm =  new FormGroup({
@@ -83,9 +97,7 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
     return Array(n);
   }
 
-  onSubmit = () => {
-    console.log('here');
-  }
+  onSubmit = () => { }
 
   hourChanged = () => {
     this.editForm.patchValue({
@@ -129,14 +141,9 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
       return;
 
     let date = timer.entryStartTimeUtc;
+    this._timer = timer;
 
-
-    timer.entryRunningTimeSec = 3852;
-    console.log('setRawTimer', timer);
-
-
-
-    let duration = this.extractDuration(timer.entryRunningTimeSec);
+    let duration = this.extractDuration(timer?.entryRunningTimeSec ?? 0);
     this.pickedDate = new FormControl(new Date(
       date.getFullYear(),
       date.getMonth(),
@@ -184,8 +191,6 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
     let formData = this.editForm.value;
     let totalSeconds = this.workTotalSeconds(formData);
 
-    console.log(formData);
-
     this.startDate = new Date(
       formData.year,
       formData.month,
@@ -197,6 +202,13 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
 
     this.duration = this.getHumanDuration(formData, totalSeconds);
     this.endDate = new Date(this.startDate.getTime() + (totalSeconds * 1000));
+
+    this.onChanged.emit({
+      type: 'valueChanged',
+      timer: this._timer,
+      durationSec: totalSeconds,
+      startDate: this.startDate
+    });
   }
 
   private workTotalSeconds = (formData: any) => {
@@ -214,10 +226,4 @@ export class DateTimeEditorComponent implements OnInit, ControlValueAccessor {
     
     return `${hours}:${mins}:${secs} (${totalSeconds} seconds)`;
   }
-}
-
-interface TimeDuration {
-  hours: number;
-  minutes: number;
-  seconds: number;
 }

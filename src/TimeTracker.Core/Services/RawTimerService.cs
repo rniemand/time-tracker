@@ -17,6 +17,7 @@ namespace TimeTracker.Core.Services
     Task<bool> StopTimer(int userId, long rawTimerId);
     Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId);
     Task<bool> UpdateNotes(int userId, long rawTimerId, string notes);
+    Task<bool> UpdateTimerDuration(int userId, RawTimerDto timerDto);
   }
 
   public class RawTimerService : IRawTimerService
@@ -184,6 +185,33 @@ namespace TimeTracker.Core.Services
       if (await _rawTimersRepo.UpdateNotes(rawTimerId, notes) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.UpdateNotes) Handle this
+        return false;
+      }
+
+      return true;
+    }
+
+    public async Task<bool> UpdateTimerDuration(int userId, RawTimerDto timerDto)
+    {
+      // TODO: [TESTS] (RawTimerService.UpdateTimerDuration) Add tests
+      var dbTimer = await _rawTimersRepo.GetByRawTimerId(timerDto.RawTimerId);
+      if (dbTimer == null)
+      {
+        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
+        return false;
+      }
+
+      if (dbTimer.UserId != userId)
+      {
+        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
+        return false;
+      }
+
+      var timerEntity = timerDto.AsEntity();
+      // ReSharper disable once ConvertIfStatementToReturnStatement
+      if (await _rawTimersRepo.UpdateTimerDuration(timerEntity) == 0)
+      {
+        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
         return false;
       }
 

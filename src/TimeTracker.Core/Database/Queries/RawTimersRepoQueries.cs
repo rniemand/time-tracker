@@ -16,6 +16,7 @@
     string GetUsersWithRunningTimers();
     string GetLongRunningTimers();
     string UpdateNotes();
+    string UpdateTimerDuration();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -124,7 +125,7 @@
       SET
          `Running` = 0,
          `EntryState` = 3,
-	      `Completed` = 0,
+         `Completed` = 0,
          `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
          `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`))
       WHERE
@@ -180,7 +181,7 @@
 	      `Completed` = 0 AND
 	      `Running` = 1 AND
 	      `EntryState` = 1 AND
-	      `EntryStartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(),INTERVAL -@ThresholdSec SECOND)";
+	      `EntryStartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -@ThresholdSec SECOND)";
     }
 
     public string UpdateNotes()
@@ -188,6 +189,17 @@
       return @"UPDATE `RawTimers`
       SET
 	      `TimerNotes` = @TimerNotes
+      WHERE
+	      `RawTimerId` = @RawTimerId";
+    }
+
+    public string UpdateTimerDuration()
+    {
+      return @"UPDATE `RawTimers`
+      SET
+	      `EntryStartTimeUtc` = @EntryStartTimeUtc,
+	      `EntryRunningTimeSec` = @EntryRunningTimeSec,
+	      `EntryEndTimeUtc` = DATE_ADD(@EntryStartTimeUtc, INTERVAL @EntryRunningTimeSec SECOND)
       WHERE
 	      `RawTimerId` = @RawTimerId";
     }

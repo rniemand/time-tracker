@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { RawTimerDto } from 'src/app/time-tracker-api';
 import { TimeLoggerEvent } from '../../ui/time-logger/time-logger.component';
 
 @Component({
@@ -18,25 +18,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(
-    private authService: AuthService,
-    private timersClient: TimersClient
-  ) { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
     this.loggedIn = this.authService.loggedIn;
-
-
-    this.timersClient.getRunningTimers().toPromise().then(
-      (timers: RawTimerDto[]) => {
-        if(timers.length > 0) {
-          this.timer = timers[0];
-        }
-      },
-      (error: any) => {
-        console.error(error);
-      }
-    );
 
     this.subscriptions.push(this.authService.authChanged.subscribe(
       (loggedIn: boolean) => {

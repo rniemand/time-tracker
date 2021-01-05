@@ -5,6 +5,7 @@ using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
@@ -28,11 +29,17 @@ namespace TimeTracker.Controllers
 
     [HttpPost, Route("start-new"), Authorize]
     public async Task<ActionResult<RawTimerDto>> StartNewTimer(
-      [FromBody] RawTimerDto entryDto,
+      [FromBody] RawTimerDto rawTimerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
-      return Ok(await _rawTimerService.StartNew(request.UserId, entryDto));
+      var response = new BaseResponse<RawTimerDto>()
+        .WithValidation(RawTimerDtoValidator.StartNew(rawTimerDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.StartNew(request.UserId, rawTimerDto));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("list-running"), Authorize]

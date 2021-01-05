@@ -4,12 +4,7 @@
     <mat-icon>home</mat-icon>
     <span class="nav-caption">Home</span>
   </a>
-
-  <a mat-list-item routerLink="/test" (click)="onClose()" routerLinkActive="active">
-    <mat-icon>build</mat-icon>
-    <span class="nav-caption">Test</span>
-  </a>
-
+  
   <a mat-list-item routerLink="/login" (click)="onClose()" routerLinkActive="active" *ngIf="!loggedIn">
     <mat-icon>lock_open</mat-icon>
     <span class="nav-caption">Login</span>

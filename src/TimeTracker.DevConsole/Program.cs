@@ -17,6 +17,7 @@ using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
+using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
@@ -32,12 +33,17 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var response = new BaseResponse<RichardResponse>()
-        .WithValidationError("error 1")
-        .WithValidationError("error 2")
-        .WithValidationMessage("FFS");
+      var timer = new RawTimerDto
+      {
+        UserId = 10,
+        //RootTimerId = 1,
+        ClientId = 8,
+        //ProjectId = 2,
+        ProductId = 9
+      };
 
-      var error = response.Validation.GenerateValidationError();
+      var result = RawTimerDtoValidator.StartNew(timer);
+
 
       Console.WriteLine("Hello World!");
     }

@@ -8,7 +8,6 @@ import { SideNavComponent } from './components/layout/side-nav/side-nav.componen
 import { HeaderComponent } from './components/layout/header/header.component';
 import { MaterialModule } from './modules/material.module';
 import { HomeComponent } from './components/views/home/home.component';
-import { TestComponent } from './components/views/test/test.component';
 import { TimeTrackerModule } from './modules/time-tracker.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppendTokenInterceptor, ErrorInterceptor, SessionTokenInterceptor } from './providers/append-token.interceptor';
@@ -42,7 +41,6 @@ import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-t
     SideNavComponent,
     HeaderComponent,
     HomeComponent,
-    TestComponent,
     LoginComponent,
     ClientsComponent,
     AddClientComponent,

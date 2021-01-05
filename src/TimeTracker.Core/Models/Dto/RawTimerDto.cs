@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using FluentValidation;
+using FluentValidation.Results;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Enums;
 
@@ -113,6 +115,31 @@ namespace TimeTracker.Core.Models.Dto
         Processed = Processed,
         TimerNotes = TimerNotes
       };
+    }
+  }
+
+  public class RawTimerDtoValidator : AbstractValidator<RawTimerDto>
+  {
+    public RawTimerDtoValidator()
+    {
+      RuleSet("StartNew", () =>
+      {
+        RuleFor(x => x.ParentTimerId).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.ClientId).GreaterThan(9);
+        RuleFor(x => x.ProductId).GreaterThan(0);
+        RuleFor(x => x.ProjectId).GreaterThan(0);
+        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.EntryState).IsInEnum();
+        RuleFor(x => x.Running).Equal(true);
+      });
+    }
+
+    public static ValidationResult StartNew(RawTimerDto timer)
+    {
+      return new RawTimerDtoValidator().Validate(
+        timer,
+        options => options.IncludeRuleSets("StartNew")
+      );
     }
   }
 }

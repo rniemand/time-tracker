@@ -5,7 +5,6 @@ using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
-using TimeTracker.Core.WebApi.Attributes;
 
 namespace TimeTracker.Controllers
 {
@@ -32,23 +31,6 @@ namespace TimeTracker.Controllers
         });
 
       return Ok(response);
-    }
-
-    [HttpGet, Route("locked"), Authorize]
-    public ActionResult<string> Locked()
-    {
-      return Ok("woot");
-    }
-
-    [HttpGet, Route("testing")]
-    public async Task<ActionResult<RichardResponse>> Test()
-    {
-      await Task.CompletedTask;
-
-      var baseResponse = new BaseResponse<RichardResponse>()
-        .WithResponse(new RichardResponse("hello world"));
-
-      return ProcessResponse(baseResponse);
     }
   }
 }

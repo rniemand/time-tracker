@@ -11,13 +11,11 @@ import { ProductsComponent } from './components/views/products/products.componen
 import { AddProjectComponent } from './components/views/projects/add-project/add-project.component';
 import { EditProjectComponent } from './components/views/projects/edit-project/edit-project.component';
 import { ProjectsComponent } from './components/views/projects/projects.component';
-import { TestComponent } from './components/views/test/test.component';
 import { AuthGuard } from './providers/append-token.interceptor';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
   { path: "home", component: HomeComponent },
-  { path: "test", component: TestComponent, canActivate: [AuthGuard] },
   { path: "login", component: LoginComponent },
   {
     path: "clients",

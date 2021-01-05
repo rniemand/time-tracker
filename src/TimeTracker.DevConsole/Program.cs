@@ -16,6 +16,7 @@ using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
+using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 
@@ -30,13 +31,7 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      // https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api
-
-      new SweepLongRunningTimers(_serviceProvider)
-        .Run()
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
+      var userService = _serviceProvider.GetService<IUserService>();
 
 
       Console.WriteLine("Hello World!");
@@ -61,6 +56,7 @@ namespace TimeTracker.DevConsole
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .Build();
 
+      ConfigureDI_Configuration(services, config);
       ConfigureDI_Core(services, config);
       ConfigureDI_DBCore(services);
       ConfigureDI_Repos(services);
@@ -124,6 +120,17 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<IRawTimerService, RawTimerService>()
         .AddSingleton<IOptionsService, OptionsService>();
+    }
+
+    private static void ConfigureDI_Configuration(IServiceCollection services, IConfiguration config)
+    {
+      var mappedConfig = new TimeTrackerConfig();
+      var configSection = config.GetSection("TimeTracker");
+      
+      if(configSection.Exists())
+        configSection.Bind(mappedConfig);
+
+      services.AddSingleton(mappedConfig);
     }
   }
 }

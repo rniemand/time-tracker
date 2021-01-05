@@ -9,6 +9,7 @@ using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
@@ -26,17 +27,25 @@ namespace TimeTracker.Core.Services
     private readonly ILoggerAdapter<UserService> _logger;
     private readonly IEncryptionService _encryptionService;
     private readonly IUserRepo _userRepo;
-    // TODO: [CONFIG] (UserService.Secret) Make Configurable
-    private readonly string Secret = "2QNMuWSPKeOg4BICql8QooUO6k+e+CS236L6hg1";
+    private readonly AuthenticationConfig _config;
 
     public UserService(
       ILoggerAdapter<UserService> logger,
       IEncryptionService encryptionService,
-      IUserRepo userRepo)
+      IUserRepo userRepo,
+      TimeTrackerConfig config)
     {
+      // TODO: [TESTS] (UserService) Add tests
       _logger = logger;
       _encryptionService = encryptionService;
       _userRepo = userRepo;
+      _config = config.Authentication;
+
+      if (string.IsNullOrWhiteSpace(_config.Secret))
+      {
+        // TODO: [HANDLE] (UserService.UserService) Handle this
+        throw new Exception("Auth Secret is missing!");
+      }
     }
 
     public async Task<UserDto> GetFromToken(string token)
@@ -50,6 +59,7 @@ namespace TimeTracker.Core.Services
       }
 
       var userEntity = await _userRepo.GetUserById(userId);
+      // ReSharper disable once ConvertIfStatementToReturnStatement
       if (userEntity == null)
       {
         // TODO: [HANDLE] (UserService.GetFromToken) Handle this
@@ -97,9 +107,8 @@ namespace TimeTracker.Core.Services
 
     private string GenerateJwtToken(int userId)
     {
-      // generate token that is valid for 7 days
       var tokenHandler = new JwtSecurityTokenHandler();
-      var key = Encoding.ASCII.GetBytes(Secret);
+      var key = Encoding.ASCII.GetBytes(_config.Secret);
 
       var tokenDescriptor = new SecurityTokenDescriptor
       {
@@ -107,7 +116,7 @@ namespace TimeTracker.Core.Services
         {
           new Claim("id", userId.ToString())
         }),
-        Expires = DateTime.UtcNow.AddDays(7),
+        Expires = DateTime.UtcNow.AddMinutes(_config.SessionLengthMin),
         SigningCredentials = new SigningCredentials(
           new SymmetricSecurityKey(key),
           SecurityAlgorithms.HmacSha256Signature
@@ -123,7 +132,7 @@ namespace TimeTracker.Core.Services
       try
       {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(Secret);
+        var key = Encoding.ASCII.GetBytes(_config.Secret);
         tokenHandler.ValidateToken(token, new TokenValidationParameters
         {
           ValidateIssuerSigningKey = true,
@@ -138,7 +147,7 @@ namespace TimeTracker.Core.Services
         var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
         return userId;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         _logger.LogUnexpectedException(ex);
       }

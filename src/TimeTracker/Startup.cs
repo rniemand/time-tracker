@@ -18,6 +18,7 @@ using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
+using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Middleware;
 
@@ -36,6 +37,7 @@ namespace TimeTracker
     {
       services.AddControllersWithViews();
 
+      ConfigureServices_Configuration(services);
       ConfigureServices_Core(services);
       ConfigureServices_Services(services);
       ConfigureServices_Helpers(services);
@@ -113,6 +115,17 @@ namespace TimeTracker
 
 
     // ConfigureServices() related methods
+    private void ConfigureServices_Configuration(IServiceCollection services)
+    {
+      var mappedConfig = new TimeTrackerConfig();
+      var configSection = Configuration.GetSection("TimeTracker");
+      
+      if(configSection.Exists())
+        configSection.Bind(mappedConfig);
+
+      services.AddSingleton(mappedConfig);
+    }
+
     private static void ConfigureServices_Core(IServiceCollection services)
     {
       services

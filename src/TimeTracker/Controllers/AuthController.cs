@@ -12,22 +12,18 @@ namespace TimeTracker.Controllers
   [ApiController, Route("api/[controller]")]
   public class AuthController : BaseController<AuthController>
   {
-    private readonly IUserService _userService;
-
     public AuthController(
       ILoggerAdapter<AuthController> logger,
       IMetricService metrics,
       IUserService userService
-    ) : base(logger, metrics)
-    {
-      _userService = userService;
-    }
+    ) : base(logger, metrics, userService)
+    { }
 
     [HttpPost, Route("authenticate")]
     public async Task<ActionResult<AuthenticationResponse>> Authenticate([FromBody] AuthenticationRequest request)
     {
       // TODO: [TESTS] (AuthController.Authenticate) Add tests
-      var response = await _userService.Authenticate(request);
+      var response = await UserService.Authenticate(request);
 
       if (response == null)
         return BadRequest(new
@@ -50,10 +46,7 @@ namespace TimeTracker.Controllers
       await Task.CompletedTask;
 
       var baseResponse = new BaseResponse<RichardResponse>()
-        .AsFailure()
-        .WithResponse(new RichardResponse("hello world"))
-        .WithValidationError("issue 1")
-        .WithValidationError("issue 2");
+        .WithResponse(new RichardResponse("hello world"));
 
       return ProcessResponse(baseResponse);
     }

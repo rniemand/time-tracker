@@ -14,9 +14,9 @@ namespace TimeTracker.Core.Database
     public override DateTime Parse(object value)
     {
       // Support DateTimeOffset from SQL
-      if (value is DateTimeOffset)
+      if (value is DateTimeOffset offset)
       {
-        return ((DateTimeOffset)value).UtcDateTime;
+        return offset.UtcDateTime;
       }
 
       // Force the value into a UTC DateTime

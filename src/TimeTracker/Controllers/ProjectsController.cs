@@ -19,8 +19,9 @@ namespace TimeTracker.Controllers
     public ProjectsController(
       ILoggerAdapter<ProjectsController> logger,
       IMetricService metrics,
+      IUserService userService,
       IProjectService projectService
-    ) : base(logger, metrics)
+    ) : base(logger, metrics, userService)
     {
       _projectService = projectService;
     }

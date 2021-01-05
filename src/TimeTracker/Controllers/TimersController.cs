@@ -19,8 +19,9 @@ namespace TimeTracker.Controllers
     public TimersController(
       ILoggerAdapter<TimersController> logger,
       IMetricService metrics,
+      IUserService userService,
       IRawTimerService rawTimerService
-    ) : base(logger, metrics)
+    ) : base(logger, metrics, userService)
     {
       _rawTimerService = rawTimerService;
     }

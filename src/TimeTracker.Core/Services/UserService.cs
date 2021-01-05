@@ -20,6 +20,7 @@ namespace TimeTracker.Core.Services
   {
     Task<UserDto> GetFromToken(string token);
     Task<AuthenticationResponse> Authenticate(AuthenticationRequest request);
+    string ExtendUserSession(int userId);
   }
 
   public class UserService : IUserService
@@ -85,6 +86,12 @@ namespace TimeTracker.Core.Services
         Username = loggedInUser.Username,
         Token = GenerateJwtToken(loggedInUser.UserId)
       };
+    }
+
+    public string ExtendUserSession(int userId)
+    {
+      // TODO: [TESTS] (UserService.ExtendUserSession) Add tests
+      return GenerateJwtToken(userId);
     }
 
 

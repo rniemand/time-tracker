@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpEventType } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 import { UiService } from '../services/ui.service';
 
@@ -44,6 +44,25 @@ export class ErrorInterceptor implements HttpInterceptor {
             const error = err.error.message || err.statusText;
             return throwError(error);
         }))
+    }
+}
+
+@Injectable()
+export class SessionTokenInterceptor implements HttpInterceptor {
+    constructor(
+      private authService: AuthService
+    ) { }
+
+    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        return next.handle(request).pipe(tap(evt => {
+          if(evt.type !== HttpEventType.Response)
+            return;
+
+          if(!evt.headers.has('x-tt-session'))
+            return;
+
+          this.authService.updateAuthToken(evt.headers.get('x-tt-session') ?? '');
+        }));
     }
 }
 

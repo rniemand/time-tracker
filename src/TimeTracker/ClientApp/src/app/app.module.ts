@@ -11,7 +11,7 @@ import { HomeComponent } from './components/views/home/home.component';
 import { TestComponent } from './components/views/test/test.component';
 import { TimeTrackerModule } from './modules/time-tracker.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AppendTokenInterceptor, ErrorInterceptor } from './providers/append-token.interceptor';
+import { AppendTokenInterceptor, ErrorInterceptor, SessionTokenInterceptor } from './providers/append-token.interceptor';
 import { LoginComponent } from './components/views/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClientsComponent } from './components/views/clients/clients.component';
@@ -78,7 +78,8 @@ import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-t
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AppendTokenInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: SessionTokenInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

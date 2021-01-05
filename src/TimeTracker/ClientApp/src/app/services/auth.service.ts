@@ -4,6 +4,7 @@ import { AuthClient, AuthenticationRequest, AuthenticationResponse } from "../ti
 import { StorageService } from "./storage.service";
 import { Router } from "@angular/router";
 import { UiService } from "./ui.service";
+import { LoggerService } from "./logger.service";
 
 const KEY_TOKEN = 'user.token';
 const KEY_USER_INFO = 'user.info';
@@ -27,7 +28,8 @@ export class AuthService {
     private authClient: AuthClient,
     private storage: StorageService,
     private router: Router,
-    private uiService: UiService
+    private uiService: UiService,
+    private logger: LoggerService
   ) {
     if(this.storage.hasItem(KEY_USER_INFO)) {
       this.currentUser = this.storage.getItem<UserInfo>(KEY_USER_INFO);
@@ -73,6 +75,15 @@ export class AuthService {
     return this._currentToken;
   }
 
+  updateAuthToken = (token: any) => {
+    if(typeof(token) !== 'string' || token.length <= 0)
+      return;
+
+    this.logger.trace('Updating user token');
+    this._currentToken = token;
+    this.storage.setItem(KEY_TOKEN, token);
+  }
+
   // Internal methods
   private setLoggedInSate = (loggedIn: boolean, token?: string) => {
     this.loggedIn = loggedIn;
@@ -85,11 +96,7 @@ export class AuthService {
       }
     }
 
-    if(typeof(token) === 'string' && token.length > 0) {
-      this._currentToken = token;
-      this.storage.setItem(KEY_TOKEN, token);
-    }
-
+    this.updateAuthToken(token);
     this.authChanged.next(this.loggedIn);
   }
 

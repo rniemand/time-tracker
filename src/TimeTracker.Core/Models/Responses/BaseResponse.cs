@@ -7,14 +7,12 @@ namespace TimeTracker.Core.Models.Responses
 {
   public class BaseResponse<TResponse>
   {
-    public bool Succeeded { get; set; }
     public TResponse Response { get; set; }
     public ValidationOutcome Validation { get; set; }
 
     public BaseResponse()
     {
       // TODO: [TESTS] (BaseResponse) Add tests
-      Succeeded = true;
       Response = default;
       Validation = new ValidationOutcome(typeof(TResponse).FullName);
     }
@@ -22,13 +20,6 @@ namespace TimeTracker.Core.Models.Responses
     public BaseResponse<TResponse> WithResponse(TResponse response)
     {
       Response = response;
-      return this;
-    }
-
-    public BaseResponse<TResponse> AsFailure()
-    {
-      // TODO: [TESTS] (BaseResponse.AsFailure) Add tests
-      Succeeded = false;
       return this;
     }
 

@@ -19,8 +19,9 @@ namespace TimeTracker.Controllers
     public ClientsController(
       ILoggerAdapter<ClientsController> logger,
       IMetricService metrics,
+      IUserService userService,
       IClientService clientService
-    ) : base(logger, metrics)
+    ) : base(logger, metrics, userService)
     {
       _clientService = clientService;
     }

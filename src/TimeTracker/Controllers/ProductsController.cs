@@ -19,8 +19,9 @@ namespace TimeTracker.Controllers
     public ProductsController(
       ILoggerAdapter<ProductsController> logger,
       IMetricService metrics,
+      IUserService userService,
       IProductService productService
-    ) : base(logger, metrics)
+    ) : base(logger, metrics, userService)
     {
       _productService = productService;
     }

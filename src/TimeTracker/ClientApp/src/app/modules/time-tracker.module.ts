@@ -2,6 +2,7 @@ import { DOCUMENT, LocationStrategy } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AuthService } from "../services/auth.service";
+import { LoggerService } from "../services/logger.service";
 import { StorageService } from "../services/storage.service";
 import { UiService } from "../services/ui.service";
 
@@ -36,6 +37,7 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
     AuthService,
     StorageService,
     UiService,
+    LoggerService,
     
     // Clients
     AuthClient,

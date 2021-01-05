@@ -13,6 +13,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
+  testDate: Date = new Date(2020, 1, 4, 17, 48, 1);
 
   private subscriptions: Subscription[] = [];
 

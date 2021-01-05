@@ -1,10 +1,12 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { EditTimerEntryDialog, EditTimerEntryDialogData } from '../edit-timer-entry/edit-timer-entry.dialog';
 
 export interface TimerSeriesDialogData {
   rootTimerId: number;
@@ -26,7 +28,8 @@ export class TimerSeriesDialog implements OnInit {
     public dialogRef: MatDialogRef<TimerSeriesDialog>,
     @Inject(MAT_DIALOG_DATA) public data: TimerSeriesDialogData,
     private timersClient: TimersClient,
-    private uiService: UiService
+    private uiService: UiService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -52,6 +55,21 @@ export class TimerSeriesDialog implements OnInit {
       this.uiService.handleClientError
     );
 
+  }
+
+  editEntry = (timer: RawTimerDto) => {
+    let dialogData: EditTimerEntryDialogData = {
+      entry: timer
+    };
+
+    let dialogRef = this.dialog.open(EditTimerEntryDialog, {
+      ...DIALOG_DEFAULTS,
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.refreshTable();
+    });
   }
 
   // Internal methods

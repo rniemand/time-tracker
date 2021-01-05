@@ -33,6 +33,8 @@ import { ListTimersComponent } from './components/ui/time-logger/list-timers/lis
 import { RunningTimerPipe } from './pipes/running-timer.pipe';
 import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-series.dialog';
 import { EntryStatePipe } from './pipes/entry-state.pipe';
+import { EditTimerEntryDialog } from './components/dialogs/edit-timer-entry/edit-timer-entry.dialog';
+import { DateTimeEditorComponent } from './components/ui/date-time-editor/date-time-editor.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import { EntryStatePipe } from './pipes/entry-state.pipe';
     ListTimersComponent,
     RunningTimerPipe,
     TimerSeriesDialog,
-    EntryStatePipe
+    EntryStatePipe,
+    EditTimerEntryDialog,
+    DateTimeEditorComponent
   ],
   imports: [
     BrowserModule,

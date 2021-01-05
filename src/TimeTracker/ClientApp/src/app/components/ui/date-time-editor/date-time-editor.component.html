@@ -1,0 +1,32 @@
+<mat-form-field appearance="outline">
+  <mat-label>Choose a date</mat-label>
+  <input matInput [matDatepicker]="picker" [formControl]="pickedDate" (dateChange)="dateChanged($event)">
+  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-datepicker #picker></mat-datepicker>
+</mat-form-field>
+
+<form class="edit-form" [formGroup]="editForm" (ngSubmit)="onSubmit()">
+  <table style="width: 100%;">
+    <tr>
+      <td style="width: 150px;">
+        <mat-form-field appearance="outline" class="hour">
+          <mat-label>Hour</mat-label>
+          <input matInput placeholder="Hour" formControlName="hour" type="number" min="0" max="23" (change)="hourChanged()">
+        </mat-form-field>
+      
+        <span class="ellipse">:</span>
+      
+        <mat-form-field appearance="outline" class="min">
+          <mat-label>Min</mat-label>
+          <input matInput placeholder="Hour" formControlName="min" type="number" min="0" max="59" (change)="minChanged()">
+        </mat-form-field>
+      </td>
+      <td>
+        <mat-slider thumbLabel tickInterval="1" min="0" max="23" formControlName="hour" (change)="hourChanged()" fxFlex="150px"></mat-slider>
+        <mat-slider thumbLabel tickInterval="1" min="0" max="59" formControlName="min" (change)="minChanged()" fxFlex></mat-slider>
+      </td>
+    </tr>
+  </table>
+
+</form>
+

@@ -1,0 +1,8 @@
+.edit-form .hour, .edit-form .min {
+  width: 60px;
+}
+
+.edit-form .ellipse {
+  margin-right: 5px;
+  margin-left: 5px;
+}

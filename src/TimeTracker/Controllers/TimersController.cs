@@ -71,5 +71,15 @@ namespace TimeTracker.Controllers
       // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
       return Ok(await _rawTimerService.GetTimerSeries(request.UserId, rootTimerId));
     }
+
+    [HttpPost, Route("update-notes/{rawTimerId}"), Authorize]
+    public async Task<ActionResult<bool>> UpdateNotes(
+      [FromRoute] long rawTimerId,
+      [FromBody] string notes,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.UpdateNotes) Add tests
+      return Ok(await _rawTimerService.UpdateNotes(request.UserId, rawTimerId, notes));
+    }
   }
 }

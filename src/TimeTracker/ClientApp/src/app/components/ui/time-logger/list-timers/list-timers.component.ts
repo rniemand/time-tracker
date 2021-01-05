@@ -13,7 +13,7 @@ import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 export class ListTimersComponent implements OnInit, OnDestroy {
   timers: RawTimerDto[] = [];
   flipFlop: boolean = false;
-  remaining: number = 10;
+  remaining: number = 30;
   autoRefresh: boolean = true;
 
   private _interval: any = null;
@@ -25,14 +25,12 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   ) { }
   
   ngOnInit(): void {
-    this._interval = setInterval(this.tick, 1000);
+    this.startTicker();
     this.refreshTimers();
   }
 
   ngOnDestroy(): void {
-    if(this._interval) {
-      clearInterval(this._interval);
-    }
+    this.stopTicker();
   }
 
 
@@ -97,9 +95,14 @@ export class ListTimersComponent implements OnInit, OnDestroy {
       rootTimerId: timer?.rootTimerId ?? 0
     };
 
-    this.dialog.open(TimerSeriesDialog, {
+    this.stopTicker();
+    let dialogRef = this.dialog.open(TimerSeriesDialog, {
       ...DIALOG_DEFAULTS,
       data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.startTicker();
     });
   }
 
@@ -112,7 +115,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.timersClient.getRunningTimers().toPromise().then(
       (timers: RawTimerDto[]) => {
         this.timers = timers;
-        this.remaining = 10;
+        this.remaining = 30;
         this.uiService.hideLoader();
       },
       this.uiService.handleClientError
@@ -125,6 +128,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
     if(this.remaining == 0) {
       this.refreshTimers();
+    }
+  }
+
+  private startTicker = () => {
+    this._interval = setInterval(this.tick, 1000);
+  }
+
+  private stopTicker = () => {
+    if(this._interval) {
+      clearInterval(this._interval);
+      this._interval = null;
     }
   }
 

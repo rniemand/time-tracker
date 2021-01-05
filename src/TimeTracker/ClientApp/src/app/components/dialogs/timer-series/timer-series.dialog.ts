@@ -3,7 +3,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ClientDto, RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { UiService } from 'src/app/services/ui.service';
+import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 
 export interface TimerSeriesDialogData {
   rootTimerId: number;
@@ -15,7 +16,7 @@ export interface TimerSeriesDialogData {
   styleUrls: ['./timer-series.dialog.css']
 })
 export class TimerSeriesDialog implements OnInit {
-  displayedColumns: string[] = ['client', 'product', 'project', 'endTime', 'state', 'length', 'notes'];
+  displayedColumns: string[] = ['client', 'product', 'project', 'endTime', 'state', 'length', 'notes', 'controls'];
   dataSource = new MatTableDataSource<RawTimerDto>();
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -24,25 +25,45 @@ export class TimerSeriesDialog implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<TimerSeriesDialog>,
     @Inject(MAT_DIALOG_DATA) public data: TimerSeriesDialogData,
-    private timersClient: TimersClient
+    private timersClient: TimersClient,
+    private uiService: UiService
   ) { }
 
   ngOnInit(): void {
+    this.refreshTable();
+  }
+
+  // Dialog methods
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  editNote = (timer: RawTimerDto) => {
+    let rawTimerId = timer?.rawTimerId ?? 0;
+    if(rawTimerId == 0)
+      return;
+
+    let updatedNote = prompt('Edit note', timer.timerNotes);
+    this.timersClient.updateNotes(rawTimerId, updatedNote ?? '').toPromise().then(
+      (success: boolean) => {
+        this.refreshTable();
+        this.uiService.notify(`Note ${success ? 'updated' : 'updating failed'}`);
+      },
+      this.uiService.handleClientError
+    );
+
+  }
+
+  // Internal methods
+  private refreshTable = () => {
     this.timersClient.getTimerSeries(this.data.rootTimerId).toPromise().then(
       (entries: RawTimerDto[]) => {
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
       },
-      (error: any) => {
-        console.error(error);
-      }
+      this.uiService.handleClientError
     );
-
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
   }
 
 }

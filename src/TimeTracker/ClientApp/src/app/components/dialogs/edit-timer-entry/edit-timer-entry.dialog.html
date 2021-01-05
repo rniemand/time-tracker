@@ -3,6 +3,6 @@
   <app-edit-timer-entry *ngIf="timer" [(ngModel)]="timer" (changed)="entryChanged($event)"></app-edit-timer-entry>
 </div>
 <div mat-dialog-actions>
-  <button mat-flat-button color="warn" (click)="closeDialog(false)" fxFlex>Cancel</button>
-  <button mat-flat-button color="primary" (click)="closeDialog(true)" cdkFocusInitial fxFlex [disabled]="!hasChange">Save Changes</button>
+  <button mat-flat-button color="warn" (click)="closeDialog('cancelled')" fxFlex>Cancel</button>
+  <button mat-flat-button color="primary" (click)="saveChanges()" fxFlex [disabled]="!hasChange">Save Changes</button>
 </div>

@@ -66,21 +66,8 @@ export class TimerSeriesDialog implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result && result?.outcome == 'user-closed' && result?.okClicked) {
-        let castResult = result as EditTimerEntryDialogData;
-
-        let updatedTimer = new RawTimerDto({
-          ...castResult.timer,
-          'entryStartTimeUtc': castResult.startDate,
-          'entryRunningTimeSec': castResult.durationSeconds,
-          'timerNotes': castResult.notes
-        });
-
-        this.uiService.showLoader(true);
-        this.timersClient.updateTimerDuration(updatedTimer).toPromise().then(
-          (success: boolean) => { this.refreshTable(); },
-          this.uiService.handleClientError
-        );
+      if(result?.outcome == 'updated') {
+        this.refreshTable();
       }
     });
   }

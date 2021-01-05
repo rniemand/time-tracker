@@ -1,16 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { RawTimerDto } from 'src/app/time-tracker-api';
+import { UiService } from 'src/app/services/ui.service';
+import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 import { DateTimeEditorEvent } from '../../ui/edit-timer-entry/edit-timer-entry.component';
 import { TimerSeriesDialog } from '../timer-series/timer-series.dialog';
 
 export interface EditTimerEntryDialogData {
   timer: RawTimerDto;
-  startDate?: Date;
-  durationSeconds?: number;
-  okClicked?: boolean;
-  outcome?: string;
-  notes?: string;
 }
 
 @Component({
@@ -27,7 +23,9 @@ export class EditTimerEntryDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TimerSeriesDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: EditTimerEntryDialogData
+    @Inject(MAT_DIALOG_DATA) public data: EditTimerEntryDialogData,
+    private uiService: UiService,
+    private timersClient: TimersClient
   ) { }
 
   ngOnInit(): void {
@@ -44,15 +42,30 @@ export class EditTimerEntryDialog implements OnInit {
     this.notes = e?.notes ?? '';
   }
 
-  closeDialog(okClicked: boolean): void {
+  closeDialog(outcome: string): void {
     this.dialogRef.close({
-      ...this.data,
-      startDate: this.startDate,
-      durationSeconds: this.durationSeconds,
-      okClicked: okClicked,
-      outcome: 'user-closed',
-      notes: this.notes
+      outcome: outcome
     });
   }
 
+  saveChanges = () => {
+    let updatedTimer = new RawTimerDto({
+      ...this.timer,
+      'entryStartTimeUtc': this.startDate,
+      'entryRunningTimeSec': this.durationSeconds,
+      'timerNotes': this.notes
+    });
+
+    this.uiService.showLoader(true);
+    this.timersClient.updateTimerDuration(updatedTimer).toPromise().then(
+      (success: boolean) => {
+        this.uiService.hideLoader();
+        this.closeDialog('updated');
+      },
+      (error: any) => {
+        this.uiService.hideLoader();
+        this.closeDialog(`error: ${error}`);
+      }
+    );
+  }
 }

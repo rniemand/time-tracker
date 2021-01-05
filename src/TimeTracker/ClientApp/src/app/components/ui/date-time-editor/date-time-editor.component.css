@@ -8,26 +8,29 @@
   margin: 3px;
   padding: 2px;
 }
+  .control-row h1 {
+    text-align: center;
+  }
 
-.control-row.calculated h1 {
-  margin-bottom: 5px;
-}
+  .control-row.calculated h1 {
+    margin-bottom: 5px;
+  }
 
-.control-row.calculated .row {
-  text-align: left;
-}
+  .control-row.calculated .row {
+    text-align: left;
+  }
 
-.control-row.calculated .row strong {
-  color: #a561c1;
-  font-weight: 400;
-  font-size: 1.1em;
-}
+  .control-row.calculated .row strong {
+    color: #a561c1;
+    font-weight: 400;
+    font-size: 1.1em;
+  }
 
-.control-row.calculated .row span {
-  font-family: monospace;
-  margin-left: 6px;
-  text-align: right;
-}
+  .control-row.calculated .row span {
+    font-family: monospace;
+    margin-left: 6px;
+    text-align: right;
+  }
 
 .time-part {
   width: 50px;

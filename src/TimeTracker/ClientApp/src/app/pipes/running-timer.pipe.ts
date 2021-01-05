@@ -29,13 +29,12 @@ export class RunningTimerPipe implements PipeTransform {
   private toHumanTime = (seconds: number) => {
     if(seconds == 0)
       return '-';
-    
 
     let mapped: MappedTime = { hours: '00', mins: '00', seconds: '00' };
 
     if(seconds >= 3600) {
       let hours = Math.floor(seconds / 3600);
-      mapped.hours = hours.toString().padStart(2, '0');
+      mapped.hours = hours.toString();
       seconds -= (3600 * hours);
     }
 

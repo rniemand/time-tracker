@@ -17,6 +17,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 export interface IAuthClient {
     authenticate(request: AuthenticationRequest): Observable<AuthenticationResponse>;
     locked(): Observable<string>;
+    test(): Observable<RichardResponse>;
 }
 
 @Injectable()
@@ -128,6 +129,54 @@ export class AuthClient implements IAuthClient {
             }));
         }
         return _observableOf<string>(<any>null);
+    }
+
+    test(): Observable<RichardResponse> {
+        let url_ = this.baseUrl + "/api/Auth/testing";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTest(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTest(<any>response_);
+                } catch (e) {
+                    return <Observable<RichardResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<RichardResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processTest(response: HttpResponseBase): Observable<RichardResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RichardResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RichardResponse>(<any>null);
     }
 }
 
@@ -1512,6 +1561,42 @@ export class AuthenticationRequest implements IAuthenticationRequest {
 export interface IAuthenticationRequest {
     username?: string | undefined;
     password?: string | undefined;
+}
+
+export class RichardResponse implements IRichardResponse {
+    hello?: string | undefined;
+
+    constructor(data?: IRichardResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.hello = _data["hello"];
+        }
+    }
+
+    static fromJS(data: any): RichardResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RichardResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["hello"] = this.hello;
+        return data; 
+    }
+}
+
+export interface IRichardResponse {
+    hello?: string | undefined;
 }
 
 export class ClientDto implements IClientDto {

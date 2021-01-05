@@ -18,6 +18,7 @@ using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Models.Requests;
+using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
 
 namespace TimeTracker.DevConsole
@@ -31,8 +32,12 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var userService = _serviceProvider.GetService<IUserService>();
+      var response = new BaseResponse<RichardResponse>()
+        .WithValidationError("error 1")
+        .WithValidationError("error 2")
+        .WithValidationMessage("FFS");
 
+      var error = response.Validation.GenerateValidationError();
 
       Console.WriteLine("Hello World!");
     }

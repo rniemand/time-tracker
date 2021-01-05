@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { RawTimerDto } from 'src/app/time-tracker-api';
+import { AuthClient, RawTimerDto, RichardResponse } from 'src/app/time-tracker-api';
 import { TimeLoggerEvent } from '../../ui/time-logger/time-logger.component';
 
 @Component({
@@ -18,7 +18,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private authClient: AuthClient
+  ) { }
 
   ngOnInit(): void {
     this.loggedIn = this.authService.loggedIn;
@@ -28,6 +31,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loggedIn = loggedIn;
       }
     ));
+
+    this.authClient.test().toPromise().then(
+      (resp: RichardResponse) => {
+        console.log('cool beans', resp);
+      }
+    );
   }
 
   ngOnDestroy(): void {

@@ -43,5 +43,19 @@ namespace TimeTracker.Controllers
     {
       return Ok("woot");
     }
+
+    [HttpGet, Route("testing")]
+    public async Task<ActionResult<RichardResponse>> Test()
+    {
+      await Task.CompletedTask;
+
+      var baseResponse = new BaseResponse<RichardResponse>()
+        .AsFailure()
+        .WithResponse(new RichardResponse("hello world"))
+        .WithValidationError("issue 1")
+        .WithValidationError("issue 2");
+
+      return ProcessResponse(baseResponse);
+    }
   }
 }

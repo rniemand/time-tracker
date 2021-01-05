@@ -1,5 +1,6 @@
 using System;
 using System.Transactions;
+using Dapper;
 using Hangfire;
 using Hangfire.MySql;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
+using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
@@ -59,6 +61,9 @@ namespace TimeTracker
       {
         app.UseExceptionHandler("/Error");
       }
+
+      // https://dapper-tutorial.net/knowledge-base/12510299/get-datetime-as-utc-with-dapper
+      SqlMapper.AddTypeHandler(new DateTimeHandler());
 
       app.UseStaticFiles();
       if (!env.IsDevelopment())

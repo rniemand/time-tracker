@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
+using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
@@ -63,6 +65,9 @@ namespace TimeTracker.DevConsole
       ConfigureDI_DBCore(services);
       ConfigureDI_Repos(services);
       ConfigureDI_Services(services);
+
+      // https://dapper-tutorial.net/knowledge-base/12510299/get-datetime-as-utc-with-dapper
+      SqlMapper.AddTypeHandler(new DateTimeHandler());
 
       _serviceProvider = services.BuildServiceProvider();
       _logger = _serviceProvider.GetService<ILoggerAdapter<Program>>();

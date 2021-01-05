@@ -88,15 +88,6 @@ export class TimerSeriesDialog implements OnInit {
   private refreshTable = () => {
     this.timersClient.getTimerSeries(this.data.rootTimerId).toPromise().then(
       (entries: RawTimerDto[]) => {
-
-        // for(var i = 0; i < entries.length; i++) {
-        //   if(entries[i]?.entryEndTimeUtc) {
-        //     console.log('here', entries[i].entryEndTimeUtc, entries[i].entryEndTimeUtc!.toLocaleString());
-        //     entries[i].entryEndTimeUtc = new Date(entries[i].entryEndTimeUtc!.toLocaleString());
-        //   }
-        // }
-
-
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;

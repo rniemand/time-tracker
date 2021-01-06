@@ -29,13 +29,13 @@ namespace TimeTracker.Controllers
       _rawTimerService = rawTimerService;
     }
 
-    [HttpGet, Route("timers/running"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetRunningTimers(
+    [HttpGet, Route("timers/active"), Authorize]
+    public async Task<ActionResult<List<RawTimerDto>>> GetActiveTimers(
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
+      // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
       var response = new BaseResponse<List<RawTimerDto>>()
-        .WithResponse(await _rawTimerService.GetRunningTimers(request.UserId));
+        .WithResponse(await _rawTimerService.GetActiveTimers(request.UserId));
 
       return ProcessResponse(response);
     }

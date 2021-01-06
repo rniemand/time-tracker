@@ -4,7 +4,7 @@
   {
     string StartNew();
     string GetCurrentEntry();
-    string GetRunningTimers();
+    string GetActiveTimers();
     string PauseTimer();
     string GetByRawTimerId();
     string SpawnResumedTimer();
@@ -45,7 +45,7 @@
       LIMIT 1";
     }
 
-    public string GetRunningTimers()
+    public string GetActiveTimers()
     {
       return @"SELECT
 	      rtt.*,

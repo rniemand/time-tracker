@@ -11,7 +11,7 @@ namespace TimeTracker.Core.Services
   public interface IRawTimerService
   {
     Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto);
-    Task<List<RawTimerDto>> GetRunningTimers(int userId);
+    Task<List<RawTimerDto>> GetActiveTimers(int userId);
     Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
     Task<bool> StopTimer(int userId, long rawTimerId);
@@ -54,11 +54,10 @@ namespace TimeTracker.Core.Services
       return RawTimerDto.FromEntity(dbEntry);
     }
 
-    public async Task<List<RawTimerDto>> GetRunningTimers(int userId)
+    public async Task<List<RawTimerDto>> GetActiveTimers(int userId)
     {
-      // TODO: [TESTS] (RawTimerService.GetRunningTimers) Add tests
-
-      var dbEntries = await _rawTimersRepo.GetRunningTimers(userId);
+      // TODO: [TESTS] (RawTimerService.GetActiveTimers) Add tests
+      var dbEntries = await _rawTimersRepo.GetActiveTimers(userId);
       return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
 
@@ -91,26 +90,14 @@ namespace TimeTracker.Core.Services
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
-
-      var resumedEntity = new RawTimerEntity
-      {
-        ParentTimerId = parentEntry.RawTimerId,
-        RootTimerId = parentEntry.RootTimerId,
-        ClientId = parentEntry.ClientId,
-        ProductId = parentEntry.ProductId,
-        ProjectId = parentEntry.ProjectId,
-        UserId = parentEntry.UserId,
-        Running = true,
-        EntryState = EntryRunningState.Running,
-        Completed = false
-      };
-
+      var resumedEntity = CreateResumedTimer(parentEntry);
       if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
 
+      // ReSharper disable once ConvertIfStatementToReturnStatement
       if (await _rawTimersRepo.FlagAsResumed(rawTimerId) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
@@ -221,20 +208,20 @@ namespace TimeTracker.Core.Services
     public async Task<bool> ResumeSingleTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.ResumeSingleTimer) Add tests
-      var targetTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
-      if (targetTimer == null)
+      var parentTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+      if (parentTimer == null)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
         return false;
       }
 
-      if (targetTimer.UserId != userId)
+      if (parentTimer.UserId != userId)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
         return false;
       }
 
-      var runningTimers = await _rawTimersRepo.GetRunningTimers(userId);
+      var runningTimers = await _rawTimersRepo.GetActiveTimers(userId);
       if (runningTimers.Count > 0)
       {
         foreach (var timer in runningTimers)
@@ -247,14 +234,34 @@ namespace TimeTracker.Core.Services
         }
       }
 
+      var resumedTimer = CreateResumedTimer(parentTimer);
       // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (await _rawTimersRepo.SpawnResumedTimer(targetTimer) == 0)
+      if (await _rawTimersRepo.SpawnResumedTimer(resumedTimer) == 0)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
         return false;
       }
 
       return true;
+    }
+
+    // Internal methods
+    private static RawTimerEntity CreateResumedTimer(RawTimerEntity parentTimer)
+    {
+      // TODO: [TESTS] (RawTimerService.CreateResumedTimer) Add tests
+      return new RawTimerEntity
+      {
+        ParentTimerId = parentTimer.RawTimerId,
+        RootTimerId = parentTimer.RootTimerId,
+        ClientId = parentTimer.ClientId,
+        ProductId = parentTimer.ProductId,
+        ProjectId = parentTimer.ProjectId,
+        UserId = parentTimer.UserId,
+        Running = true,
+        EntryState = EntryRunningState.Running,
+        Completed = false,
+        TimerNotes = "user-resumed"
+      };
     }
   }
 }

@@ -932,7 +932,7 @@ export class ProjectsClient implements IProjectsClient {
 }
 
 export interface ITimersClient {
-    getRunningTimers(): Observable<RawTimerDto[]>;
+    getActiveTimers(): Observable<RawTimerDto[]>;
     startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto>;
     pauseTimer(rawTimerId: number): Observable<boolean>;
     resumeTimer(rawTimerId: number): Observable<boolean>;
@@ -954,8 +954,8 @@ export class TimersClient implements ITimersClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getRunningTimers(): Observable<RawTimerDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/timers/running";
+    getActiveTimers(): Observable<RawTimerDto[]> {
+        let url_ = this.baseUrl + "/api/Timers/timers/active";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -967,11 +967,11 @@ export class TimersClient implements ITimersClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetRunningTimers(response_);
+            return this.processGetActiveTimers(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetRunningTimers(<any>response_);
+                    return this.processGetActiveTimers(<any>response_);
                 } catch (e) {
                     return <Observable<RawTimerDto[]>><any>_observableThrow(e);
                 }
@@ -980,7 +980,7 @@ export class TimersClient implements ITimersClient {
         }));
     }
 
-    protected processGetRunningTimers(response: HttpResponseBase): Observable<RawTimerDto[]> {
+    protected processGetActiveTimers(response: HttpResponseBase): Observable<RawTimerDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :

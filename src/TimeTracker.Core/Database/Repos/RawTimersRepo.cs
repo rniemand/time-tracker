@@ -13,7 +13,7 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<int> StartNew(RawTimerEntity timerEntity);
     Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity timerEntity);
-    Task<List<RawTimerEntity>> GetRunningTimers(int userId);
+    Task<List<RawTimerEntity>> GetActiveTimers(int userId);
     Task<int> PauseTimer(long rawTimerId, EntryRunningState state, string notes);
     Task<RawTimerEntity> GetByRawTimerId(long rawTimerId);
     Task<int> FlagAsResumed(long rawTimerId);
@@ -62,12 +62,12 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<List<RawTimerEntity>> GetRunningTimers(int userId)
+    public async Task<List<RawTimerEntity>> GetActiveTimers(int userId)
     {
       // TODO: [TESTS] (RawTimersRepo.GetRunningTimers) Add tests
       return await GetList<RawTimerEntity>(
-        nameof(GetRunningTimers),
-        _queries.GetRunningTimers(),
+        nameof(GetActiveTimers),
+        _queries.GetActiveTimers(),
         new
         {
           UserId = userId

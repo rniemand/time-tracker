@@ -127,7 +127,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.timers = [];
     this.uiService.showLoader(true);
 
-    this.timersClient.getRunningTimers().toPromise().then(
+    this.timersClient.getActiveTimers().toPromise().then(
       (timers: RawTimerDto[]) => {
         this.timers = timers;
         this.remaining = 30;

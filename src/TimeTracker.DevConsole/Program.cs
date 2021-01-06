@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using NSubstitute;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Extensions;
@@ -29,11 +30,9 @@ namespace TimeTracker.DevConsole
     static void Main(string[] args)
     {
       ConfigureDI();
-      
-      GenerateSampleConfig();
 
-
-      Console.WriteLine("Hello World!");
+      //GenerateSampleConfig();
+      //EncryptPassUsingConfig("password");
     }
 
 
@@ -44,7 +43,7 @@ namespace TimeTracker.DevConsole
       return encryptionService.Encrypt(password);
     }
 
-    
+
 
 
     // DI related methods
@@ -130,8 +129,8 @@ namespace TimeTracker.DevConsole
     {
       var mappedConfig = new TimeTrackerConfig();
       var configSection = config.GetSection("TimeTracker");
-      
-      if(configSection.Exists())
+
+      if (configSection.Exists())
         configSection.Bind(mappedConfig);
 
       services.AddSingleton(mappedConfig);
@@ -172,10 +171,45 @@ namespace TimeTracker.DevConsole
       Console.WriteLine("=======================================");
       Console.WriteLine("= Sample configuration file generated =");
       Console.WriteLine("=======================================");
-      Console.WriteLine();
       Console.WriteLine("A sample appsettings.json file was saved to:");
       Console.WriteLine();
       Console.WriteLine($"  {sampleAppSettingsFile}");
+    }
+
+    private static void EncryptPassUsingConfig(string password, string configFile = null)
+    {
+      var file = _serviceProvider.GetRequiredService<IFileAbstraction>();
+
+      if (string.IsNullOrWhiteSpace(configFile))
+      {
+        var environment = _serviceProvider.GetRequiredService<IEnvironmentAbstraction>();
+        var rootDir = environment.CurrentDirectory.AppendIfMissing("\\");
+        var generatedDir = $"{rootDir}generated\\";
+        configFile = $"{generatedDir}appsettings.json";
+      }
+
+      if (!file.Exists(configFile))
+        throw new Exception($"Unable to find appsettings.json file: {configFile}");
+
+      var configurationRoot = new ConfigurationBuilder()
+        .AddJsonFile(configFile)
+        .Build();
+
+      var encryptionService = new EncryptionService(
+        Substitute.For<ILoggerAdapter<EncryptionService>>(),
+        new EncryptionUtils(),
+        configurationRoot
+      );
+
+      var encrypted = encryptionService.Encrypt(password);
+
+      Console.WriteLine("===================================");
+      Console.WriteLine("= Encrypted password ");
+      Console.WriteLine("===================================");
+      Console.WriteLine($"appsettings : {configFile}");
+      Console.WriteLine($"Input       : {password}");
+      Console.WriteLine($"Encrypted   : {encrypted}");
+      Console.WriteLine($"Sanity      : {encryptionService.Decrypt(encrypted)}");
     }
 
     private static string RandomBytesString(IEncryptionUtils utils, int length)

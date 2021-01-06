@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Validation Error</h1>
+<div mat-dialog-content>
+  <p class="center">The API returned a validation error when processing your request.</p>
+
+  <pre>{{ error.error }}</pre>
+
+  <p>The following error(s) were returned:</p>
+  <ul>
+    <li *ngFor="let currError of error.errors">{{ currError }}</li>
+  </ul>
+</div>
+<div mat-dialog-actions class="right">
+  <button mat-stroked-button mat-dialog-close>Close</button>
+</div>

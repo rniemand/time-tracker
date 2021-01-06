@@ -1,0 +1,6 @@
+<mat-form-field [appearance]="appearance" [class]="class">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select [(ngModel)]="productId" (selectionChange)="valueChanged()" [disabled]="loading">
+    <mat-option *ngFor="let entry of entries" [value]="entry.value">{{ entry.name }}</mat-option>
+  </mat-select>
+</mat-form-field>

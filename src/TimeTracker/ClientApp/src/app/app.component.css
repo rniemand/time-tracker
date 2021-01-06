@@ -1,0 +1,25 @@
+mat-sidenav-container,
+mat-sidenav-content,
+mat-sidenav {
+  height: 100%;
+}
+
+mat-sidenav {
+  width: 250px;
+}
+
+.page-loader {
+  background-color: #000;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+
+main {
+  padding: 0 8px 0 8px;
+}

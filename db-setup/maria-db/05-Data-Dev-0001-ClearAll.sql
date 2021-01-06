@@ -1,0 +1,5 @@
+TRUNCATE TABLE `Users`;
+TRUNCATE TABLE `Clients`;
+TRUNCATE TABLE `Products`;
+TRUNCATE TABLE `Projects`;
+TRUNCATE TABLE `RawTimers`;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,12 +14,9 @@ using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
-using TimeTracker.Core.Models.Dto;
-using TimeTracker.Core.Models.Requests;
-using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi;
 
 namespace TimeTracker.DevConsole
 {
@@ -33,16 +29,12 @@ namespace TimeTracker.DevConsole
     {
       ConfigureDI();
 
-      var timer = new RawTimerDto
-      {
-        UserId = 10,
-        //RootTimerId = 1,
-        ClientId = 8,
-        //ProjectId = 2,
-        ProductId = 9
-      };
+      var validationResult = new AdHockValidator()
+        .GreaterThan("test", 0, 9)
+        .NotNullOrWhiteSpace("bob", "value")
+        .Validate();
 
-      var result = RawTimerDtoValidator.StartNew(timer);
+      var errorMessage = validationResult.ToString();
 
 
       Console.WriteLine("Hello World!");

@@ -41,7 +41,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
     this.uiService.showLoader(true);
     this.timersClient.pauseTimer(entryId).toPromise().then(
-      (updatedTimer: RawTimerDto) => {
+      (updatedTimer: boolean) => {
         this.refreshTimers();
       },
       this.uiService.handleClientError

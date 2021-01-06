@@ -61,15 +61,10 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.PauseTimer) Add tests
-      var response = new BaseResponse<bool>();
-
-      if (rawTimerId <= 0)
-      {
-        response.WithValidation(new ValidationResultBuilder()
-          .MustBeGreaterThanZero(nameof(rawTimerId))
-          .Build()
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
         );
-      }
 
       if (response.PassedValidation)
         response.WithResponse(await _rawTimerService.PauseTimer(
@@ -87,12 +82,9 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
-      var response = new BaseResponse<bool>();
-
-      if (rawTimerId <= 0)
-        response.WithValidation(new ValidationResultBuilder()
-          .MustBeGreaterThanZero(nameof(rawTimerId))
-          .Build()
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
         );
 
       if (response.PassedValidation)
@@ -110,12 +102,9 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StopTimer) Add tests
-      var response = new BaseResponse<bool>();
-
-      if (rawTimerId <= 0)
-        response.WithValidation(new ValidationResultBuilder()
-          .MustBeGreaterThanZero(nameof(rawTimerId))
-          .Build()
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
         );
 
       if (response.PassedValidation)
@@ -133,12 +122,9 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>();
-
-      if (rootTimerId <= 0)
-        response.WithValidation(new ValidationResultBuilder()
-          .MustBeGreaterThanZero(nameof(rootTimerId))
-          .Build()
+      var response = new BaseResponse<List<RawTimerDto>>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(rootTimerId), rootTimerId)
         );
 
       if (response.PassedValidation)
@@ -157,9 +143,20 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.UpdateNotes) Add tests
-      var response = new BaseResponse<bool>();
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
+          .NotNullOrWhiteSpace(nameof(notes), notes)
+        );
 
-      return Ok(await _rawTimerService.UpdateNotes(request.UserId, rawTimerId, notes));
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.UpdateNotes(
+          request.UserId,
+          rawTimerId,
+          notes
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpPost, Route("update-duration"), Authorize]

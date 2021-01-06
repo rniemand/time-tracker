@@ -23,6 +23,12 @@ namespace TimeTracker.Core.Models.Responses
       return this;
     }
 
+    public BaseResponse<TResponse> WithValidation(AdHockValidator validator)
+    {
+      ValidationResult = validator.Validate();
+      return this;
+    }
+
     public BaseResponse<TResponse> WithValidation(ValidationResult result)
     {
       ValidationResult = result;

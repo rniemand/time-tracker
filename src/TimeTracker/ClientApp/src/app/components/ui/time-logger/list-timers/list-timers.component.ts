@@ -15,8 +15,10 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   flipFlop: boolean = false;
   remaining: number = 30;
   autoRefresh: boolean = true;
+  runningTimers: boolean = false;
 
   private _interval: any = null;
+  private _decrementTimer: boolean = true;
 
   constructor(
     private timersClient: TimersClient,
@@ -125,12 +127,15 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   // Internal methods
   private refreshTimers = () => {
     this.timers = [];
+    this.runningTimers = false;
     this.uiService.showLoader(true);
 
     this.timersClient.getActiveTimers().toPromise().then(
       (timers: RawTimerDto[]) => {
         this.timers = timers;
         this.remaining = 30;
+        this._decrementTimer = true;
+        this.runningTimers = this.containsRunningTimers(timers);
         this.uiService.hideLoader();
       },
       this.uiService.handleClientError
@@ -139,9 +144,13 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
   private tick = () => {
     this.flipFlop = !this.flipFlop;
-    this.remaining -= 1;
+
+    if(this._decrementTimer) {
+      this.remaining -= 1;
+    }
 
     if(this.remaining == 0) {
+      this._decrementTimer = false;
       this.refreshTimers();
     }
   }
@@ -155,6 +164,19 @@ export class ListTimersComponent implements OnInit, OnDestroy {
       clearInterval(this._interval);
       this._interval = null;
     }
+  }
+
+  private containsRunningTimers = (timers: RawTimerDto[]) => {
+    if(timers.length === 0)
+      return false;
+
+    for(var i = 0; i < timers.length; i++) {
+      if(timers[i].entryState == 1) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 }

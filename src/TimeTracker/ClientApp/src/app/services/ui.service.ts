@@ -1,5 +1,8 @@
 import { EventEmitter, Injectable } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from "@angular/material/snack-bar";
+import { ValidationErrorDialog, ValidationErrorDialogData } from "../components/dialogs/validation-error/validation-error.dialog";
+import { DIALOG_DEFAULTS } from "../constants";
 
 export interface NotifyOptions {
   message: string;
@@ -7,6 +10,13 @@ export interface NotifyOptions {
   horizontalPosition?: MatSnackBarHorizontalPosition,
   verticalPosition?: MatSnackBarVerticalPosition,
   duration?: number
+}
+
+export interface ValidationError {
+  error: string;
+  errors: string[];
+  isValid: boolean;
+  ruleSetsExecuted: string[];
 }
 
 @Injectable()
@@ -17,7 +27,8 @@ export class UiService {
   private _closeOnError: boolean = false;
   
   constructor(
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    public dialog: MatDialog
   ) { }
   
   notify = (options: NotifyOptions | string, duration?: number) => {
@@ -40,10 +51,23 @@ export class UiService {
     });
   }
 
-  handleClientError = (error: any) => {
-    // TODO: [COMPLETE] Complete me
-    console.error(error);
+  handleValidationError = (error: ValidationError) => {
+    let dialogData: ValidationErrorDialogData = { 
+      error: error
+    };
 
+    this.dialog.open(ValidationErrorDialog, {
+      ...DIALOG_DEFAULTS,
+      backdropClass: 'validation-error',
+      data: dialogData
+    });
+
+    this.hideLoader();
+  }
+
+  handleClientError = (error: any, ...args: any[]) => {
+    // TODO: [COMPLETE] Complete me
+    
     if(this._closeOnError) {
       this.hideLoader();
     }

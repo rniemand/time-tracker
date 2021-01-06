@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
@@ -7,6 +8,7 @@ using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi;
 using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
@@ -47,16 +49,36 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
-      return Ok(await _rawTimerService.GetRunningTimers(request.UserId));
+      var response = new BaseResponse<List<RawTimerDto>>()
+        .WithResponse(await _rawTimerService.GetRunningTimers(request.UserId));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("pause-timer/{rawTimerId}"), Authorize]
-    public async Task<ActionResult<RawTimerDto>> PauseTimer(
+    public async Task<ActionResult<bool>> PauseTimer(
       [FromRoute] long rawTimerId,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.PauseTimer) Add tests
-      return Ok(await _rawTimerService.PauseTimer(request.UserId, rawTimerId, "user-paused"));
+      var response = new BaseResponse<bool>();
+
+      if (rawTimerId <= 0)
+      {
+        response.WithValidation(new ValidationResultBuilder()
+          .MustBeGreaterThanZero(nameof(rawTimerId))
+          .Build()
+        );
+      }
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.PauseTimer(
+          request.UserId,
+          rawTimerId,
+          "user-paused"
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("resume-timer/{rawTimerId}"), Authorize]
@@ -65,7 +87,21 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
-      return Ok(await _rawTimerService.ResumeTimer(request.UserId, rawTimerId));
+      var response = new BaseResponse<bool>();
+
+      if (rawTimerId <= 0)
+        response.WithValidation(new ValidationResultBuilder()
+          .MustBeGreaterThanZero(nameof(rawTimerId))
+          .Build()
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.ResumeTimer(
+          request.UserId,
+          rawTimerId
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("stop-timer/{rawTimerId}"), Authorize]
@@ -74,7 +110,21 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StopTimer) Add tests
-      return Ok(await _rawTimerService.StopTimer(request.UserId, rawTimerId));
+      var response = new BaseResponse<bool>();
+
+      if (rawTimerId <= 0)
+        response.WithValidation(new ValidationResultBuilder()
+          .MustBeGreaterThanZero(nameof(rawTimerId))
+          .Build()
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.StopTimer(
+          request.UserId,
+          rawTimerId
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("timer-series/{rootTimerId}"), Authorize]
@@ -83,7 +133,21 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
-      return Ok(await _rawTimerService.GetTimerSeries(request.UserId, rootTimerId));
+      var response = new BaseResponse<List<RawTimerDto>>();
+
+      if (rootTimerId <= 0)
+        response.WithValidation(new ValidationResultBuilder()
+          .MustBeGreaterThanZero(nameof(rootTimerId))
+          .Build()
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.GetTimerSeries(
+          request.UserId,
+          rootTimerId
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpPost, Route("update-notes/{rawTimerId}"), Authorize]
@@ -93,6 +157,8 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.UpdateNotes) Add tests
+      var response = new BaseResponse<bool>();
+
       return Ok(await _rawTimerService.UpdateNotes(request.UserId, rawTimerId, notes));
     }
 

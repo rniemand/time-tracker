@@ -125,7 +125,7 @@ namespace TimeTracker.Core.Models.Dto
       RuleSet("StartNew", () =>
       {
         RuleFor(x => x.ParentTimerId).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.ClientId).GreaterThan(9);
+        RuleFor(x => x.ClientId).GreaterThan(0);
         RuleFor(x => x.ProductId).GreaterThan(0);
         RuleFor(x => x.ProjectId).GreaterThan(0);
         RuleFor(x => x.UserId).GreaterThan(0);
@@ -136,8 +136,7 @@ namespace TimeTracker.Core.Models.Dto
 
     public static ValidationResult StartNew(RawTimerDto timer)
     {
-      return new RawTimerDtoValidator().Validate(
-        timer,
+      return new RawTimerDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("StartNew")
       );
     }

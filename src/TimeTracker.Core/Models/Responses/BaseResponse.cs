@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using TimeTracker.Core.WebApi;
 
 namespace TimeTracker.Core.Models.Responses
 {

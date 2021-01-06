@@ -49,3 +49,7 @@ body {
 .stretched {
   width: 100%;
 }
+
+.validation-error {
+  background-color: #6f2c2c91;
+}

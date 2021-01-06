@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { catchError, tap } from 'rxjs/operators';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { UiService } from '../services/ui.service';
+import { UiService, ValidationError } from '../services/ui.service';
 
 // https://angular.io/guide/http#intercepting-requests-and-responses
 // https://github.com/cornflourblue/angular-9-jwt-authentication-example
@@ -31,7 +31,10 @@ export class AppendTokenInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private authService: AuthService) { }
+    constructor(
+      private authService: AuthService,
+      private uiService: UiService
+    ) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(catchError(err => {
@@ -41,11 +44,64 @@ export class ErrorInterceptor implements HttpInterceptor {
                 location.reload();
             }
 
-            const error = err.error.message || err.statusText;
-            return throwError(error);
+            this.handleValidationError(err);
+            return throwError(err.error.message || err.statusText);
         }))
     }
+
+    // Internal methods
+    private parseJson = (json: any): any => {
+      if(typeof(json) !== 'string')
+        return null;
+
+      if(!json.startsWith('{') || !json.endsWith('}'))
+        return null;
+
+      try {
+        return JSON.parse(json);
+      }
+      catch(err) {
+        return null;
+      }
+    }
+
+    private isValidationError = (obj: any): boolean => {
+      if(!obj)
+        return false;
+
+      if(
+        !obj.hasOwnProperty('error') ||
+        !obj.hasOwnProperty('errors') ||
+        !obj.hasOwnProperty('isValid') ||
+        !obj.hasOwnProperty('ruleSetsExecuted')
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+
+    private handleValidationError = (err: any) => {
+      if(!err.hasOwnProperty('error') || !(err.error instanceof Blob))
+        return;
+      
+      let castErr = err.error as Blob;
+      if(castErr.type != 'application/json')
+        return;
+
+      const reader = new FileReader();
+      reader.addEventListener('loadend', (e) => {
+        const text = e.target?.result?.toString() ?? '';
+        let json = this.parseJson(text);
+        if(this.isValidationError(json)) {
+          this.uiService.handleValidationError(json as ValidationError);
+        }
+      });
+      reader.readAsText(err.error);
+    }
 }
+
+
 
 @Injectable()
 export class SessionTokenInterceptor implements HttpInterceptor {

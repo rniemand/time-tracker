@@ -34,6 +34,7 @@ import { TimerSeriesDialog } from './components/dialogs/timer-series/timer-serie
 import { EntryStatePipe } from './pipes/entry-state.pipe';
 import { EditTimerEntryDialog } from './components/dialogs/edit-timer-entry/edit-timer-entry.dialog';
 import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-timer-entry.component';
+import { ValidationErrorDialog } from './components/dialogs/validation-error/validation-error.dialog';
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-t
     TimerSeriesDialog,
     EntryStatePipe,
     EditTimerEntryDialog,
-    EditTimerEntryComponent
+    EditTimerEntryComponent,
+    ValidationErrorDialog
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,22 @@
+.mat-dialog-title {
+  text-align: center;
+  background-color: #b93535;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+pre {
+  border: 1px solid #1f1e1e;
+  border-radius: 6px;
+  padding: 6px;
+  background-color: #9a9a9a2e;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+  display: block;
+}

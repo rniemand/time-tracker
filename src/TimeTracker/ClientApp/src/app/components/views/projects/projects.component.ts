@@ -38,7 +38,7 @@ export class ProjectsComponent implements OnInit {
     this.uiService.showLoader(true);
     this.projectsLoaded = false;
 
-    this.projectsClient.getAllForProduct(productId).toPromise().then(
+    this.projectsClient.getProductProjects(productId).toPromise().then(
       (projects: ProjectDto[]) => {
         this.dataSource = new MatTableDataSource(projects);
         this.dataSource.sort = this.sort;

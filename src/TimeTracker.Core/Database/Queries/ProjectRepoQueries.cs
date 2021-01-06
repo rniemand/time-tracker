@@ -44,7 +44,6 @@
       return @"INSERT INTO `Projects`
 	      (`ClientId`, `ProductId`, `UserId`, `ProjectName`)
       VALUES
-	      -- Client 1 | Product A
 	      (@ClientId, @ProductId, @UserId, @ProjectName)";
     }
 

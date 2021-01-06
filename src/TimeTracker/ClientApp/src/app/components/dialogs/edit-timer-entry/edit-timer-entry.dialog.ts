@@ -49,6 +49,10 @@ export class EditTimerEntryDialog implements OnInit {
   }
 
   saveChanges = () => {
+    let rawTimerId = this.timer?.rawTimerId ?? 0;
+    if(rawTimerId === 0)
+      return;
+
     let updatedTimer = new RawTimerDto({
       ...this.timer,
       'entryStartTimeUtc': this.startDate,
@@ -57,7 +61,7 @@ export class EditTimerEntryDialog implements OnInit {
     });
 
     this.uiService.showLoader(true);
-    this.timersClient.updateTimerDuration(updatedTimer).toPromise().then(
+    this.timersClient.updateTimerDuration(rawTimerId, updatedTimer).toPromise().then(
       (success: boolean) => {
         this.uiService.hideLoader();
         this.closeDialog('updated');

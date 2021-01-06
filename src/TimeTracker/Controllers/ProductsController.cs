@@ -5,7 +5,9 @@ using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi;
 using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
@@ -27,40 +29,79 @@ namespace TimeTracker.Controllers
     }
 
     [HttpGet, Route("products/{clientId}"), Authorize]
-    public async Task<ActionResult<List<ProductDto>>> GetAll(
+    public async Task<ActionResult<List<ProductDto>>> GetAllProducts(
       [FromRoute] int clientId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProductsController.GetAll) Add tests
-      return Ok(await _productService.GetAll(request.UserId, clientId));
+      // TODO: [TESTS] (ProductsController.GetAllProducts) Add tests
+      var response = new BaseResponse<List<ProductDto>>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(clientId), clientId)
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _productService.GetAll(
+          request.UserId,
+          clientId
+        ));
+
+      return ProcessResponse(response);
     }
 
-    [HttpGet, Route("products/{clientId}/list-items"), Authorize]
-    public async Task<ActionResult<List<IntListItem>>> GetClientProductsListItems(
+    [HttpGet, Route("products/list/{clientId}"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> ListClientProducts(
       [FromRoute] int clientId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProductsController.GetClientProductsListItems) Add tests
-      return Ok(await _productService.GetClientProductsListItems(request.UserId, clientId));
-    }
+      // TODO: [TESTS] (ProductsController.ListClientProducts) Add tests
+      var response = new BaseResponse<List<IntListItem>>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(clientId), clientId)
+        );
 
+      if (response.PassedValidation)
+        response.WithResponse(await _productService.GetClientProductsListItems(
+          request.UserId,
+          clientId
+        ));
+
+      return ProcessResponse(response);
+    }
 
     [HttpPost, Route("product/add"), Authorize]
     public async Task<ActionResult<ProductDto>> AddProduct(
-      [FromBody] ProductDto product,
+      [FromBody] ProductDto productDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProductsController.AddProduct) Add tests
-      return Ok(await _productService.AddProduct(request.UserId, product));
+      var response = new BaseResponse<ProductDto>()
+        .WithValidation(ProductDtoValidator.Add(productDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _productService.AddProduct(
+          request.UserId,
+          productDto
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpPatch, Route("product/update"), Authorize]
     public async Task<ActionResult<ProductDto>> UpdateProduct(
-      [FromBody] ProductDto product,
+      [FromBody] ProductDto productDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProductsController.UpdateProduct) Add tests
-      return Ok(await _productService.UpdateProduct(request.UserId, product));
+      var response = new BaseResponse<ProductDto>()
+        .WithValidation(ProductDtoValidator.Update(productDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _productService.UpdateProduct(
+          request.UserId,
+          productDto
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("product/{productId}"), Authorize]
@@ -69,7 +110,18 @@ namespace TimeTracker.Controllers
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProductsController.GetProductById) Add tests
-      return Ok(await _productService.GetById(request.UserId, productId));
+      var response = new BaseResponse<ProductDto>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(productId), productId)
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _productService.GetById(
+          request.UserId,
+          productId
+        ));
+
+      return ProcessResponse(response);
     }
   }
 }

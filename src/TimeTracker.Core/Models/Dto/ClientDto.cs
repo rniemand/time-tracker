@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using FluentValidation;
+using FluentValidation.Results;
 using TimeTracker.Core.Database.Entities;
 
 namespace TimeTracker.Core.Models.Dto
@@ -62,6 +64,39 @@ namespace TimeTracker.Core.Models.Dto
         ClientName = ClientName,
         Deleted = Deleted
       };
+    }
+  }
+
+  public class ClientDtoValidator : AbstractValidator<ClientDto>
+  {
+    public ClientDtoValidator()
+    {
+      RuleSet("Add", () =>
+      {
+        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.ClientName).NotNull().MinimumLength(3);
+      });
+
+      RuleSet("Update", () =>
+      {
+        RuleFor(x => x.ClientName).NotNull().MinimumLength(3);
+        RuleFor(x => x.ClientEmail).EmailAddress().When(x => x.ClientEmail.Length > 0);
+        RuleFor(x => x.ClientId).GreaterThan(0);
+      });
+    }
+
+    public static ValidationResult Add(ClientDto clientDto)
+    {
+      return new ClientDtoValidator().Validate(clientDto,
+        options => options.IncludeRuleSets("Add")
+      );
+    }
+
+    public static ValidationResult Update(ClientDto clientDto)
+    {
+      return new ClientDtoValidator().Validate(clientDto,
+        options => options.IncludeRuleSets("Update")
+      );
     }
   }
 }

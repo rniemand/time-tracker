@@ -5,7 +5,9 @@ using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi;
 using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
@@ -26,51 +28,80 @@ namespace TimeTracker.Controllers
       _clientService = clientService;
     }
 
-    [HttpPost, Route("client"), Authorize]
+    [HttpPost, Route("client/add"), Authorize]
     public async Task<ActionResult<ClientDto>> AddClient(
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ClientsController.AddClient) Add tests
-      var addedClient = await _clientService.AddClient(request.UserId, clientDto);
-      return Ok(addedClient);
+      var response = new BaseResponse<ClientDto>()
+        .WithValidation(ClientDtoValidator.Add(clientDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _clientService.AddClient(
+          request.UserId,
+          clientDto
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpGet, Route("client/{clientId}"), Authorize]
-    public async Task<ActionResult<ClientDto>> GetById(
+    public async Task<ActionResult<ClientDto>> GetClientById(
       [FromRoute] int clientId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientsController.GetById) Add tests
-      return Ok(await _clientService.GetById(request.UserId, clientId));
+      // TODO: [TESTS] (ClientsController.GetClientById) Add tests
+      var response = new BaseResponse<ClientDto>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(clientId), clientId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _clientService.GetById(
+          request.UserId,
+          clientId
+        ));
+
+      return ProcessResponse(response);
     }
 
-    [HttpPatch, Route("client"), Authorize]
+    [HttpPatch, Route("client/update"), Authorize]
     public async Task<ActionResult<ClientDto>> UpdateClient(
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ClientsController.UpdateClient) Add tests
-      return Ok(await _clientService.Update(request.UserId, clientDto));
-    }
+      var response = new BaseResponse<ClientDto>()
+        .WithValidation(ClientDtoValidator.Update(clientDto));
 
+      if (response.PassedValidation)
+        response.WithResponse(await _clientService.Update(
+          request.UserId,
+          clientDto
+        ));
+
+      return ProcessResponse(response);
+    }
 
     [HttpGet, Route("clients"), Authorize]
-    public async Task<ActionResult<List<ClientDto>>> GetAll(
+    public async Task<ActionResult<List<ClientDto>>> GetAllClients(
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientsController.GetAll) Add tests
-      return Ok(await _clientService.GetAll(request.UserId));
+      // TODO: [TESTS] (ClientsController.GetAllClients) Add tests
+      var response = new BaseResponse<List<ClientDto>>()
+        .WithResponse(await _clientService.GetAll(request.UserId));
+
+      return ProcessResponse(response);
     }
 
-    [HttpGet, Route("clients/as-list"), Authorize]
-    public async Task<ActionResult<List<IntListItem>>> GetClientList(
+    [HttpGet, Route("clients/list"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> ListAllClients(
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ClientsController.GetClientList) Add tests
-      return Ok(await _clientService.GetAsListItems(request.UserId));
+      // TODO: [TESTS] (ClientsController.ListAllClients) Add tests
+      var response = new BaseResponse<List<IntListItem>>()
+        .WithResponse(await _clientService.GetAsListItems(request.UserId));
+
+      return ProcessResponse(response);
     }
-
-
   }
 }

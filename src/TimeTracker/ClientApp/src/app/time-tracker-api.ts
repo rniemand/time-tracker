@@ -84,10 +84,10 @@ export class AuthClient implements IAuthClient {
 
 export interface IClientsClient {
     addClient(clientDto: ClientDto): Observable<ClientDto>;
+    getClientById(clientId: number): Observable<ClientDto>;
     updateClient(clientDto: ClientDto): Observable<ClientDto>;
-    getById(clientId: number): Observable<ClientDto>;
-    getAll(): Observable<ClientDto[]>;
-    getClientList(): Observable<IntListItem[]>;
+    getAllClients(): Observable<ClientDto[]>;
+    listAllClients(): Observable<IntListItem[]>;
 }
 
 @Injectable()
@@ -102,7 +102,7 @@ export class ClientsClient implements IClientsClient {
     }
 
     addClient(clientDto: ClientDto): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Clients/client";
+        let url_ = this.baseUrl + "/api/Clients/client/add";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(clientDto);
@@ -153,8 +153,59 @@ export class ClientsClient implements IClientsClient {
         return _observableOf<ClientDto>(<any>null);
     }
 
+    getClientById(clientId: number): Observable<ClientDto> {
+        let url_ = this.baseUrl + "/api/Clients/client/{clientId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetClientById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetClientById(<any>response_);
+                } catch (e) {
+                    return <Observable<ClientDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ClientDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetClientById(response: HttpResponseBase): Observable<ClientDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ClientDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ClientDto>(<any>null);
+    }
+
     updateClient(clientDto: ClientDto): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Clients/client";
+        let url_ = this.baseUrl + "/api/Clients/client/update";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(clientDto);
@@ -205,58 +256,7 @@ export class ClientsClient implements IClientsClient {
         return _observableOf<ClientDto>(<any>null);
     }
 
-    getById(clientId: number): Observable<ClientDto> {
-        let url_ = this.baseUrl + "/api/Clients/client/{clientId}";
-        if (clientId === undefined || clientId === null)
-            throw new Error("The parameter 'clientId' must be defined.");
-        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetById(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetById(<any>response_);
-                } catch (e) {
-                    return <Observable<ClientDto>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<ClientDto>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processGetById(response: HttpResponseBase): Observable<ClientDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ClientDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<ClientDto>(<any>null);
-    }
-
-    getAll(): Observable<ClientDto[]> {
+    getAllClients(): Observable<ClientDto[]> {
         let url_ = this.baseUrl + "/api/Clients/clients";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -269,11 +269,11 @@ export class ClientsClient implements IClientsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAll(response_);
+            return this.processGetAllClients(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAll(<any>response_);
+                    return this.processGetAllClients(<any>response_);
                 } catch (e) {
                     return <Observable<ClientDto[]>><any>_observableThrow(e);
                 }
@@ -282,7 +282,7 @@ export class ClientsClient implements IClientsClient {
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<ClientDto[]> {
+    protected processGetAllClients(response: HttpResponseBase): Observable<ClientDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -308,8 +308,8 @@ export class ClientsClient implements IClientsClient {
         return _observableOf<ClientDto[]>(<any>null);
     }
 
-    getClientList(): Observable<IntListItem[]> {
-        let url_ = this.baseUrl + "/api/Clients/clients/as-list";
+    listAllClients(): Observable<IntListItem[]> {
+        let url_ = this.baseUrl + "/api/Clients/clients/list";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -321,11 +321,11 @@ export class ClientsClient implements IClientsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetClientList(response_);
+            return this.processListAllClients(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetClientList(<any>response_);
+                    return this.processListAllClients(<any>response_);
                 } catch (e) {
                     return <Observable<IntListItem[]>><any>_observableThrow(e);
                 }
@@ -334,7 +334,7 @@ export class ClientsClient implements IClientsClient {
         }));
     }
 
-    protected processGetClientList(response: HttpResponseBase): Observable<IntListItem[]> {
+    protected processListAllClients(response: HttpResponseBase): Observable<IntListItem[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -362,10 +362,10 @@ export class ClientsClient implements IClientsClient {
 }
 
 export interface IProductsClient {
-    getAll(clientId: number): Observable<ProductDto[]>;
-    getClientProductsListItems(clientId: number): Observable<IntListItem[]>;
-    addProduct(product: ProductDto): Observable<ProductDto>;
-    updateProduct(product: ProductDto): Observable<ProductDto>;
+    getAllProducts(clientId: number): Observable<ProductDto[]>;
+    listClientProducts(clientId: number): Observable<IntListItem[]>;
+    addProduct(productDto: ProductDto): Observable<ProductDto>;
+    updateProduct(productDto: ProductDto): Observable<ProductDto>;
     getProductById(productId: number): Observable<ProductDto>;
 }
 
@@ -380,7 +380,7 @@ export class ProductsClient implements IProductsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getAll(clientId: number): Observable<ProductDto[]> {
+    getAllProducts(clientId: number): Observable<ProductDto[]> {
         let url_ = this.baseUrl + "/api/Products/products/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
@@ -396,11 +396,11 @@ export class ProductsClient implements IProductsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAll(response_);
+            return this.processGetAllProducts(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAll(<any>response_);
+                    return this.processGetAllProducts(<any>response_);
                 } catch (e) {
                     return <Observable<ProductDto[]>><any>_observableThrow(e);
                 }
@@ -409,7 +409,7 @@ export class ProductsClient implements IProductsClient {
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<ProductDto[]> {
+    protected processGetAllProducts(response: HttpResponseBase): Observable<ProductDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -435,8 +435,8 @@ export class ProductsClient implements IProductsClient {
         return _observableOf<ProductDto[]>(<any>null);
     }
 
-    getClientProductsListItems(clientId: number): Observable<IntListItem[]> {
-        let url_ = this.baseUrl + "/api/Products/products/{clientId}/list-items";
+    listClientProducts(clientId: number): Observable<IntListItem[]> {
+        let url_ = this.baseUrl + "/api/Products/products/list/{clientId}";
         if (clientId === undefined || clientId === null)
             throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
@@ -451,11 +451,11 @@ export class ProductsClient implements IProductsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetClientProductsListItems(response_);
+            return this.processListClientProducts(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetClientProductsListItems(<any>response_);
+                    return this.processListClientProducts(<any>response_);
                 } catch (e) {
                     return <Observable<IntListItem[]>><any>_observableThrow(e);
                 }
@@ -464,7 +464,7 @@ export class ProductsClient implements IProductsClient {
         }));
     }
 
-    protected processGetClientProductsListItems(response: HttpResponseBase): Observable<IntListItem[]> {
+    protected processListClientProducts(response: HttpResponseBase): Observable<IntListItem[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -490,11 +490,11 @@ export class ProductsClient implements IProductsClient {
         return _observableOf<IntListItem[]>(<any>null);
     }
 
-    addProduct(product: ProductDto): Observable<ProductDto> {
+    addProduct(productDto: ProductDto): Observable<ProductDto> {
         let url_ = this.baseUrl + "/api/Products/product/add";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(product);
+        const content_ = JSON.stringify(productDto);
 
         let options_ : any = {
             body: content_,
@@ -542,11 +542,11 @@ export class ProductsClient implements IProductsClient {
         return _observableOf<ProductDto>(<any>null);
     }
 
-    updateProduct(product: ProductDto): Observable<ProductDto> {
+    updateProduct(productDto: ProductDto): Observable<ProductDto> {
         let url_ = this.baseUrl + "/api/Products/product/update";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(product);
+        const content_ = JSON.stringify(productDto);
 
         let options_ : any = {
             body: content_,
@@ -647,11 +647,11 @@ export class ProductsClient implements IProductsClient {
 }
 
 export interface IProjectsClient {
-    getAllForProduct(productId: number): Observable<ProjectDto[]>;
-    getProjectsAsList(productId: number): Observable<IntListItem[]>;
-    getById(projectId: number): Observable<ProjectDto>;
-    addProject(project: ProjectDto): Observable<ProjectDto>;
-    updateProject(project: ProjectDto): Observable<ProjectDto>;
+    getProductProjects(productId: number): Observable<ProjectDto[]>;
+    listProductProjects(productId: number): Observable<IntListItem[]>;
+    getProjectById(projectId: number): Observable<ProjectDto>;
+    addProject(projectDto: ProjectDto): Observable<ProjectDto>;
+    updateProject(projectDto: ProjectDto): Observable<ProjectDto>;
 }
 
 @Injectable()
@@ -665,7 +665,7 @@ export class ProjectsClient implements IProjectsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getAllForProduct(productId: number): Observable<ProjectDto[]> {
+    getProductProjects(productId: number): Observable<ProjectDto[]> {
         let url_ = this.baseUrl + "/api/Projects/projects/product/{productId}";
         if (productId === undefined || productId === null)
             throw new Error("The parameter 'productId' must be defined.");
@@ -681,11 +681,11 @@ export class ProjectsClient implements IProjectsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllForProduct(response_);
+            return this.processGetProductProjects(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAllForProduct(<any>response_);
+                    return this.processGetProductProjects(<any>response_);
                 } catch (e) {
                     return <Observable<ProjectDto[]>><any>_observableThrow(e);
                 }
@@ -694,7 +694,7 @@ export class ProjectsClient implements IProjectsClient {
         }));
     }
 
-    protected processGetAllForProduct(response: HttpResponseBase): Observable<ProjectDto[]> {
+    protected processGetProductProjects(response: HttpResponseBase): Observable<ProjectDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -720,8 +720,8 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<ProjectDto[]>(<any>null);
     }
 
-    getProjectsAsList(productId: number): Observable<IntListItem[]> {
-        let url_ = this.baseUrl + "/api/Projects/projects/list/product/{productId}";
+    listProductProjects(productId: number): Observable<IntListItem[]> {
+        let url_ = this.baseUrl + "/api/Projects/projects/product/{productId}/list";
         if (productId === undefined || productId === null)
             throw new Error("The parameter 'productId' must be defined.");
         url_ = url_.replace("{productId}", encodeURIComponent("" + productId));
@@ -736,11 +736,11 @@ export class ProjectsClient implements IProjectsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetProjectsAsList(response_);
+            return this.processListProductProjects(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetProjectsAsList(<any>response_);
+                    return this.processListProductProjects(<any>response_);
                 } catch (e) {
                     return <Observable<IntListItem[]>><any>_observableThrow(e);
                 }
@@ -749,7 +749,7 @@ export class ProjectsClient implements IProjectsClient {
         }));
     }
 
-    protected processGetProjectsAsList(response: HttpResponseBase): Observable<IntListItem[]> {
+    protected processListProductProjects(response: HttpResponseBase): Observable<IntListItem[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -775,7 +775,7 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<IntListItem[]>(<any>null);
     }
 
-    getById(projectId: number): Observable<ProjectDto> {
+    getProjectById(projectId: number): Observable<ProjectDto> {
         let url_ = this.baseUrl + "/api/Projects/project/{projectId}";
         if (projectId === undefined || projectId === null)
             throw new Error("The parameter 'projectId' must be defined.");
@@ -791,11 +791,11 @@ export class ProjectsClient implements IProjectsClient {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetById(response_);
+            return this.processGetProjectById(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetById(<any>response_);
+                    return this.processGetProjectById(<any>response_);
                 } catch (e) {
                     return <Observable<ProjectDto>><any>_observableThrow(e);
                 }
@@ -804,7 +804,7 @@ export class ProjectsClient implements IProjectsClient {
         }));
     }
 
-    protected processGetById(response: HttpResponseBase): Observable<ProjectDto> {
+    protected processGetProjectById(response: HttpResponseBase): Observable<ProjectDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -826,11 +826,11 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<ProjectDto>(<any>null);
     }
 
-    addProject(project: ProjectDto): Observable<ProjectDto> {
+    addProject(projectDto: ProjectDto): Observable<ProjectDto> {
         let url_ = this.baseUrl + "/api/Projects/project/add";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(project);
+        const content_ = JSON.stringify(projectDto);
 
         let options_ : any = {
             body: content_,
@@ -878,11 +878,11 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<ProjectDto>(<any>null);
     }
 
-    updateProject(project: ProjectDto): Observable<ProjectDto> {
+    updateProject(projectDto: ProjectDto): Observable<ProjectDto> {
         let url_ = this.baseUrl + "/api/Projects/project/update";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(project);
+        const content_ = JSON.stringify(projectDto);
 
         let options_ : any = {
             body: content_,
@@ -932,14 +932,14 @@ export class ProjectsClient implements IProjectsClient {
 }
 
 export interface ITimersClient {
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto>;
     getRunningTimers(): Observable<RawTimerDto[]>;
+    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto>;
     pauseTimer(rawTimerId: number): Observable<boolean>;
     resumeTimer(rawTimerId: number): Observable<boolean>;
     stopTimer(rawTimerId: number): Observable<boolean>;
     getTimerSeries(rootTimerId: number): Observable<RawTimerDto[]>;
     updateNotes(rawTimerId: number, notes: string): Observable<boolean>;
-    updateTimerDuration(timerDto: RawTimerDto): Observable<boolean>;
+    updateTimerDuration(rawTimerId: number, rawTimerDto: RawTimerDto): Observable<boolean>;
 }
 
 @Injectable()
@@ -953,60 +953,8 @@ export class TimersClient implements ITimersClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto> {
-        let url_ = this.baseUrl + "/api/Timers/start-new";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(rawTimerDto);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processStartNewTimer(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processStartNewTimer(<any>response_);
-                } catch (e) {
-                    return <Observable<RawTimerDto>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<RawTimerDto>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processStartNewTimer(response: HttpResponseBase): Observable<RawTimerDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RawTimerDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<RawTimerDto>(<any>null);
-    }
-
     getRunningTimers(): Observable<RawTimerDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/list-running";
+        let url_ = this.baseUrl + "/api/Timers/timers/running";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1057,8 +1005,60 @@ export class TimersClient implements ITimersClient {
         return _observableOf<RawTimerDto[]>(<any>null);
     }
 
+    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto> {
+        let url_ = this.baseUrl + "/api/Timers/timer/start-new";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(rawTimerDto);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processStartNewTimer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processStartNewTimer(<any>response_);
+                } catch (e) {
+                    return <Observable<RawTimerDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<RawTimerDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processStartNewTimer(response: HttpResponseBase): Observable<RawTimerDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RawTimerDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RawTimerDto>(<any>null);
+    }
+
     pauseTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/pause-timer/{rawTimerId}";
+        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/pause";
         if (rawTimerId === undefined || rawTimerId === null)
             throw new Error("The parameter 'rawTimerId' must be defined.");
         url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
@@ -1109,7 +1109,7 @@ export class TimersClient implements ITimersClient {
     }
 
     resumeTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/resume-timer/{rawTimerId}";
+        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/resume";
         if (rawTimerId === undefined || rawTimerId === null)
             throw new Error("The parameter 'rawTimerId' must be defined.");
         url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
@@ -1160,7 +1160,7 @@ export class TimersClient implements ITimersClient {
     }
 
     stopTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/stop-timer/{rawTimerId}";
+        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/stop";
         if (rawTimerId === undefined || rawTimerId === null)
             throw new Error("The parameter 'rawTimerId' must be defined.");
         url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
@@ -1211,7 +1211,7 @@ export class TimersClient implements ITimersClient {
     }
 
     getTimerSeries(rootTimerId: number): Observable<RawTimerDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/timer-series/{rootTimerId}";
+        let url_ = this.baseUrl + "/api/Timers/timer/{rootTimerId}/series";
         if (rootTimerId === undefined || rootTimerId === null)
             throw new Error("The parameter 'rootTimerId' must be defined.");
         url_ = url_.replace("{rootTimerId}", encodeURIComponent("" + rootTimerId));
@@ -1266,7 +1266,7 @@ export class TimersClient implements ITimersClient {
     }
 
     updateNotes(rawTimerId: number, notes: string): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/update-notes/{rawTimerId}";
+        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/update-notes";
         if (rawTimerId === undefined || rawTimerId === null)
             throw new Error("The parameter 'rawTimerId' must be defined.");
         url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
@@ -1320,11 +1320,14 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    updateTimerDuration(timerDto: RawTimerDto): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/update-duration";
+    updateTimerDuration(rawTimerId: number, rawTimerDto: RawTimerDto): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/update-duration";
+        if (rawTimerId === undefined || rawTimerId === null)
+            throw new Error("The parameter 'rawTimerId' must be defined.");
+        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(timerDto);
+        const content_ = JSON.stringify(rawTimerDto);
 
         let options_ : any = {
             body: content_,

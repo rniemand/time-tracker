@@ -39,7 +39,7 @@ export class ProductsComponent implements OnInit {
     this.clientId = clientId;
     this.uiService.showLoader(true);
 
-    this.products.getAll(this.clientId).toPromise().then(
+    this.products.getAllProducts(this.clientId).toPromise().then(
       (products: ProductDto[]) => {
         this.dataSource = new MatTableDataSource(products);
         this.dataSource.sort = this.sort;

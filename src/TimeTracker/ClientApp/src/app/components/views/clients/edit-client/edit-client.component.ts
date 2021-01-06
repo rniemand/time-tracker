@@ -30,7 +30,7 @@ export class EditClientComponent implements OnInit {
     this.clientId = this.route.snapshot.params.id;
 
     this.uiService.showLoader(true);
-    this.clients.getById(this.clientId).toPromise().then(
+    this.clients.getClientById(this.clientId).toPromise().then(
       (client: ClientDto) => {
         this.client = client;
 

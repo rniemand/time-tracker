@@ -132,12 +132,27 @@ namespace TimeTracker.Core.Models.Dto
         RuleFor(x => x.EntryState).IsInEnum();
         RuleFor(x => x.Running).Equal(true);
       });
+
+      RuleSet("UpdateTimerDuration", () =>
+      {
+        RuleFor(x => x.EntryStartTimeUtc).NotNull();
+        RuleFor(x => x.EntryRunningTimeSec).GreaterThan(0);
+        RuleFor(x => x.TimerNotes).NotNull().MinimumLength(3);
+        RuleFor(x => x.RawTimerId).GreaterThan(0);
+      });
     }
 
     public static ValidationResult StartNew(RawTimerDto timer)
     {
       return new RawTimerDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("StartNew")
+      );
+    }
+
+    public static ValidationResult UpdateTimerDuration(RawTimerDto timer)
+    {
+      return new RawTimerDtoValidator().Validate(timer,
+        options => options.IncludeRuleSets("UpdateTimerDuration")
       );
     }
   }

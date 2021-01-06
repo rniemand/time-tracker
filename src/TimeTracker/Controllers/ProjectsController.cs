@@ -5,7 +5,9 @@ using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi;
 using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
@@ -27,49 +29,96 @@ namespace TimeTracker.Controllers
     }
 
     [HttpGet, Route("projects/product/{productId}"), Authorize]
-    public async Task<ActionResult<List<ProjectDto>>> GetAllForProduct(
+    public async Task<ActionResult<List<ProjectDto>>> GetProductProjects(
       [FromRoute] int productId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProjectsController.GetAllForProduct) Add tests
-      return Ok(await _projectService.GetAllForProduct(request.UserId, productId));
+      // TODO: [TESTS] (ProjectsController.GetProductProjects) Add tests
+      var response = new BaseResponse<List<ProjectDto>>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(productId), productId)
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _projectService.GetAllForProduct(request.UserId, productId));
+
+      return ProcessResponse(response);
     }
 
-    [HttpGet, Route("projects/list/product/{productId}"), Authorize]
-    public async Task<ActionResult<List<IntListItem>>> GetProjectsAsList(
+    [HttpGet, Route("projects/product/{productId}/list"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> ListProductProjects(
       [FromRoute] int productId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProjectsController.GetProjectsAsList) Add tests
-      return Ok(await _projectService.GetProjectsAsList(request.UserId, productId));
-    }
+      // TODO: [TESTS] (ProjectsController.ListProductProjects) Add tests
+      var response = new BaseResponse<List<IntListItem>>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(productId), productId)
+        );
 
+      if (response.PassedValidation)
+        response.WithResponse(await _projectService.GetProjectsAsList(
+          request.UserId,
+          productId
+        ));
+
+      return ProcessResponse(response);
+    }
 
     [HttpGet, Route("project/{projectId}"), Authorize]
-    public async Task<ActionResult<ProjectDto>> GetById(
+    public async Task<ActionResult<ProjectDto>> GetProjectById(
       [FromRoute] int projectId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (ProjectsController.GetById) Add tests
-      return Ok(await _projectService.GetById(request.UserId, projectId));
+      // TODO: [TESTS] (ProjectsController.GetProjectById) Add tests
+      var response = new BaseResponse<ProjectDto>()
+        .WithValidation(new AdHockValidator()
+          .GreaterThanZero(nameof(projectId), projectId)
+        );
+
+      if (response.PassedValidation)
+        response.WithResponse(await _projectService.GetById(
+          request.UserId,
+          projectId
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpPost, Route("project/add"), Authorize]
     public async Task<ActionResult<ProjectDto>> AddProject(
-      [FromBody] ProjectDto project,
+      [FromBody] ProjectDto projectDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProjectsController.AddProject) Add tests
-      return Ok(await _projectService.AddProject(request.UserId, project));
+      var response = new BaseResponse<ProjectDto>()
+        .WithValidation(ProjectDtoValidator.Add(projectDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _projectService.AddProject(
+          request.UserId,
+          projectDto
+        ));
+
+      return ProcessResponse(response);
     }
 
     [HttpPut, Route("project/update"), Authorize]
     public async Task<ActionResult<ProjectDto>> UpdateProject(
-      [FromBody] ProjectDto project,
+      [FromBody] ProjectDto projectDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProjectsController.UpdateProject) Add tests
-      return Ok(await _projectService.UpdateProject(request.UserId, project));
+      var response = new BaseResponse<ProjectDto>()
+        .WithValidation(ProjectDtoValidator.Update(projectDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _projectService.UpdateProject(
+          request.UserId,
+          projectDto
+        ));
+
+      return ProcessResponse(response);
     }
   }
 }

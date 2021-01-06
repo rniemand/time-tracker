@@ -31,7 +31,7 @@ export class ClientsComponent implements OnInit {
   private refreshClients = () => {
     this.uiService.showLoader(true);
 
-    this.clients.getAll().toPromise().then(
+    this.clients.getAllClients().toPromise().then(
       (clients: ClientDto[]) => {
         this.dataSource = new MatTableDataSource(clients);
         this.dataSource.sort = this.sort;

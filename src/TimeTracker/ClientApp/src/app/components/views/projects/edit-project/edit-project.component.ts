@@ -55,7 +55,7 @@ export class EditProjectComponent implements OnInit {
   private loadProject = () => {
     this.uiService.showLoader(true);
 
-    this.projectsClient.getById(this.projectId).toPromise().then(
+    this.projectsClient.getProjectById(this.projectId).toPromise().then(
       (project: ProjectDto) => {
         this.clientId = project?.clientId ?? 0;
         this.productId = project?.productId ?? 0;

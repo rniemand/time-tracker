@@ -79,7 +79,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
     }
 
     this.label = 'Select a client first';
-    this.productsClient.getClientProductsListItems(this.clientId).toPromise().then(
+    this.productsClient.listClientProducts(this.clientId).toPromise().then(
       (products: IntListItem[]) => {
         this.entries = products;
 

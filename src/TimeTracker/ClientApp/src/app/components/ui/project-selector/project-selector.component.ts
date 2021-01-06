@@ -77,7 +77,7 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
       return;
     }
 
-    this.projectsClient.getProjectsAsList(this.productId).toPromise().then(
+    this.projectsClient.listProductProjects(this.productId).toPromise().then(
       (projects: IntListItem[]) => {
         this.entries = projects;
         this.label = 'Select a project';

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using FluentValidation;
+using FluentValidation.Results;
 using TimeTracker.Core.Database.Entities;
 
 namespace TimeTracker.Core.Models.Dto
@@ -66,6 +68,40 @@ namespace TimeTracker.Core.Models.Dto
         ProjectId = ProjectId,
         ProjectName = ProjectName
       };
+    }
+  }
+
+  public class ProjectDtoValidator : AbstractValidator<ProjectDto>
+  {
+    public ProjectDtoValidator()
+    {
+      RuleSet("Add", () =>
+      {
+        RuleFor(x => x.ClientId).GreaterThan(0);
+        RuleFor(x => x.ProductId).GreaterThan(0);
+        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.ProjectName).NotNull().MinimumLength(3);
+      });
+
+      RuleSet("Update", () =>
+      {
+        RuleFor(x => x.ProjectName).NotNull().MinimumLength(3);
+        RuleFor(x => x.ProjectId).GreaterThan(0);
+      });
+    }
+
+    public static ValidationResult Add(ProjectDto projectDto)
+    {
+      return new ProjectDtoValidator().Validate(projectDto,
+        options => options.IncludeRuleSets("Add")
+      );
+    }
+
+    public static ValidationResult Update(ProjectDto projectDto)
+    {
+      return new ProjectDtoValidator().Validate(projectDto,
+        options => options.IncludeRuleSets("Update")
+      );
     }
   }
 }

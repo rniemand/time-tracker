@@ -32,7 +32,7 @@ export class ClientSelectorComponent implements OnInit, ControlValueAccessor, On
   
 
   ngOnInit(): void {
-    this.clientsClient.getClientList().toPromise().then(
+    this.clientsClient.listAllClients().toPromise().then(
       (entries: IntListItem[]) => {
         this.entries = entries;
         this.loading = false;

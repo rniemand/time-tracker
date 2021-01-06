@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
@@ -29,7 +28,18 @@ namespace TimeTracker.Controllers
       _rawTimerService = rawTimerService;
     }
 
-    [HttpPost, Route("start-new"), Authorize]
+    [HttpGet, Route("timers/running"), Authorize]
+    public async Task<ActionResult<List<RawTimerDto>>> GetRunningTimers(
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
+      var response = new BaseResponse<List<RawTimerDto>>()
+        .WithResponse(await _rawTimerService.GetRunningTimers(request.UserId));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("timer/start-new"), Authorize]
     public async Task<ActionResult<RawTimerDto>> StartNewTimer(
       [FromBody] RawTimerDto rawTimerDto,
       [OpenApiIgnore] CoreApiRequest request)
@@ -44,18 +54,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpGet, Route("list-running"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetRunningTimers(
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.GetRunningTimers) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>()
-        .WithResponse(await _rawTimerService.GetRunningTimers(request.UserId));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("pause-timer/{rawTimerId}"), Authorize]
+    [HttpGet, Route("timer/{rawTimerId}/pause"), Authorize]
     public async Task<ActionResult<bool>> PauseTimer(
       [FromRoute] long rawTimerId,
       [OpenApiIgnore] CoreApiRequest request)
@@ -76,7 +75,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpGet, Route("resume-timer/{rawTimerId}"), Authorize]
+    [HttpGet, Route("timer/{rawTimerId}/resume"), Authorize]
     public async Task<ActionResult<bool>> ResumeTimer(
       [FromRoute] long rawTimerId,
       [OpenApiIgnore] CoreApiRequest request)
@@ -96,7 +95,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpGet, Route("stop-timer/{rawTimerId}"), Authorize]
+    [HttpGet, Route("timer/{rawTimerId}/stop"), Authorize]
     public async Task<ActionResult<bool>> StopTimer(
       [FromRoute] long rawTimerId,
       [OpenApiIgnore] CoreApiRequest request)
@@ -116,7 +115,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpGet, Route("timer-series/{rootTimerId}"), Authorize]
+    [HttpGet, Route("timer/{rootTimerId}/series"), Authorize]
     public async Task<ActionResult<List<RawTimerDto>>> GetTimerSeries(
       [FromRoute] long rootTimerId,
       [OpenApiIgnore] CoreApiRequest request)
@@ -136,7 +135,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpPost, Route("update-notes/{rawTimerId}"), Authorize]
+    [HttpPost, Route("timer/{rawTimerId}/update-notes"), Authorize]
     public async Task<ActionResult<bool>> UpdateNotes(
       [FromRoute] long rawTimerId,
       [FromBody] string notes,
@@ -159,13 +158,23 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpPost, Route("update-duration"), Authorize]
+    [HttpPost, Route("timer/{rawTimerId}/update-duration"), Authorize]
     public async Task<ActionResult<bool>> UpdateTimerDuration(
-      [FromBody] RawTimerDto timerDto,
+      [FromRoute] long rawTimerId,
+      [FromBody] RawTimerDto rawTimerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
-      return Ok(await _rawTimerService.UpdateTimerDuration(request.UserId, timerDto));
+      var response = new BaseResponse<bool>()
+        .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(rawTimerDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.UpdateTimerDuration(
+          request.UserId,
+          rawTimerDto
+        ));
+
+      return ProcessResponse(response);
     }
   }
 }

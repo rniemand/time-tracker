@@ -1,0 +1,108 @@
+============================================================
+= DB Setup
+============================================================
+
+1) Create a new database
+	- mysql -u root -p
+	- CREATE DATABASE `<database>`;
+	- CREATE USER '<user>' IDENTIFIED BY '<password>';
+	- GRANT ALL privileges ON `<database>`.* TO '<user>'@'%';
+	- FLUSH PRIVILEGES;
+	
+2) Deploy initial tables
+	- Run "01-Tables-0001-CoreTables.sql"
+	- Optionally you can seed some sample data
+		- Running "05-Data-Dev-0001-ClearAll.sql" will reset the DB for development
+		- Running "05-Data-Dev-0002-SeedCoreData.sql" will seed some sample development data
+	
+============================================================
+= Build and Deploy the Web UI
+============================================================
+
+1) [OPTIONAL] Restore NPM packages (faster initial build)
+	- Open `<ROOT>\src\TimeTracker\ClientApp` in explorer
+	- Run "npm install" to restore packages
+	
+2) Publish "TimeTracker" locally
+	- Open "<ROOT>\src\TimeTracker.sln"
+	- Publish "TimeTracker" to a local folder
+		- Output type		: Local Folder
+		- Configuration		: Release
+		- Target Framework	: net5.0
+		- Deployment Mode	: Framework-Dependent
+		- Target Runtime	: Portable
+		- Delete all existing files
+	
+3) Generate configuration file
+	- Open "<ROOT>\src\TimeTracker.sln"
+	- Set "TimeTracker.DevConsole" as the start up project
+	- Edit "Program.cs" (<ROOT>\src\TimeTracker.DevConsole\Program.cs)
+	
+	- To generate "appsettings.json"
+		- Uncomment the call to "GenerateSampleConfig()" in the Main method
+		- Debug the application and allow it to generate a sample configuration file
+		- The generated file path should be logged to the console
+			> <ROOT>\src\TimeTracker.DevConsole\bin\Debug\net5.0\generated\appsettings.json
+	
+4) Create your user account
+	- Open "<ROOT>\src\TimeTracker.sln"
+	- Set "TimeTracker.DevConsole" as the start up project
+	- To encrypt user passwords
+		- Uncomment the call to "EncryptPassUsingConfig("password")" in the Main method
+		- Replace "password" with the value you wish to use
+		- [Optional] You can specify a path to your "appsettings.json" file as a second argument to "EncryptPassUsingConfig"
+		- Debug the application and allow it to encrypt your credentials
+		- Encrypted credentials should be logged to the console
+		
+			===================================
+			= Encrypted password
+			===================================
+			appsettings : D:\wrk\time-tracker\src\TimeTracker.DevConsole\bin\Debug\net5.0\generated\appsettings.json
+			Input       : password
+			Encrypted   : gw63k042wCJFQAchTNbKsQ==
+			Sanity      : password
+			
+		- You can use the generated password to create your account
+	- Connect to your database and run the bellow command to create your account (replacing the placeholders)
+	
+		INSERT INTO `Users`
+			(`Username`, `Password`, `UserEmail`, `FirstName`, `LastName`)
+		VALUES
+			('<username>', '<encrypted_pass>', '<your_email>', '<first_name>', '<last_name>');
+
+
+============================================================
+= Automating DB backups (*nix only)
+============================================================
+
+More information here: https://richardn.ca/2019/07/10/backing-up-mariadb-mysql-via-cron-2/
+
+- SSH to your DB server
+- Install "mysqldump"
+- Create a ".my.cnf" file
+	> sudo nano ~/.my.cnf
+	
+	[mysqldump]
+	host = 127.0.0.1
+	port = 3306
+	user = <USER>
+	password = <PASS>
+	
+- Test a dump of your DB using the following command (replacing the placeholders)
+	> mysqldump _DATABASE_ > "_FILE_NAME_-$(date '+%F').sql"
+	
+	e.g.
+	
+	> mysqldump TimeTracker > "TimeTracker-$(date '+%F').sql"
+	
+- Create a CRON to schedule the backup
+	> crontab -e
+	
+	00 23 * * * mysqldump --databases TimeTracker > "/home/niemandr/TimeTracker-$(date '+\%F').sql"
+
+- Restart the CRON service (not required, more for my OCD)
+	> sudo service cron reload
+
+
+
+

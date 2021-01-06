@@ -15,6 +15,7 @@
     </span>
     <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>
     <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState === 2">play_arrow</mat-icon>
+    <mat-icon class="resume" (click)="resumeSingleTimer(timer)" *ngIf="timer.entryState !== 1">skip_next</mat-icon>
     <mat-icon class="stop" (click)="stop(timer)">stop</mat-icon>
   </mat-list-item>
 </mat-list>

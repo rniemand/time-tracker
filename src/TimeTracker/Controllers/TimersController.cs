@@ -178,5 +178,23 @@ namespace TimeTracker.Controllers
 
       return ProcessResponse(response);
     }
+
+    [HttpGet, Route("timer/{rawTimerId}/resume-single"), Authorize]
+    public async Task<ActionResult<bool>> ResumeSingleTimer(
+      [FromRoute] long rawTimerId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.ResumeSingleTimer) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(rawTimerId), rawTimerId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _rawTimerService.ResumeSingleTimer(
+          request.UserId,
+          rawTimerId
+        ));
+
+      return ProcessResponse(response);
+    }
   }
 }

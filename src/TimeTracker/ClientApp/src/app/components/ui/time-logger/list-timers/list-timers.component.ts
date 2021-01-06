@@ -59,6 +59,21 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     );
   }
 
+  resumeSingleTimer = (timer: RawTimerDto) => {
+    let rawTimerId = timer?.rawTimerId ?? 0;
+    if(rawTimerId === 0)
+      return;
+    
+    this.uiService.showLoader(true);
+    this.timersClient.resumeSingleTimer(rawTimerId).toPromise().then(
+      (success: boolean) => {
+        this.uiService.notify(success ? 'Timer resumed' : 'Resume failed');
+        this.refreshTimers();
+      },
+      this.uiService.handleClientError
+    );
+  }
+
   stop = (timer: RawTimerDto) => {
     let rawTimerId = timer?.rawTimerId ?? 0;
     if(rawTimerId == 0)

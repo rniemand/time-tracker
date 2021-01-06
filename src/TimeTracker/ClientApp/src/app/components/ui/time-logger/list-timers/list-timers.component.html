@@ -10,7 +10,7 @@
   <mat-list-item role="listitem" [class]="getClass(timer)" *ngFor="let timer of timers">
     <span fxFlex>
       <span class="project">{{ timer.projectName }}</span>
-      <span class="time">{{ timer.entryStartTimeUtc | runningTimer:timer.entryRunningTimeSec:flipFlop }}</span>
+      <span class="time">{{ timer | runningTimer:flipFlop }}</span>
       <span *ngIf="timer.parentTimerId" class="multi" (click)="showSeries(timer)">(+)</span>
     </span>
     <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>

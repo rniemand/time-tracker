@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { RawTimerDto } from '../time-tracker-api';
 
 interface MappedTime {
   hours: string,
@@ -14,6 +15,9 @@ export class RunningTimerPipe implements PipeTransform {
   transform(value: unknown, ...args: unknown[]): unknown {
     if(typeof(value) === 'number')
       return this.toHumanTime(value);
+
+    if(value instanceof RawTimerDto)
+      return this.handleTimerDto(value);
 
     if(!value || !(value instanceof Date))
       return '00:00:00';
@@ -52,6 +56,32 @@ export class RunningTimerPipe implements PipeTransform {
       return `${mapped.mins}:${mapped.seconds}`;
 
     return `${mapped.hours}:${mapped.mins}:${mapped.seconds}`;
+  }
+
+  private fromStartDate = (startDate: Date) => {
+    let runningSeconds = Math.floor(((new Date()).getTime() - (startDate as Date).getTime()) / 1000);
+    return this.toHumanTime(runningSeconds);
+  }
+
+  private workEntryState = (timer: RawTimerDto) => {
+    switch(timer?.entryState ?? 0) {
+      case 2: return 'paused';
+      case 3: return 'completed';
+      case 4: return 'cron-paused';
+      default: return 'unknown';
+    }
+  }
+
+  private handleTimerDto = (timer: RawTimerDto) => {
+    if((timer?.entryState ?? 0) !== 1) {
+      return `${this.workEntryState(timer)} (${this.toHumanTime(timer?.entryRunningTimeSec ?? 0)})`;
+    }
+
+    if(timer.entryStartTimeUtc) {
+      return this.fromStartDate(timer.entryStartTimeUtc);
+    }
+
+    return 'ERR';
   }
 
 }

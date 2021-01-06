@@ -12,7 +12,7 @@ namespace TimeTracker.Core.Services
   {
     Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto);
     Task<List<RawTimerDto>> GetRunningTimers(int userId);
-    Task<bool> PauseTimer(int userId, long rawTimerId, string notes);
+    Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
     Task<bool> StopTimer(int userId, long rawTimerId);
     Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId);
@@ -61,10 +61,9 @@ namespace TimeTracker.Core.Services
       return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
 
-    public async Task<bool> PauseTimer(int userId, long rawTimerId, string notes)
+    public async Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes)
     {
       // TODO: [TESTS] (RawTimerService.PauseTimer) Add tests
-
       var dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
       if (dbEntry == null || dbEntry.UserId != userId)
       {
@@ -72,7 +71,7 @@ namespace TimeTracker.Core.Services
         return false;
       }
 
-      if (await _rawTimersRepo.PauseTimer(rawTimerId, notes) <= 0)
+      if (await _rawTimersRepo.PauseTimer(rawTimerId, state, notes) <= 0)
       {
         // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
         return false;

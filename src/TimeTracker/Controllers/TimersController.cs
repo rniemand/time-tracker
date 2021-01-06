@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
+using TimeTracker.Core.Enums;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
@@ -69,6 +70,7 @@ namespace TimeTracker.Controllers
         response.WithResponse(await _rawTimerService.PauseTimer(
           request.UserId,
           rawTimerId,
+          EntryRunningState.Paused,
           "user-paused"
         ));
 

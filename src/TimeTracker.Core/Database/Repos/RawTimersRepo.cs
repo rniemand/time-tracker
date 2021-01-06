@@ -5,6 +5,7 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Queries;
+using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Database.Repos
 {
@@ -13,7 +14,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> StartNew(RawTimerEntity timerEntity);
     Task<RawTimerEntity> GetCurrentEntry(RawTimerEntity timerEntity);
     Task<List<RawTimerEntity>> GetRunningTimers(int userId);
-    Task<int> PauseTimer(long rawTimerId, string notes);
+    Task<int> PauseTimer(long rawTimerId, EntryRunningState state, string notes);
     Task<RawTimerEntity> GetByRawTimerId(long rawTimerId);
     Task<int> FlagAsResumed(long rawTimerId);
     Task<int> SpawnResumedTimer(RawTimerEntity timerEntity);
@@ -74,7 +75,7 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> PauseTimer(long rawTimerId, string notes)
+    public async Task<int> PauseTimer(long rawTimerId, EntryRunningState state, string notes)
     {
       // TODO: [TESTS] (RawTimersRepo.PauseTimer) Add tests
       return await ExecuteAsync(
@@ -83,7 +84,8 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           RawTimerId = rawTimerId,
-          TimerNotes = notes
+          TimerNotes = notes,
+          EntryState = state
         }
       );
     }

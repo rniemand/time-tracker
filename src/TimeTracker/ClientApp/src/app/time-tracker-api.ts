@@ -1804,6 +1804,7 @@ export enum EntryRunningState {
     Running = 1,
     Paused = 2,
     Completed = 3,
+    CronJobPaused = 4,
 }
 
 export class SwaggerException extends Error {

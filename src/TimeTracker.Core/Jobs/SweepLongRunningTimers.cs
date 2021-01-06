@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Enums;
 using TimeTracker.Core.Services;
 
 namespace TimeTracker.Core.Jobs
@@ -44,7 +45,12 @@ namespace TimeTracker.Core.Jobs
 
       foreach (var timer in timers)
       {
-        await _timerService.PauseTimer(userId, timer.RawTimerId, "auto-paused");
+        await _timerService.PauseTimer(
+          userId,
+          timer.RawTimerId,
+          EntryRunningState.CronJobPaused,
+          "auto-paused"
+        );
       }
     }
   }

@@ -69,7 +69,7 @@
       return @"UPDATE `RawTimers`
       SET
 	      `Running` = 1,
-	      `EntryState` = 2,
+	      `EntryState` = @EntryState,
         `Completed` = 0,
 	      `EntryEndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `EntryRunningTimeSec` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `EntryStartTimeUtc`)),
@@ -155,7 +155,7 @@
 	      INNER JOIN `Clients` cli ON cli.`ClientId` = raw.`ClientId`
       WHERE
 	      `RootTimerId` = @RootTimerId
-      ORDER BY `RawTimerId` ASC";
+      ORDER BY `RawTimerId` DESC";
     }
 
     public string GetUsersWithRunningTimers()

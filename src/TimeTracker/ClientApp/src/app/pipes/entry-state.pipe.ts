@@ -18,6 +18,7 @@ export class EntryStatePipe implements PipeTransform {
       case 1: return 'Running';
       case 2: return 'Paused';
       case 3: return 'Completed';
+      case 4: return 'Cron Paused';
       default: return 'Unknown';
     }
   }

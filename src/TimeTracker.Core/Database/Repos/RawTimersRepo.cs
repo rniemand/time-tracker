@@ -27,6 +27,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> UpdateNotes(long rawTimerId, string notes);
     Task<int> UpdateTimerDuration(RawTimerEntity timerEntity);
     Task<List<RawTimerEntity>> GetRunningTimers(int userId);
+    Task<RawTimerEntity> SearchExistingTimer(RawTimerEntity timerEntity);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -234,6 +235,16 @@ namespace TimeTracker.Core.Database.Repos
         {
           UserId = userId
         }
+      );
+    }
+
+    public async Task<RawTimerEntity> SearchExistingTimer(RawTimerEntity timerEntity)
+    {
+      // TODO: [TESTS] (RawTimersRepo.SearchExistingTimer) Add tests
+      return await GetSingle<RawTimerEntity>(
+        nameof(SearchExistingTimer),
+        _queries.SearchExistingTimer(),
+        timerEntity
       );
     }
   }

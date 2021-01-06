@@ -18,6 +18,7 @@
     string UpdateNotes();
     string UpdateTimerDuration();
     string GetRunningTimers();
+    string SearchExistingTimer();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -224,6 +225,21 @@
          rtt.`Running` = 1 AND
          rtt.`EntryState` = 1
       ORDER BY `EntryState`, `RootTimerId`, `EntryStartTimeUtc` ASC";
+    }
+
+    public string SearchExistingTimer()
+    {
+      return @"SELECT *
+      FROM `RawTimers`
+      WHERE
+	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `Completed` = 0 AND
+	      `Processed` = 0 AND
+	      `ClientId` = @ClientId AND
+	      `ProductId` = @ProductId AND
+	      `ProjectId` = @ProjectId AND
+	      `Running` = 1";
     }
   }
 }

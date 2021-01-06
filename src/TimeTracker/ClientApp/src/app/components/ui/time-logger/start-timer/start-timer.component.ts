@@ -56,11 +56,13 @@ export class StartTimerComponent implements OnInit, AfterViewInit {
     
     this.uiService.showLoader(true);
     this.timersClient.startNewTimer(newEntry).toPromise().then(
-      (entry: RawTimerDto) => {
+      (success: boolean) => {
+        if(!success)
+          return;
+          
         this.onEvent.emit({
           type: 'timer.created',
-          source: 'StartTimerComponent',
-          data: entry
+          source: 'StartTimerComponent'
         });
       },
       this.uiService.handleClientError

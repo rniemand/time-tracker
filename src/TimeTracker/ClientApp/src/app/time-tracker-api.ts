@@ -933,7 +933,7 @@ export class ProjectsClient implements IProjectsClient {
 
 export interface ITimersClient {
     getActiveTimers(): Observable<RawTimerDto[]>;
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto>;
+    startNewTimer(rawTimerDto: RawTimerDto): Observable<boolean>;
     pauseTimer(rawTimerId: number): Observable<boolean>;
     resumeTimer(rawTimerId: number): Observable<boolean>;
     stopTimer(rawTimerId: number): Observable<boolean>;
@@ -1006,7 +1006,7 @@ export class TimersClient implements ITimersClient {
         return _observableOf<RawTimerDto[]>(<any>null);
     }
 
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<RawTimerDto> {
+    startNewTimer(rawTimerDto: RawTimerDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Timers/timer/start-new";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1029,14 +1029,14 @@ export class TimersClient implements ITimersClient {
                 try {
                     return this.processStartNewTimer(<any>response_);
                 } catch (e) {
-                    return <Observable<RawTimerDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<RawTimerDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processStartNewTimer(response: HttpResponseBase): Observable<RawTimerDto> {
+    protected processStartNewTimer(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1047,7 +1047,7 @@ export class TimersClient implements ITimersClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RawTimerDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1055,7 +1055,7 @@ export class TimersClient implements ITimersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RawTimerDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
     pauseTimer(rawTimerId: number): Observable<boolean> {

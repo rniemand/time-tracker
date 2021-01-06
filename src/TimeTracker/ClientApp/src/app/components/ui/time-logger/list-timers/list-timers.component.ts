@@ -150,6 +150,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
 
     if(this.remaining == 0) {
+      this.remaining = -1;
       this._decrementTimer = false;
       this.refreshTimers();
     }

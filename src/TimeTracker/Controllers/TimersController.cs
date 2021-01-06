@@ -17,16 +17,16 @@ namespace TimeTracker.Controllers
   [ApiController, Route("api/[controller]")]
   public class TimersController : BaseController<TimersController>
   {
-    private readonly IRawTimerService _rawTimerService;
+    private readonly IRawTimerService _timerService;
 
     public TimersController(
       ILoggerAdapter<TimersController> logger,
       IMetricService metrics,
       IUserService userService,
-      IRawTimerService rawTimerService
+      IRawTimerService timerService
     ) : base(logger, metrics, userService)
     {
-      _rawTimerService = rawTimerService;
+      _timerService = timerService;
     }
 
     [HttpGet, Route("timers/active"), Authorize]
@@ -35,22 +35,25 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
       var response = new BaseResponse<List<RawTimerDto>>()
-        .WithResponse(await _rawTimerService.GetActiveTimers(request.UserId));
+        .WithResponse(await _timerService.GetActiveTimers(request.UserId));
 
       return ProcessResponse(response);
     }
 
     [HttpPost, Route("timer/start-new"), Authorize]
-    public async Task<ActionResult<RawTimerDto>> StartNewTimer(
+    public async Task<ActionResult<bool>> StartNewTimer(
       [FromBody] RawTimerDto rawTimerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
-      var response = new BaseResponse<RawTimerDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(RawTimerDtoValidator.StartNew(rawTimerDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.StartNew(request.UserId, rawTimerDto));
+        response.WithResponse(await _timerService.StartNew(
+          request.UserId,
+          rawTimerDto
+        ));
 
       return ProcessResponse(response);
     }
@@ -67,7 +70,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.PauseTimer(
+        response.WithResponse(await _timerService.PauseTimer(
           request.UserId,
           rawTimerId,
           EntryRunningState.Paused,
@@ -89,7 +92,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.ResumeTimer(
+        response.WithResponse(await _timerService.ResumeTimer(
           request.UserId,
           rawTimerId
         ));
@@ -109,7 +112,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.StopTimer(
+        response.WithResponse(await _timerService.StopTimer(
           request.UserId,
           rawTimerId
         ));
@@ -129,7 +132,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.GetTimerSeries(
+        response.WithResponse(await _timerService.GetTimerSeries(
           request.UserId,
           rootTimerId
         ));
@@ -151,7 +154,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.UpdateNotes(
+        response.WithResponse(await _timerService.UpdateNotes(
           request.UserId,
           rawTimerId,
           notes
@@ -171,7 +174,7 @@ namespace TimeTracker.Controllers
         .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(rawTimerDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.UpdateTimerDuration(
+        response.WithResponse(await _timerService.UpdateTimerDuration(
           request.UserId,
           rawTimerDto
         ));
@@ -189,7 +192,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(rawTimerId), rawTimerId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _rawTimerService.ResumeSingleTimer(
+        response.WithResponse(await _timerService.ResumeSingleTimer(
           request.UserId,
           rawTimerId
         ));

@@ -10,7 +10,7 @@ namespace TimeTracker.Core.Services
 {
   public interface IRawTimerService
   {
-    Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto);
+    Task<bool> StartNew(int userId, RawTimerDto timerDto);
     Task<List<RawTimerDto>> GetActiveTimers(int userId);
     Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
@@ -30,28 +30,35 @@ namespace TimeTracker.Core.Services
       _rawTimersRepo = rawTimersRepo;
     }
 
-    public async Task<RawTimerDto> StartNew(int userId, RawTimerDto timerDto)
+    public async Task<bool> StartNew(int userId, RawTimerDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.StartNew) Add tests
-      var entryEntity = timerDto.AsEntity();
-      entryEntity.UserId = userId;
+      var timerEntity = timerDto.AsEntity();
+      timerEntity.UserId = userId;
 
-      if (await _rawTimersRepo.StartNew(entryEntity) <= 0)
+      // Check if we can resume an existing timer
+      var existingTimer = await _rawTimersRepo.SearchExistingTimer(timerEntity);
+      if (existingTimer != null)
       {
-        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
-        return null;
+        return await ResumeTimer(userId, existingTimer.RawTimerId);
       }
 
-      var dbEntry = await _rawTimersRepo.GetCurrentEntry(entryEntity);
-      var rootId = dbEntry.RawTimerId;
-      if (await _rawTimersRepo.SetRootTimerId(rootId, rootId) == 0)
+      // Create a new timer
+      if (await _rawTimersRepo.StartNew(timerEntity) <= 0)
       {
         // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
-        return null;
+        return false;
       }
 
-      dbEntry.RootTimerId = rootId;
-      return RawTimerDto.FromEntity(dbEntry);
+      // Ensure that the "RootTimerId" is set to itself (top level timer)
+      var dbTimerEntity = await _rawTimersRepo.GetCurrentEntry(timerEntity);
+      if (await _rawTimersRepo.SetRootTimerId(dbTimerEntity.RawTimerId, dbTimerEntity.RawTimerId) == 0)
+      {
+        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
+        return false;
+      }
+
+      return true;
     }
 
     public async Task<List<RawTimerDto>> GetActiveTimers(int userId)

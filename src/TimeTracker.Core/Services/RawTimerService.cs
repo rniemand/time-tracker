@@ -83,13 +83,13 @@ namespace TimeTracker.Core.Services
     public async Task<bool> ResumeTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.ResumeTimer) Add tests
-
       var parentEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
       if (parentEntry == null || parentEntry.UserId != userId)
       {
         // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
         return false;
       }
+
       var resumedEntity = CreateResumedTimer(parentEntry);
       if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
       {
@@ -221,28 +221,20 @@ namespace TimeTracker.Core.Services
         return false;
       }
 
-      var runningTimers = await _rawTimersRepo.GetActiveTimers(userId);
+      var runningTimers = await _rawTimersRepo.GetRunningTimers(userId);
       if (runningTimers.Count > 0)
       {
-        foreach (var timer in runningTimers)
+        foreach (var runningTimer in runningTimers)
         {
           await _rawTimersRepo.PauseTimer(
-            timer.RawTimerId,
+            runningTimer.RawTimerId,
             EntryRunningState.Paused,
             "user-paused (auto)"
           );
         }
       }
 
-      var resumedTimer = CreateResumedTimer(parentTimer);
-      // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (await _rawTimersRepo.SpawnResumedTimer(resumedTimer) == 0)
-      {
-        // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
-        return false;
-      }
-
-      return true;
+      return await ResumeTimer(userId, rawTimerId);
     }
 
     // Internal methods

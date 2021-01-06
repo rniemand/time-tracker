@@ -26,6 +26,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<RawTimerEntity>> GetLongRunningTimers(int userId, int thresholdSec);
     Task<int> UpdateNotes(long rawTimerId, string notes);
     Task<int> UpdateTimerDuration(RawTimerEntity timerEntity);
+    Task<List<RawTimerEntity>> GetRunningTimers(int userId);
   }
 
   public class RawTimersRepo : BaseRepo<RawTimersRepo>, IRawTimersRepo
@@ -220,6 +221,19 @@ namespace TimeTracker.Core.Database.Repos
         nameof(UpdateTimerDuration),
         _queries.UpdateTimerDuration(),
         timerEntity
+      );
+    }
+
+    public async Task<List<RawTimerEntity>> GetRunningTimers(int userId)
+    {
+      // TODO: [TESTS] (RawTimersRepo.GetRunningTimers) Add tests
+      return await GetList<RawTimerEntity>(
+        nameof(GetActiveTimers),
+        _queries.GetActiveTimers(),
+        new
+        {
+          UserId = userId
+        }
       );
     }
   }

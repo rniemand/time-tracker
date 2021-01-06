@@ -17,6 +17,7 @@
     string GetLongRunningTimers();
     string UpdateNotes();
     string UpdateTimerDuration();
+    string GetRunningTimers();
   }
 
   public class RawTimersRepoQueries : IRawTimersRepoQueries
@@ -90,13 +91,13 @@
     {
       return @"INSERT INTO `RawTimers`
 	      (
-          `ParentTimerId`, `RootTimerId`, `ClientId`, `ProductId`,
-          `ProjectId`, `UserId`, `Running`, `EntryState`, `Completed`
+          `ParentTimerId`, `RootTimerId`, `ClientId`, `ProductId`, `ProjectId`,
+          `UserId`, `Running`, `EntryState`, `Completed`, `TimerNotes`
         )
       VALUES
 	      (
-          @ParentTimerId, @RootTimerId, @ClientId, @ProductId,
-          @ProjectId, @UserId, @Running, @EntryState, @Completed
+          @ParentTimerId, @RootTimerId, @ClientId, @ProductId, @ProjectId,
+          @UserId, @Running, @EntryState, @Completed, @TimerNotes
         )";
     }
 
@@ -203,6 +204,26 @@
         `TimerNotes` = @TimerNotes
       WHERE
 	      `RawTimerId` = @RawTimerId";
+    }
+
+    public string GetRunningTimers()
+    {
+      return @"SELECT
+         rtt.*,
+         prod.`ProductName`,
+         proj.`ProjectName`,
+         cli.`ClientName`
+      FROM `RawTimers` rtt
+         INNER JOIN `Products` prod ON rtt.`ProductId` = prod.`ProductId`
+         INNER JOIN `Projects` proj ON rtt.`ProjectId` = proj.`ProjectId`
+         INNER JOIN `Clients` cli ON prod.`ClientId` = cli.`ClientId`
+      WHERE
+         rtt.`Deleted` = 0 AND
+         rtt.`UserId` = @UserId AND
+         rtt.`Completed` = 0 AND
+         rtt.`Running` = 1 AND
+         rtt.`EntryState` = 1
+      ORDER BY `EntryState`, `RootTimerId`, `EntryStartTimeUtc` ASC";
     }
   }
 }

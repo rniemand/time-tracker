@@ -140,11 +140,43 @@ More information:
 
 LIST USERS :: awk -F: '{ print $1}' /etc/passwd
 
+NOTES
+	- https://docs.oracle.com/cd/E39271_01/studio.300/studio_install/src/cidi_studio_reverse_proxy_apache_proxypreservehost.html
+
 - Locate your dotnet executable path
 	> which dotnet
 	
 - Run application
 	> /usr/bin/dotnet /home/niemandr/time-tracker/TimeTracker.dll --urls=http://0.0.0.0:5000
+	
+	
+	
+
+sudo nano /etc/nginx/sites-available/default
+
+server {
+	...
+	location /time-tracker/ {
+		proxy_pass http://0.0.0.0:5001/;
+	}
+}
+
+sudo systemctl restart nginx.service && sudo systemctl status nginx.service
+	
+sudo vi /var/www/dotnet/time-tracker/ClientApp/dist/index.html
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 - Install apache
 	> sudo apt update
@@ -180,11 +212,54 @@ LIST USERS :: awk -F: '{ print $1}' /etc/passwd
 	> sudo vi /var/www/dotnet/time-tracker/ClientApp/dist/index.html
 	> sudo systemctl restart time-tracker.service
 	> sudo systemctl status time-tracker.service
+	
+- Configure apache
+	> sudo vi /etc/apache2/conf-enabled/time-tracker.conf
+	
+	<VirtualHost *:80>
+		ProxyPreserveHost On
+		ProxyPassMatch "^/time-tracker/(.*)$" "http://127.0.0.1:5001/$1"
+		ServerName www.example.com
+		ServerAlias *.example.com
+		ErrorLog /var/www/dotnet/apache-logs/httpd-error.log
+		CustomLog /var/www/dotnet/apache-logs/httpd-access.log common
+	</VirtualHost>
+	
+	
+	
+sudo lsof -i :80
+	
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_balancer
+sudo a2enmod lbmethod_byrequests
+
+sudo systemctl restart apache2
+
+
+sudo nano /etc/apache2/apache2.conf
+sudo cp /etc/apache2/mods-available/proxy_http.load /etc/apache2/mods-enabled/proxy_http.load
+sudo systemctl restart apache2.service
+
+
+
+sudo systemctl status apache2.service
+
+
+
+
+sudo vi /etc/nginx/conf.d/time-tracker.conf
+
+
+
+
+sudo rm -f /etc/nginx/conf.d/time-tracker.conf && sudo vi /etc/nginx/conf.d/time-tracker.conf
 
 
 
 
 
+sudo vi /etc/nginx/nginx.conf
 
 
 

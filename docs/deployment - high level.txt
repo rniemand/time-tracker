@@ -11,6 +11,7 @@
 	
 2) Deploy initial tables
 	- Run "01-Tables-0001-CoreTables.sql"
+	- Run "04-Data-Production-0001-BaseData.sql" to seed base options etc.
 	- Optionally you can seed some sample data
 		- Running "05-Data-Dev-0001-ClearAll.sql" will reset the DB for development
 		- Running "05-Data-Dev-0002-SeedCoreData.sql" will seed some sample development data

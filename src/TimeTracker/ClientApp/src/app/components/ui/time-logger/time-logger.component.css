@@ -1,3 +1,7 @@
+.time-logger-wrapper {
+  margin-top: 16px;
+}
+
 table {
   width: 100%;
 }
@@ -16,3 +20,22 @@ table {
   padding: 10px;
   border-radius: 10px;
 }
+
+.tabs {
+  width: 100%;
+}
+
+.example-tab-icon {
+  margin-right: 8px;
+}
+
+.content {
+  padding: 5px;
+}
+  .content h2 {
+    text-align: center;
+    background-color: #b720f73b;
+    padding: 3px;
+    border-radius: 12px;
+    margin-top: 6px;
+  }

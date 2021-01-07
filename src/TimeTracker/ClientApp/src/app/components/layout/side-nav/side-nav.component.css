@@ -1,0 +1,7 @@
+mat-icon {
+  margin-right: 6px;
+}
+
+.active {
+  background-color: #9292923b !important;
+}

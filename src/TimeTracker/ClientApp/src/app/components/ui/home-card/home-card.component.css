@@ -1,0 +1,27 @@
+.card {
+  width: 160px;
+  margin-bottom: 8px;
+}
+  .card .card-header {
+    width: 100%;
+    display: block;
+  }
+
+  .card .card-title {
+    width: 100%;
+  }
+
+  .card .mat-card-header .mat-card-title {
+    width: 100%;
+    text-align: center;
+  }
+
+  .card mat-icon {
+    width: 100%;
+    font-size: 4em;
+    text-align: center;
+  }
+
+  .card .card-content {
+    margin-bottom: 5px;
+  }

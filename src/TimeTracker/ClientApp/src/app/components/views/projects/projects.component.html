@@ -1,0 +1,37 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / Projects</h1>
+  </div>
+
+  <div class="content-row">
+    <app-client-selector [(ngModel)]="clientId" class="spacer"></app-client-selector>
+    <app-product-selector [clientId]="clientId" [(ngModel)]="productId" (changed)="productSelected($event)"></app-product-selector>
+  </div>
+  
+  <div class="content-row" *ngIf="projectsLoaded">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 data-table">
+
+      <ng-container matColumnDef="projectName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+        <td mat-cell *matCellDef="let project"> {{project.projectName}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> &nbsp; </th>
+        <td mat-cell *matCellDef="let project" class="options-td">
+          <button mat-icon-button [routerLink]="['/projects', 'edit', project.projectId]">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[10, 20, 30, 40, 50]" showFirstLastButtons></mat-paginator>
+
+    <button mat-mini-fab color="primary" class="add-project-fab" [routerLink]="['/projects', 'add', clientId, productId]">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>

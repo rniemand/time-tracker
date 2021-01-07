@@ -1,0 +1,55 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+
+body { 
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.full-width {
+  width: 96%;
+}
+
+.mc-flex .content-row {
+  width: 90%;
+  min-width: 350px;
+  max-width: 750px;
+  display: inline-block;
+}
+
+.content-row h1 {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.content-row .data-table {
+  width: 100%;
+}
+
+.ui-navigation mat-icon {
+  vertical-align: text-bottom;
+  padding-bottom: 2px;
+  cursor: pointer;
+  color: #d1b2de;
+}
+  .ui-navigation mat-icon:hover {
+    color: #bd7ed8;
+  }
+
+.ui-navigation a {
+  text-decoration: none;
+  color: #d1b2de;
+  cursor: pointer;
+}
+.ui-navigation a:hover {
+  color: #bd7ed8;
+}
+
+.stretched {
+  width: 100%;
+}
+
+.validation-error {
+  background-color: #6f2c2c91;
+}

@@ -1,0 +1,9 @@
+.add-client-fab {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.options-td {
+  width: 80px;
+}

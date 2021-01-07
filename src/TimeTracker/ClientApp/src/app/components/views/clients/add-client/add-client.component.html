@@ -1,0 +1,25 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / <a routerLink="/clients">Clients</a> / Add</h1>
+  </div>
+
+  <div class="content-row">
+    <form class="row" [formGroup]="addForm" (ngSubmit)="onSubmit()">
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-icon matSuffix>create</mat-icon>
+        <input matInput placeholder="Client Name" formControlName="clientName" type="text">
+      </mat-form-field>
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-icon matSuffix>email</mat-icon>
+        <input matInput placeholder="Client Email" formControlName="clientEmail" type="email">
+      </mat-form-field>
+  
+      <div fxLayout fxLayoutGap="10px">
+        <button fxFlex mat-raised-button color="warn" type="button" routerLink="/clients">Cancel</button>
+        <button fxFlex mat-raised-button color="primary" type="submit" [disabled]="!addForm.valid">Add Client</button>
+      </div>
+    </form>
+  </div>
+</div>

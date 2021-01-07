@@ -176,15 +176,12 @@ sudo nano /etc/nginx/sites-available/default
 server {
 	...
 	
-	location /time-tracker/hangfire/ {
-		proxy_pass http://0.0.0.0:5001/hangfire/;
+	location /time-tracker/ {
+		proxy_pass http://0.0.0.0:5001/;
 		sub_filter '="/hangfire/' '="/time-tracker/hangfire/';
 		sub_filter_once off;
 	}
 
-	location /time-tracker/ {
-		proxy_pass http://0.0.0.0:5001/;
-	}
 }
 
 sudo systemctl restart nginx.service && sudo systemctl status nginx.service

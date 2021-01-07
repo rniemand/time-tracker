@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
+import { LoggerService } from 'src/app/services/logger.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
@@ -32,7 +33,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     private timersClient: TimersClient,
     private uiService: UiService,
     public dialog: MatDialog,
-    private storage: StorageService
+    private storage: StorageService,
+    private logger: LoggerService
   ) { }
   
   ngOnInit(): void {
@@ -206,6 +208,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     };
 
     this.storage.setItem(KEY_STATE, state);
+    this.logger.trace('list timers state saved');
   }
 
   private loadSavedState = () => {
@@ -215,6 +218,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
     if(this.storage.hasItem(KEY_STATE)) {
       state = this.storage.getItem<ListTimersState>(KEY_STATE);
+      this.logger.trace('saved list timers state loaded');
     }
 
     this.autoRefresh = state.autoRefresh;

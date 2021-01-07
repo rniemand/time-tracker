@@ -104,5 +104,54 @@ More information here: https://richardn.ca/2019/07/10/backing-up-mariadb-mysql-v
 	> sudo service cron reload
 
 
+============================================================
+= Installing ASP.NET Core on Ubuntu
+============================================================
+More information:
+	- https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu
+	
+- Connect to your server and run the following commands
+	> wget https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+	> sudo dpkg -i packages-microsoft-prod.deb
+	> sudo apt-get update
+	> sudo apt-get install -y apt-transport-https
+	> sudo apt-get update
+	> sudo apt-get install -y aspnetcore-runtime-5.0
+
+- To verify that the installation was a success you can run
+	> dotnet --info
+	
+
+============================================================
+= Copying app to server (Ubuntu)
+============================================================
+
+- Install "zip" if needed
+	> sudo apt-get install zip
+	
+- Zip up and copy your applicatio to the server
+- Unzip with this command
+	> unzip app.zip
+	
+
+============================================================
+= Working on
+============================================================
+
+- Locate your dotnet executable path
+	> which dotnet
+	
+- Run application
+	> /usr/bin/dotnet /home/niemandr/time-tracker/TimeTracker.dll --urls=http://0.0.0.0:5000
+
+
+
+
+
+
+
+
+
+
 
 

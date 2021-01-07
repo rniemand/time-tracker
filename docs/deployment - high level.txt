@@ -133,6 +133,24 @@ More information:
 - Unzip with this command
 	> unzip app.zip
 	
+============================================================
+= Updating deployment (Ubuntu)
+============================================================
+
+- Connect to your server and run the following commands
+	> sudo systemctl stop time-tracker.service
+	
+- Transfer zipped application to your server (e.g. /var/www/dotnet/)
+
+- Run the following commands to unzip and update the deployment
+	> sudo rm -fr /var/www/dotnet/time-tracker
+	> cd /var/www/dotnet && unzip time-tracker.zip && rm -f time-tracker.zip
+	> sudo mkdir /var/www/dotnet/time-tracker/logs
+	> sudo chmod 0777 /var/www/dotnet/time-tracker/logs
+	> sudo systemctl start time-tracker.service && sleep 2 && sudo systemctl status time-tracker.service
+	
+	> tail -f /var/www/dotnet/time-tracker/logs/time-logger.log
+	
 
 ============================================================
 = Working on

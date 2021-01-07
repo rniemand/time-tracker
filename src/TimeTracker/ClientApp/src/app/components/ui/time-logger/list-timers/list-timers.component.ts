@@ -1,14 +1,23 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
+import { LoggerService } from 'src/app/services/logger.service';
+import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+
+const KEY_STATE = 'tt.list_timer.state';
+
+interface ListTimersState {
+  autoRefresh: boolean;
+}
 
 @Component({
   selector: 'app-list-timers',
   templateUrl: './list-timers.component.html',
-  styleUrls: ['./list-timers.component.css']
+  styleUrls: ['./list-timers.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ListTimersComponent implements OnInit, OnDestroy {
   timers: RawTimerDto[] = [];
@@ -23,10 +32,13 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   constructor(
     private timersClient: TimersClient,
     private uiService: UiService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private storage: StorageService,
+    private logger: LoggerService
   ) { }
   
   ngOnInit(): void {
+    this.loadSavedState();
     this.startTicker();
     this.refreshTimers();
   }
@@ -123,9 +135,14 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     });
   }
 
+  getTooltip = (timer: RawTimerDto) => {
+    return `Client: ${timer?.clientName ?? 'Unknown'}`;
+  }
+
 
   // Internal methods
   private refreshTimers = () => {
+    this.saveCurrentState();
     this.timers = [];
     this.runningTimers = false;
     this.uiService.showLoader(true);
@@ -149,7 +166,11 @@ export class ListTimersComponent implements OnInit, OnDestroy {
       this.remaining -= 1;
     }
 
-    if(this.remaining == 0) {
+    if(this.remaining % 5 === 0) {
+      this.saveCurrentState();
+    }
+
+    if(this.autoRefresh && this.remaining == 0) {
       this.remaining = -1;
       this._decrementTimer = false;
       this.refreshTimers();
@@ -180,4 +201,26 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  // State management
+  private saveCurrentState = () => {
+    let state: ListTimersState = {
+      autoRefresh: this.autoRefresh
+    };
+
+    this.storage.setItem(KEY_STATE, state);
+    this.logger.trace('list timers state saved');
+  }
+
+  private loadSavedState = () => {
+    let state: ListTimersState = {
+      autoRefresh: true
+    };
+
+    if(this.storage.hasItem(KEY_STATE)) {
+      state = this.storage.getItem<ListTimersState>(KEY_STATE);
+      this.logger.trace('saved list timers state loaded');
+    }
+
+    this.autoRefresh = state.autoRefresh;
+  }
 }

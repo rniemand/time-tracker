@@ -1,18 +1,24 @@
 <div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
-  <div class="content-row">
-    <h1>Tracked Time</h1>
-  </div>
-
-  <div class="content-row">
-    <table>
-      <tr>
-        <td class="start-controls">
-          <app-start-timer (onEvent)="handleEvent($event)"></app-start-timer>
-        </td>
-        <td class="running-timers">
+  <div class="content-row time-logger-wrapper">
+    <mat-tab-group class="tabs" mat-align-tabs="end" dynamicHeight class="mat-elevation-z8">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon">schedule</mat-icon>
+        </ng-template>
+        <div class="content">
+          <h2>Running Timers</h2>
           <app-list-timers #runningTimers></app-list-timers>
-        </td>
-      </tr>
-    </table>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon">alarm_add</mat-icon>
+        </ng-template>
+        <div class="content">
+          <h2>Create a new Timer</h2>
+          <app-start-timer (onEvent)="handleEvent($event)"></app-start-timer>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </div>

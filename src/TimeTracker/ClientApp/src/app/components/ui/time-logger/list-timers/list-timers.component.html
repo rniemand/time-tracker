@@ -9,12 +9,15 @@
 <mat-list role="list">
   <mat-list-item role="listitem" [class]="getClass(timer)" *ngFor="let timer of timers">
     <span fxFlex>
-      <span class="project">{{ timer.projectName }}</span>
+      <span class="details" [matTooltip]="getTooltip(timer)" matTooltipPosition="right" matTooltipClass="details-tooltip">
+        <span class="product">{{ timer.productName }}</span>
+        <span class="project">{{ timer.projectName }}</span>
+      </span>
       <span class="time">{{ timer | runningTimer:flipFlop }}</span>
       <span *ngIf="timer.parentTimerId" class="multi" (click)="showSeries(timer)">(+)</span>
     </span>
     <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>
-    <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState === 2">play_arrow</mat-icon>
+    <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState !== 1">play_arrow</mat-icon>
     <mat-icon class="resume" (click)="resumeSingleTimer(timer)" *ngIf="timer.entryState !== 1 && runningTimers">skip_next</mat-icon>
     <mat-icon class="stop" (click)="stop(timer)">stop</mat-icon>
   </mat-list-item>

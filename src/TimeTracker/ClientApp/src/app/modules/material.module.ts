@@ -45,7 +45,6 @@ const modules = [
   MatDialogModule,
   MatTableModule,
   MatTabsModule,
-  MatTooltipModule,
   MatSortModule,
   MatPaginatorModule,
   MatSelectModule,

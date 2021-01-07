@@ -8,11 +8,7 @@
   }
 
   .timer-entry.running {
-    background-color: #4fa24e1f;
-  }
-
-  .timer-entry .project {
-    color: #edf395;
+    background-color: #688a481f;
   }
 
   .timer-entry .time {
@@ -58,4 +54,21 @@
   padding-right: 4px;
   vertical-align: top;
   padding-top: 2px;
+}
+
+.details {
+  font-size: 0.9em;
+}
+  .details span {
+    margin-right: 4px;
+  }
+  .details .product {
+    color: #72da7f;
+  }
+  .details .project {
+    color: #e8f582;
+  }
+
+.details-tooltip {
+  font-size: 1em;
 }

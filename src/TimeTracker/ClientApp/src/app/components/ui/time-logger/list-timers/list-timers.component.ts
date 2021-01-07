@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
@@ -8,7 +8,8 @@ import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
 @Component({
   selector: 'app-list-timers',
   templateUrl: './list-timers.component.html',
-  styleUrls: ['./list-timers.component.css']
+  styleUrls: ['./list-timers.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ListTimersComponent implements OnInit, OnDestroy {
   timers: RawTimerDto[] = [];
@@ -123,6 +124,10 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     });
   }
 
+  getTooltip = (timer: RawTimerDto) => {
+    return `Client: ${timer?.clientName ?? 'Unknown'}`;
+  }
+
 
   // Internal methods
   private refreshTimers = () => {
@@ -149,7 +154,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
       this.remaining -= 1;
     }
 
-    if(this.remaining == 0) {
+    if(this.autoRefresh && this.remaining == 0) {
       this.remaining = -1;
       this._decrementTimer = false;
       this.refreshTimers();
@@ -179,5 +184,4 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
     return false;
   }
-
 }

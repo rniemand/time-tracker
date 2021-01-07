@@ -74,7 +74,8 @@ namespace TimeTracker
       }
 
       app.UseRouting();
-      app.UseHangfireDashboard();
+
+      Configure_HangfireDashboard(app);
       Configure_HangfireJobs(serviceProvider);
 
       app.UseMiddleware<JwtMiddleware>();
@@ -102,6 +103,24 @@ namespace TimeTracker
 
 
     // Configure() related methods
+    private void Configure_HangfireDashboard(IApplicationBuilder app)
+    {
+      // Generate configuration to use
+      var hangfireConfig = new HangfireConfiguration();
+      var configSection = Configuration.GetSection("TimeTracker:Hangfire");
+      if (configSection.Exists())
+        configSection.Bind(hangfireConfig);
+
+      // Configure Hangfire dashboard
+      app.UseHangfireDashboard(hangfireConfig.PathMatch, new DashboardOptions
+      {
+        // Used for proxying requests
+        // https://discuss.hangfire.io/t/dashboard-returns-403-on-stats-call/7831
+        IgnoreAntiforgeryToken = hangfireConfig.IgnoreAntiforgeryToken,
+        DashboardTitle = hangfireConfig.DashboardTitle
+      });
+    }
+
     private static void Configure_HangfireJobs(IServiceProvider serviceProvider)
     {
       // http://corntab.com/ <- UI for building CRON expressions
@@ -112,6 +131,7 @@ namespace TimeTracker
         "* * * * *"
       );
     }
+
 
 
     // ConfigureServices() related methods

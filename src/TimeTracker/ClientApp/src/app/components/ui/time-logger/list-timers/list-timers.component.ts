@@ -2,8 +2,15 @@ import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
+import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+
+const KEY_STATE = 'tt.list_timer.state';
+
+interface ListTimersState {
+  autoRefresh: boolean;
+}
 
 @Component({
   selector: 'app-list-timers',
@@ -24,10 +31,12 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   constructor(
     private timersClient: TimersClient,
     private uiService: UiService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private storage: StorageService
   ) { }
   
   ngOnInit(): void {
+    this.loadSavedState();
     this.startTicker();
     this.refreshTimers();
   }
@@ -131,6 +140,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
   // Internal methods
   private refreshTimers = () => {
+    this.saveCurrentState();
     this.timers = [];
     this.runningTimers = false;
     this.uiService.showLoader(true);
@@ -152,6 +162,10 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
     if(this._decrementTimer) {
       this.remaining -= 1;
+    }
+
+    if(this.remaining % 5 === 0) {
+      this.saveCurrentState();
     }
 
     if(this.autoRefresh && this.remaining == 0) {
@@ -183,5 +197,26 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
 
     return false;
+  }
+
+  // State management
+  private saveCurrentState = () => {
+    let state: ListTimersState = {
+      autoRefresh: this.autoRefresh
+    };
+
+    this.storage.setItem(KEY_STATE, state);
+  }
+
+  private loadSavedState = () => {
+    let state: ListTimersState = {
+      autoRefresh: true
+    };
+
+    if(this.storage.hasItem(KEY_STATE)) {
+      state = this.storage.getItem<ListTimersState>(KEY_STATE);
+    }
+
+    this.autoRefresh = state.autoRefresh;
   }
 }

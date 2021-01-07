@@ -138,13 +138,48 @@ More information:
 = Working on
 ============================================================
 
+LIST USERS :: awk -F: '{ print $1}' /etc/passwd
+
 - Locate your dotnet executable path
 	> which dotnet
 	
 - Run application
 	> /usr/bin/dotnet /home/niemandr/time-tracker/TimeTracker.dll --urls=http://0.0.0.0:5000
 
+- Install apache
+	> sudo apt update
+	> sudo apt install apache2
+	
+	should be working :: http://192.168.0.101/
+	
+- Create ubuntu service
+	> sudo vi /etc/systemd/system/time-tracker.service
 
+	[Unit]
+	Description=TimeTracker
+	 
+	[Service]
+	WorkingDirectory=/var/www/dotnet/time-tracker
+	ExecStart=/usr/bin/dotnet /var/www/dotnet/time-tracker/TimeTracker.dll --urls=http://0.0.0.0:5001/
+	Restart=always
+	RestartSec=5
+	KillSignal=SIGINT
+	SyslogIdentifier=time-tracker
+	User=apache
+	Environment=ASPNETCORE_ENVIRONMENT=Production
+	 
+	[Install]
+	WantedBy=multi-user.target
+
+	> sudo systemctl daemon-reload
+	> sudo systemctl enable time-tracker.service
+	> sudo chmod 0777 /var/www/dotnet/time-tracker/logs/
+	> rm -f /var/www/dotnet/time-tracker/logs/time-logger.log
+	> sudo systemctl start time-tracker.service
+	> sudo systemctl status time-tracker.service
+	> sudo vi /var/www/dotnet/time-tracker/ClientApp/dist/index.html
+	> sudo systemctl restart time-tracker.service
+	> sudo systemctl status time-tracker.service
 
 
 

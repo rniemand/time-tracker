@@ -55,9 +55,9 @@ export class EditProductComponent implements OnInit {
 
     this.uiService.showLoader(true);
     this.productsClient.updateProduct(updatedProduct).toPromise().then(
-      (product: ProductDto) => {
+      (success: boolean) => {
         this.router.navigate(['/products', this.clientId]);
-        this.uiService.notify(`Product '${product.productName}' updated`, 1500);
+        this.uiService.notify(`Product '${updatedProduct.productName}' updated`, 1500);
       },
       this.uiService.handleClientError
     );

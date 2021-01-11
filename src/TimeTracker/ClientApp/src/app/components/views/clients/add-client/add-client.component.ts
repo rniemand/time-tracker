@@ -36,9 +36,9 @@ export class AddClientComponent implements OnInit {
 
     this.uiService.showLoader(true);
     this.clients.addClient(clientDto).toPromise().then(
-      (client: ClientDto) => {
+      (success: boolean) => {
         this.router.navigate(['/clients']);
-        this.uiService.notify(`Added Client: ${client.clientName} (${client.clientId})`);
+        this.uiService.notify(`Added Client: ${clientDto.clientName} (${clientDto.clientId})`);
       },
       this.uiService.handleClientError
     );

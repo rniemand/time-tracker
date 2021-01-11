@@ -90,12 +90,12 @@ namespace TimeTracker.Core.Models.Dto
       ClientName = string.Empty;
     }
 
-    public RawTimerEntity AsEntity()
+    public RawTimerEntity AsEntity(int userIdOverride = 0)
     {
       // TODO: [TESTS] (RawTimerDto.AsEntity) Add tests
       return new RawTimerEntity
       {
-        UserId = UserId,
+        UserId = userIdOverride > 0 ? userIdOverride : UserId,
         ClientId = ClientId,
         Deleted = Deleted,
         ProductId = ProductId,

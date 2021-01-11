@@ -83,9 +83,9 @@ export class AuthClient implements IAuthClient {
 }
 
 export interface IClientsClient {
-    addClient(clientDto: ClientDto): Observable<ClientDto>;
+    addClient(clientDto: ClientDto): Observable<boolean>;
     getClientById(clientId: number): Observable<ClientDto>;
-    updateClient(clientDto: ClientDto): Observable<ClientDto>;
+    updateClient(clientDto: ClientDto): Observable<boolean>;
     getAllClients(): Observable<ClientDto[]>;
     listAllClients(): Observable<IntListItem[]>;
 }
@@ -101,7 +101,7 @@ export class ClientsClient implements IClientsClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    addClient(clientDto: ClientDto): Observable<ClientDto> {
+    addClient(clientDto: ClientDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Clients/client/add";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -124,14 +124,14 @@ export class ClientsClient implements IClientsClient {
                 try {
                     return this.processAddClient(<any>response_);
                 } catch (e) {
-                    return <Observable<ClientDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ClientDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddClient(response: HttpResponseBase): Observable<ClientDto> {
+    protected processAddClient(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -142,7 +142,7 @@ export class ClientsClient implements IClientsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ClientDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -150,7 +150,7 @@ export class ClientsClient implements IClientsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ClientDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
     getClientById(clientId: number): Observable<ClientDto> {
@@ -204,7 +204,7 @@ export class ClientsClient implements IClientsClient {
         return _observableOf<ClientDto>(<any>null);
     }
 
-    updateClient(clientDto: ClientDto): Observable<ClientDto> {
+    updateClient(clientDto: ClientDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Clients/client/update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -227,14 +227,14 @@ export class ClientsClient implements IClientsClient {
                 try {
                     return this.processUpdateClient(<any>response_);
                 } catch (e) {
-                    return <Observable<ClientDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ClientDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processUpdateClient(response: HttpResponseBase): Observable<ClientDto> {
+    protected processUpdateClient(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -245,7 +245,7 @@ export class ClientsClient implements IClientsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ClientDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -253,7 +253,7 @@ export class ClientsClient implements IClientsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ClientDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
     getAllClients(): Observable<ClientDto[]> {
@@ -364,8 +364,8 @@ export class ClientsClient implements IClientsClient {
 export interface IProductsClient {
     getAllProducts(clientId: number): Observable<ProductDto[]>;
     listClientProducts(clientId: number): Observable<IntListItem[]>;
-    addProduct(productDto: ProductDto): Observable<ProductDto>;
-    updateProduct(productDto: ProductDto): Observable<ProductDto>;
+    addProduct(productDto: ProductDto): Observable<boolean>;
+    updateProduct(productDto: ProductDto): Observable<boolean>;
     getProductById(productId: number): Observable<ProductDto>;
 }
 
@@ -490,7 +490,7 @@ export class ProductsClient implements IProductsClient {
         return _observableOf<IntListItem[]>(<any>null);
     }
 
-    addProduct(productDto: ProductDto): Observable<ProductDto> {
+    addProduct(productDto: ProductDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Products/product/add";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -513,14 +513,14 @@ export class ProductsClient implements IProductsClient {
                 try {
                     return this.processAddProduct(<any>response_);
                 } catch (e) {
-                    return <Observable<ProductDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ProductDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddProduct(response: HttpResponseBase): Observable<ProductDto> {
+    protected processAddProduct(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -531,7 +531,7 @@ export class ProductsClient implements IProductsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ProductDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -539,10 +539,10 @@ export class ProductsClient implements IProductsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ProductDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
-    updateProduct(productDto: ProductDto): Observable<ProductDto> {
+    updateProduct(productDto: ProductDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Products/product/update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -565,14 +565,14 @@ export class ProductsClient implements IProductsClient {
                 try {
                     return this.processUpdateProduct(<any>response_);
                 } catch (e) {
-                    return <Observable<ProductDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ProductDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processUpdateProduct(response: HttpResponseBase): Observable<ProductDto> {
+    protected processUpdateProduct(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -583,7 +583,7 @@ export class ProductsClient implements IProductsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ProductDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -591,7 +591,7 @@ export class ProductsClient implements IProductsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ProductDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
     getProductById(productId: number): Observable<ProductDto> {
@@ -650,8 +650,8 @@ export interface IProjectsClient {
     getProductProjects(productId: number): Observable<ProjectDto[]>;
     listProductProjects(productId: number): Observable<IntListItem[]>;
     getProjectById(projectId: number): Observable<ProjectDto>;
-    addProject(projectDto: ProjectDto): Observable<ProjectDto>;
-    updateProject(projectDto: ProjectDto): Observable<ProjectDto>;
+    addProject(projectDto: ProjectDto): Observable<boolean>;
+    updateProject(projectDto: ProjectDto): Observable<boolean>;
 }
 
 @Injectable()
@@ -826,7 +826,7 @@ export class ProjectsClient implements IProjectsClient {
         return _observableOf<ProjectDto>(<any>null);
     }
 
-    addProject(projectDto: ProjectDto): Observable<ProjectDto> {
+    addProject(projectDto: ProjectDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Projects/project/add";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -849,14 +849,14 @@ export class ProjectsClient implements IProjectsClient {
                 try {
                     return this.processAddProject(<any>response_);
                 } catch (e) {
-                    return <Observable<ProjectDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ProjectDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddProject(response: HttpResponseBase): Observable<ProjectDto> {
+    protected processAddProject(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -867,7 +867,7 @@ export class ProjectsClient implements IProjectsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ProjectDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -875,10 +875,10 @@ export class ProjectsClient implements IProjectsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ProjectDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 
-    updateProject(projectDto: ProjectDto): Observable<ProjectDto> {
+    updateProject(projectDto: ProjectDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Projects/project/update";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -901,14 +901,14 @@ export class ProjectsClient implements IProjectsClient {
                 try {
                     return this.processUpdateProject(<any>response_);
                 } catch (e) {
-                    return <Observable<ProjectDto>><any>_observableThrow(e);
+                    return <Observable<boolean>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<ProjectDto>><any>_observableThrow(response_);
+                return <Observable<boolean>><any>_observableThrow(response_);
         }));
     }
 
-    protected processUpdateProject(response: HttpResponseBase): Observable<ProjectDto> {
+    protected processUpdateProject(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -919,7 +919,7 @@ export class ProjectsClient implements IProjectsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ProjectDto.fromJS(resultData200);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -927,7 +927,7 @@ export class ProjectsClient implements IProjectsClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<ProjectDto>(<any>null);
+        return _observableOf<boolean>(<any>null);
     }
 }
 

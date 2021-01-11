@@ -46,16 +46,16 @@ export class EditClientComponent implements OnInit {
   }
 
   onSubmit = () => {
-    let updatedClient = new ClientDto({
+    let clientDto = new ClientDto({
       ...this.client,
       ...this.editForm.value
     });
     
     this.uiService.showLoader(true);
-    this.clients.updateClient(updatedClient).toPromise().then(
-      (client: ClientDto) => {
+    this.clients.updateClient(clientDto).toPromise().then(
+      (success: boolean) => {
         this.router.navigate(['/clients']);
-        this.uiService.notify(`Client '${client.clientName}' updated`, 1500);
+        this.uiService.notify(`Client '${clientDto.clientName}' updated`, 1500);
       },
       this.uiService.handleClientError
     );

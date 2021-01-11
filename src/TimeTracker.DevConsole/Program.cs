@@ -33,6 +33,13 @@ namespace TimeTracker.DevConsole
 
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
+
+
+      var clientRepo = _serviceProvider.GetRequiredService<IClientRepo>();
+      var clients = clientRepo.GetAll(1)
+        .ConfigureAwait(false)
+        .GetAwaiter()
+        .GetResult();
     }
 
 

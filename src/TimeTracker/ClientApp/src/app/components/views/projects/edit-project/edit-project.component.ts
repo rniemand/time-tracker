@@ -43,9 +43,9 @@ export class EditProjectComponent implements OnInit {
     
     this.uiService.showLoader(true);
     this.projectsClient.updateProject(updatedProject).toPromise().then(
-      (project: ProjectDto) => {
-        this.router.navigate(['/projects', project.clientId, project.productId]);
-        this.uiService.notify(`Project '${project.projectName}' updated`, 1500);
+      (success: boolean) => {
+        this.router.navigate(['/projects', updatedProject.clientId, updatedProject.productId]);
+        this.uiService.notify(`Project '${updatedProject.projectName}' updated`, 1500);
       },
       this.uiService.handleClientError
     );

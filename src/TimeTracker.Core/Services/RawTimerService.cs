@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Rn.NetCore.Common.Logging;
+using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.Common.Metrics.Builders;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Enums;
@@ -23,225 +27,509 @@ namespace TimeTracker.Core.Services
 
   public class RawTimerService : IRawTimerService
   {
+    private readonly ILoggerAdapter<RawTimerService> _logger;
+    private readonly IMetricService _metrics;
     private readonly IRawTimersRepo _rawTimersRepo;
 
-    public RawTimerService(IRawTimersRepo rawTimersRepo)
+    public RawTimerService(
+      ILoggerAdapter<RawTimerService> logger,
+      IMetricService metrics,
+      IRawTimersRepo rawTimersRepo)
     {
+      _logger = logger;
+      _metrics = metrics;
       _rawTimersRepo = rawTimersRepo;
     }
 
     public async Task<bool> StartNew(int userId, RawTimerDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.StartNew) Add tests
-      var timerEntity = timerDto.AsEntity();
-      timerEntity.UserId = userId;
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(StartNew))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Add)
+        .WithCustomInt1(userId)
+        .WithCustomInt2(timerDto.ClientId)
+        .WithCustomInt3(timerDto.ProductId)
+        .WithCustomInt4(timerDto.ProjectId)
+        .WithCustomTag1("started");
 
-      // Check if we can resume an existing timer
-      var existingTimer = await _rawTimersRepo.SearchExistingTimer(timerEntity);
-      if (existingTimer != null)
+      try
       {
-        return await ResumeTimer(userId, existingTimer.RawTimerId);
+        using (builder.WithTiming())
+        {
+          var timerEntity = timerDto.AsEntity(userId);
+
+          // Check if we can resume an existing timer
+          RawTimerEntity existingTimer;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            existingTimer = await _rawTimersRepo.SearchExistingTimer(timerEntity);
+            builder.CountResult(existingTimer);
+          }
+
+          if (existingTimer != null)
+          {
+            using (builder.WithCustomTiming2())
+            {
+              builder.IncrementQueryCount().WithCustomTag1("resumed");
+              return await ResumeTimer(userId, existingTimer.RawTimerId);
+            }
+          }
+
+          // Create a new timer
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            if (await _rawTimersRepo.StartNew(timerEntity) <= 0)
+              return false;
+          }
+
+          // Ensure that the "RootTimerId" is set to itself (top level timer)
+          RawTimerEntity dbTimerEntity;
+          using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+            dbTimerEntity = await _rawTimersRepo.GetCurrentEntry(timerEntity);
+          }
+
+          var rootTimerId = dbTimerEntity.RawTimerId;
+          using (builder.WithCustomTiming4())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.SetRootTimerId(rootTimerId, rootTimerId) != 0;
+          }
+        }
       }
-
-      // Create a new timer
-      if (await _rawTimersRepo.StartNew(timerEntity) <= 0)
+      catch (Exception ex)
       {
-        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      // Ensure that the "RootTimerId" is set to itself (top level timer)
-      var dbTimerEntity = await _rawTimersRepo.GetCurrentEntry(timerEntity);
-      if (await _rawTimersRepo.SetRootTimerId(dbTimerEntity.RawTimerId, dbTimerEntity.RawTimerId) == 0)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.StartNew) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      return true;
     }
 
     public async Task<List<RawTimerDto>> GetActiveTimers(int userId)
     {
       // TODO: [TESTS] (RawTimerService.GetActiveTimers) Add tests
-      var dbEntries = await _rawTimersRepo.GetActiveTimers(userId);
-      return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(GetActiveTimers))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.GetList)
+        .WithCustomInt1(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          List<RawTimerEntity> dbEntries;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbEntries = await _rawTimersRepo.GetActiveTimers(userId);
+            builder.WithResultCount(dbEntries.Count);
+          }
+
+          return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return new List<RawTimerDto>();
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder);
+      }
     }
 
     public async Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes)
     {
       // TODO: [TESTS] (RawTimerService.PauseTimer) Add tests
-      var dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
-      if (dbEntry == null || dbEntry.UserId != userId)
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(PauseTimer))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId)
+        .WithCustomDouble1(rawTimerId);
+
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
+        using (builder.WithTiming())
+        {
+          RawTimerEntity dbEntry;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            builder.CountResult(dbEntry);
+          }
+
+          builder
+            .WithCustomInt2(dbEntry?.ClientId ?? 0)
+            .WithCustomInt3(dbEntry?.ProductId ?? 0)
+            .WithCustomInt4(dbEntry?.ProjectId ?? 0);
+
+          if (dbEntry == null || dbEntry.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
+            return false;
+          }
+
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.PauseTimer(rawTimerId, state, notes) > 0;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      if (await _rawTimersRepo.PauseTimer(rawTimerId, state, notes) <= 0)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.PauseTimer) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      return true;
     }
 
     public async Task<bool> ResumeTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.ResumeTimer) Add tests
-      var parentEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
-      if (parentEntry == null || parentEntry.UserId != userId)
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(ResumeTimer))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId);
+
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
+        using (builder.WithTiming())
+        {
+          RawTimerEntity parentEntry;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            parentEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            builder.CountResult(parentEntry);
+          }
+
+          builder
+            .WithCustomInt2(parentEntry?.ClientId ?? 0)
+            .WithCustomInt3(parentEntry?.ProductId ?? 0)
+            .WithCustomInt4(parentEntry?.ProjectId ?? 0);
+
+          if (parentEntry == null || parentEntry.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
+            return false;
+          }
+
+          var resumedEntity = CreateResumedTimer(parentEntry);
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
+              return false;
+          }
+
+          using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.FlagAsResumed(rawTimerId) != 0;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      var resumedEntity = CreateResumedTimer(parentEntry);
-      if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (await _rawTimersRepo.FlagAsResumed(rawTimerId) == 0)
-      {
-        // TODO: [HANDLE] (RawTimerService.ResumeTimer) Handle this
-        return false;
-      }
-
-      return true;
     }
 
     public async Task<bool> StopTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.StopTimer) Add tests
-      var dbTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
-      if (dbTimer == null || dbTimer.UserId != userId)
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(StopTimer))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId);
+
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
+        using (builder.WithTiming())
+        {
+          RawTimerEntity dbTimer;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            builder.CountResult(dbTimer);
+          }
+
+          builder
+            .WithCustomInt2(dbTimer?.ClientId ?? 0)
+            .WithCustomInt3(dbTimer?.ProductId ?? 0)
+            .WithCustomInt4(dbTimer?.ProjectId ?? 0);
+
+          if (dbTimer == null || dbTimer.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
+            return false;
+          }
+
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            if (await _rawTimersRepo.StopTimer(rawTimerId) == 0)
+              return false;
+          }
+
+          using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.CompleteTimerSet(dbTimer.RootTimerId) != 0;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      if (await _rawTimersRepo.StopTimer(rawTimerId) == 0)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (await _rawTimersRepo.CompleteTimerSet(dbTimer.RootTimerId) == 0)
-      {
-        // TODO: [HANDLE] (RawTimerService.StopTimer) Handle this
-        return false;
-      }
-
-      return true;
     }
 
     public async Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId)
     {
       // TODO: [TESTS] (RawTimerService.GetTimerSeries) Add tests
-      var dbEntries = await _rawTimersRepo.GetTimerSeries(rootTimerId);
-      if (dbEntries == null || dbEntries.Count == 0)
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(GetTimerSeries))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.GetList)
+        .WithCustomInt1(userId);
+
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
+        using (builder.WithTiming())
+        {
+          List<RawTimerEntity> dbEntries;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbEntries = await _rawTimersRepo.GetTimerSeries(rootTimerId);
+            builder.WithResultCount(dbEntries?.Count ?? 0);
+          }
+
+          if (dbEntries == null || dbEntries.Count == 0)
+          {
+            // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
+            return new List<RawTimerDto>();
+          }
+
+          builder
+            .WithCustomInt2(dbEntries.FirstOrDefault()?.ClientId ?? 0)
+            .WithCustomInt2(dbEntries.FirstOrDefault()?.ProductId ?? 0)
+            .WithCustomInt2(dbEntries.FirstOrDefault()?.ProjectId ?? 0);
+
+          // ReSharper disable once ConvertIfStatementToReturnStatement
+          if (dbEntries.First().UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
+            return new List<RawTimerDto>();
+          }
+
+          return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return new List<RawTimerDto>();
       }
-
-      if (dbEntries.First().UserId != userId)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
-        return new List<RawTimerDto>();
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
     }
 
     public async Task<bool> UpdateNotes(int userId, long rawTimerId, string notes)
     {
       // TODO: [TESTS] (RawTimerService.UpdateNotes) Add tests
-      var dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(UpdateNotes))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId);
 
-      if (dbEntry == null)
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.UpdateNotes) Handle this
+        using (builder.WithTiming())
+        {
+          RawTimerEntity dbEntry;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            builder.CountResult(dbEntry);
+          }
+
+          if (dbEntry == null)
+            return false;
+
+          builder
+            .WithCustomInt2(dbEntry.ClientId)
+            .WithCustomInt3(dbEntry.ProductId)
+            .WithCustomInt4(dbEntry.ProjectId);
+
+          if (dbEntry.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.UpdateNotes) Handle this
+            return false;
+          }
+
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.UpdateNotes(rawTimerId, notes) != 0;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      if (dbEntry.UserId != userId)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.UpdateNotes) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      if (await _rawTimersRepo.UpdateNotes(rawTimerId, notes) == 0)
-      {
-        // TODO: [HANDLE] (RawTimerService.UpdateNotes) Handle this
-        return false;
-      }
-
-      return true;
     }
 
     public async Task<bool> UpdateTimerDuration(int userId, RawTimerDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.UpdateTimerDuration) Add tests
-      var dbTimer = await _rawTimersRepo.GetByRawTimerId(timerDto.RawTimerId);
-      if (dbTimer == null)
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(UpdateTimerDuration))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId)
+        .WithCustomInt2(timerDto.ClientId)
+        .WithCustomInt3(timerDto.ProductId)
+        .WithCustomInt4(timerDto.ProjectId);
+
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
+        using (builder.WithTiming())
+        {
+          RawTimerEntity dbTimer;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            dbTimer = await _rawTimersRepo.GetByRawTimerId(timerDto.RawTimerId);
+            builder.CountResult(dbTimer);
+          }
+
+          if (dbTimer == null)
+            return false;
+
+          if (dbTimer.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
+            return false;
+          }
+
+          var timerEntity = timerDto.AsEntity();
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            return await _rawTimersRepo.UpdateTimerDuration(timerEntity) != 0;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return false;
       }
-
-      if (dbTimer.UserId != userId)
+      finally
       {
-        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
-        return false;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      var timerEntity = timerDto.AsEntity();
-      // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (await _rawTimersRepo.UpdateTimerDuration(timerEntity) == 0)
-      {
-        // TODO: [HANDLE] (RawTimerService.UpdateTimerDuration) Handle this
-        return false;
-      }
-
-      return true;
     }
 
     public async Task<bool> ResumeSingleTimer(int userId, long rawTimerId)
     {
       // TODO: [TESTS] (RawTimerService.ResumeSingleTimer) Add tests
-      var parentTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
-      if (parentTimer == null)
-      {
-        // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
-        return false;
-      }
+      var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(ResumeSingleTimer))
+        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCustomInt1(userId);
 
-      if (parentTimer.UserId != userId)
+      try
       {
-        // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
-        return false;
-      }
-
-      var runningTimers = await _rawTimersRepo.GetRunningTimers(userId);
-      if (runningTimers.Count > 0)
-      {
-        foreach (var runningTimer in runningTimers)
+        using (builder.WithTiming())
         {
-          await _rawTimersRepo.PauseTimer(
-            runningTimer.RawTimerId,
-            EntryRunningState.Paused,
-            "user-paused (auto)"
-          );
+          RawTimerEntity parentTimer;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            parentTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            builder.CountResult(parentTimer);
+          }
+
+          if (parentTimer == null)
+            return false;
+
+          builder
+            .WithCustomInt2(parentTimer.ClientId)
+            .WithCustomInt3(parentTimer.ProductId)
+            .WithCustomInt4(parentTimer.ProjectId);
+
+          if (parentTimer.UserId != userId)
+          {
+            // TODO: [HANDLE] (RawTimerService.ResumeSingleTimer) Handle this
+            return false;
+          }
+
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            var runningTimers = await _rawTimersRepo.GetRunningTimers(userId);
+
+            if (runningTimers.Count > 0)
+            {
+              foreach (var timer in runningTimers)
+              {
+                builder.IncrementQueryCount();
+                await _rawTimersRepo.PauseTimer(timer.RawTimerId, EntryRunningState.Paused, "user-paused (auto)");
+              }
+            }
+          }
+
+          // Resume the given timer
+          using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+            return await ResumeTimer(userId, rawTimerId);
+          }
         }
       }
-
-      return await ResumeTimer(userId, rawTimerId);
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return false;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder);
+      }
     }
 
     // Internal methods

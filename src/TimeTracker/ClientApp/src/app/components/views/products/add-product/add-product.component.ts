@@ -40,9 +40,9 @@ export class AddProductComponent implements OnInit {
     
     this.uiService.showLoader(true);
     this.productsClient.addProduct(productDto).toPromise().then(
-      (product: ProductDto) => {
+      (success: boolean) => {
         this.router.navigate(['/products', this.clientId]);
-        this.uiService.notify(`Product '${product.productName}' added`, 1500);
+        this.uiService.notify(`Product '${productDto.productName}' added`, 1500);
       },
       this.uiService.handleClientError
     );

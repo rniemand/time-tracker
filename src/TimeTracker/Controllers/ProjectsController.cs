@@ -86,37 +86,31 @@ namespace TimeTracker.Controllers
     }
 
     [HttpPost, Route("project/add"), Authorize]
-    public async Task<ActionResult<ProjectDto>> AddProject(
+    public async Task<ActionResult<bool>> AddProject(
       [FromBody] ProjectDto projectDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProjectsController.AddProject) Add tests
-      var response = new BaseResponse<ProjectDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ProjectDtoValidator.Add(projectDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _projectService.AddProject(
-          request.UserId,
-          projectDto
-        ));
+        response.WithResponse(await _projectService.AddProject(request.UserId, projectDto));
 
       return ProcessResponse(response);
     }
 
     [HttpPut, Route("project/update"), Authorize]
-    public async Task<ActionResult<ProjectDto>> UpdateProject(
+    public async Task<ActionResult<bool>> UpdateProject(
       [FromBody] ProjectDto projectDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProjectsController.UpdateProject) Add tests
-      var response = new BaseResponse<ProjectDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ProjectDtoValidator.Update(projectDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _projectService.UpdateProject(
-          request.UserId,
-          projectDto
-        ));
+        response.WithResponse(await _projectService.UpdateProject(request.UserId, projectDto));
 
       return ProcessResponse(response);
     }

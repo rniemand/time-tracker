@@ -1,8 +1,13 @@
-﻿namespace TimeTracker.Core.Models.Configuration
+﻿using Newtonsoft.Json;
+
+namespace TimeTracker.Core.Models.Configuration
 {
   public class AuthenticationConfig
   {
+    [JsonProperty("Secret")]
     public string Secret { get; set; }
+
+    [JsonProperty("SessionLengthMin")]
     public int SessionLengthMin { get; set; }
 
     public AuthenticationConfig()

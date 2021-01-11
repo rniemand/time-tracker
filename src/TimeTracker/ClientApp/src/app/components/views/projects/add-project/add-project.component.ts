@@ -51,9 +51,9 @@ export class AddProjectComponent implements OnInit {
     this.uiService.showLoader(true);
 
     this.projectsClient.addProject(projectDto).toPromise().then(
-      (project: ProjectDto) => {
+      (success: boolean) => {
         this.router.navigate(['/projects', this.clientId, this.productId]);
-        this.uiService.notify(`Project '${project.projectName}' added`, 1500);
+        this.uiService.notify(`Project added`, 1500);
       },
       this.uiService.handleClientError
     );

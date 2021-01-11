@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Logging;
+using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.Common.Metrics.Builders;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Enums;
 using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
@@ -26,12 +29,14 @@ namespace TimeTracker.Core.Services
   public class UserService : IUserService
   {
     private readonly ILoggerAdapter<UserService> _logger;
+    private readonly IMetricService _metrics;
     private readonly IEncryptionService _encryptionService;
     private readonly IUserRepo _userRepo;
     private readonly AuthenticationConfig _config;
 
     public UserService(
       ILoggerAdapter<UserService> logger,
+      IMetricService metrics,
       IEncryptionService encryptionService,
       IUserRepo userRepo,
       TimeTrackerConfig config)
@@ -40,6 +45,7 @@ namespace TimeTracker.Core.Services
       _logger = logger;
       _encryptionService = encryptionService;
       _userRepo = userRepo;
+      _metrics = metrics;
       _config = config.Authentication;
 
       if (string.IsNullOrWhiteSpace(_config.Secret))
@@ -49,49 +55,120 @@ namespace TimeTracker.Core.Services
       }
     }
 
+
+    // Interface methods
     public async Task<UserDto> GetFromToken(string token)
     {
       // TODO: [TESTS] (UserService.GetFromToken) Add tests
-      var userId = ExtractUserId(token);
-      if (userId == 0)
+      var builder = new ServiceMetricBuilder(nameof(UserService), nameof(GetFromToken))
+        .WithCategory(MetricCategory.User, MetricSubCategory.Extract);
+
+      try
       {
-        // TODO: [HANDLE] (UserService.GetFromToken) Handle this
+        using (builder.WithTiming())
+        {
+          // Try extract the current userId
+          int userId;
+          using (builder.WithCustomTiming1())
+          {
+            userId = ExtractUserId(token);
+            if (userId == 0)
+              return null;
+          }
+
+          UserEntity userEntity;
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+            userEntity = await _userRepo.GetUserById(userId);
+            builder.CountResult(userEntity);
+          }
+
+          return userEntity == null ? null : UserDto.Projection.Compile()(userEntity);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
         return null;
       }
-
-      var userEntity = await _userRepo.GetUserById(userId);
-      // ReSharper disable once ConvertIfStatementToReturnStatement
-      if (userEntity == null)
+      finally
       {
-        // TODO: [HANDLE] (UserService.GetFromToken) Handle this
-        return null;
+        await _metrics.SubmitPointAsync(builder);
       }
-
-      return UserDto.Projection.Compile()(userEntity);
     }
 
     public async Task<AuthenticationResponse> Authenticate(AuthenticationRequest request)
     {
       // TODO: [TESTS] (UserService.Authenticate) Add tests
+      var builder = new ServiceMetricBuilder(nameof(UserService), nameof(Authenticate))
+        .WithCategory(MetricCategory.User, MetricSubCategory.GetSingle)
+        .WithCustomTag1(request.Username);
 
-      var loggedInUser = await LoginUser(request.Username, request.Password);
-      if (loggedInUser == null)
-        return null;
-
-      return new AuthenticationResponse
+      try
       {
-        FirstName = loggedInUser.FirstName,
-        LastName = loggedInUser.LastName,
-        UserId = loggedInUser.UserId,
-        Username = loggedInUser.Username,
-        Token = GenerateJwtToken(loggedInUser.UserId)
-      };
+        using (builder.WithTiming())
+        {
+          UserEntity loggedInUser;
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            loggedInUser = await LoginUser(request.Username, request.Password);
+            builder.CountResult(loggedInUser);
+          }
+
+          if (loggedInUser == null)
+            return null;
+
+          builder.WithCustomInt1(loggedInUser.UserId);
+
+          return new AuthenticationResponse
+          {
+            FirstName = loggedInUser.FirstName,
+            LastName = loggedInUser.LastName,
+            UserId = loggedInUser.UserId,
+            Username = loggedInUser.Username,
+            Token = GenerateJwtToken(loggedInUser.UserId)
+          };
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return null;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder);
+      }
     }
 
     public string ExtendUserSession(int userId)
     {
       // TODO: [TESTS] (UserService.ExtendUserSession) Add tests
-      return GenerateJwtToken(userId);
+      var builder = new ServiceMetricBuilder(nameof(UserService), nameof(ExtendUserSession))
+        .WithCategory(MetricCategory.User, MetricSubCategory.Update)
+        .WithCustomInt1(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          return GenerateJwtToken(userId);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return null;
+      }
+      finally
+      {
+        _metrics.SubmitPoint(builder);
+      }
     }
 
 

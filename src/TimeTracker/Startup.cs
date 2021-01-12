@@ -13,7 +13,9 @@ using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
+using Rn.NetCore.Common.Metrics.Interfaces;
 using Rn.NetCore.DbCommon;
+using Rn.NetCore.Metrics.Rabbit;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
@@ -39,6 +41,7 @@ namespace TimeTracker
 
       ConfigureServices_Configuration(services);
       ConfigureServices_Core(services);
+      ConfigureServices_Metrics(services);
       ConfigureServices_Services(services);
       ConfigureServices_Helpers(services);
       ConfigureServices_DbCore(services);
@@ -157,7 +160,6 @@ namespace TimeTracker
     {
       services
         .AddSingleton<IEncryptionService, EncryptionService>()
-        .AddSingleton<IMetricService, MetricService>()
         .AddSingleton<IUserService, UserService>()
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
@@ -194,6 +196,16 @@ namespace TimeTracker
         .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionRepoQueries, OptionRepoQueries>();
+    }
+
+    private static void ConfigureServices_Metrics(IServiceCollection services)
+    {
+      services
+        .AddSingleton<IMetricService, MetricService>()
+        // RabbitMQ
+        .AddSingleton<IMetricOutput, RabbitMetricOutput>()
+        .AddSingleton<IRabbitFactory, RabbitFactory>()
+        .AddSingleton<IRabbitConnection, RabbitConnection>();
     }
 
     private void ConfigureServices_Hangfire(IServiceCollection services)

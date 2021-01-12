@@ -29,19 +29,16 @@ namespace TimeTracker.Controllers
     }
 
     [HttpPost, Route("client/add"), Authorize]
-    public async Task<ActionResult<ClientDto>> AddClient(
+    public async Task<ActionResult<bool>> AddClient(
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ClientsController.AddClient) Add tests
-      var response = new BaseResponse<ClientDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ClientDtoValidator.Add(clientDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _clientService.AddClient(
-          request.UserId,
-          clientDto
-        ));
+        response.WithResponse(await _clientService.AddClient(request.UserId, clientDto));
 
       return ProcessResponse(response);
     }
@@ -65,19 +62,16 @@ namespace TimeTracker.Controllers
     }
 
     [HttpPatch, Route("client/update"), Authorize]
-    public async Task<ActionResult<ClientDto>> UpdateClient(
+    public async Task<ActionResult<bool>> UpdateClient(
       [FromBody] ClientDto clientDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ClientsController.UpdateClient) Add tests
-      var response = new BaseResponse<ClientDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ClientDtoValidator.Update(clientDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _clientService.Update(
-          request.UserId,
-          clientDto
-        ));
+        response.WithResponse(await _clientService.Update(request.UserId, clientDto));
 
       return ProcessResponse(response);
     }

@@ -11,6 +11,7 @@
 	
 2) Deploy initial tables
 	- Run "01-Tables-0001-CoreTables.sql"
+	- Run "04-Data-Production-0001-BaseData.sql" to seed base options etc.
 	- Optionally you can seed some sample data
 		- Running "05-Data-Dev-0001-ClearAll.sql" will reset the DB for development
 		- Running "05-Data-Dev-0002-SeedCoreData.sql" will seed some sample development data
@@ -151,6 +152,12 @@ More information:
 	
 	> tail -f /var/www/dotnet/time-tracker/logs/time-logger.log
 	
+	
+	
+FULL DEPLOYMENT IN SINGLE COMMAND
+
+	> sudo systemctl stop time-tracker.service && sudo rm -fr /var/www/dotnet/time-tracker && cd /var/www/dotnet && unzip time-tracker.zip && rm -f time-tracker.zip && sudo mkdir /var/www/dotnet/time-tracker/logs && sudo chmod 0777 /var/www/dotnet/time-tracker/logs && sudo systemctl start time-tracker.service && sleep 2 && sudo systemctl status time-tracker.service
+	
 
 ============================================================
 = Working on
@@ -174,9 +181,13 @@ sudo nano /etc/nginx/sites-available/default
 
 server {
 	...
+	
 	location /time-tracker/ {
 		proxy_pass http://0.0.0.0:5001/;
+		sub_filter '="/hangfire/' '="/time-tracker/hangfire/';
+		sub_filter_once off;
 	}
+
 }
 
 sudo systemctl restart nginx.service && sudo systemctl status nginx.service

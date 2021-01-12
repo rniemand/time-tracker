@@ -69,37 +69,31 @@ namespace TimeTracker.Controllers
     }
 
     [HttpPost, Route("product/add"), Authorize]
-    public async Task<ActionResult<ProductDto>> AddProduct(
+    public async Task<ActionResult<bool>> AddProduct(
       [FromBody] ProductDto productDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProductsController.AddProduct) Add tests
-      var response = new BaseResponse<ProductDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ProductDtoValidator.Add(productDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _productService.AddProduct(
-          request.UserId,
-          productDto
-        ));
+        response.WithResponse(await _productService.AddProduct(request.UserId, productDto));
 
       return ProcessResponse(response);
     }
 
     [HttpPatch, Route("product/update"), Authorize]
-    public async Task<ActionResult<ProductDto>> UpdateProduct(
+    public async Task<ActionResult<bool>> UpdateProduct(
       [FromBody] ProductDto productDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (ProductsController.UpdateProduct) Add tests
-      var response = new BaseResponse<ProductDto>()
+      var response = new BaseResponse<bool>()
         .WithValidation(ProductDtoValidator.Update(productDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _productService.UpdateProduct(
-          request.UserId,
-          productDto
-        ));
+        response.WithResponse(await _productService.UpdateProduct(request.UserId, productDto));
 
       return ProcessResponse(response);
     }

@@ -17,18 +17,13 @@
     color: #e9bcfd;
   }
 
-  .timer-entry .multi {
-    padding-left: 3px;
-    color: #a5deb6;
-    font-size: 0.8em;
-  }
-    .timer-entry .multi:hover {
-      color: #bbeace;
-      cursor: pointer;
-    }
-
   .timer-entry .pause:hover {
     color: #edef86;
+    cursor: pointer;
+  }
+
+  .timer-entry .history:hover {
+    color: #cb91e4;
     cursor: pointer;
   }
 

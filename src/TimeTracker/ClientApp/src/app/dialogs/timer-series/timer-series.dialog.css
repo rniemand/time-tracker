@@ -1,0 +1,27 @@
+.entries {
+  border-top: 2px solid #3c3b3b;
+  margin-bottom: 16px;
+}
+  .entries tr td {
+    padding-right: 3px;
+  }
+
+  .entries .date {
+    color: #daefa2;
+    font-family: monospace;
+    text-align: center;
+  }
+
+  .entries .running-time {
+    color: #74e059;
+    font-family: monospace;
+    text-align: center;
+  }
+
+.mat-dialog-title {
+  text-align: center;
+}
+
+.data-table {
+  width: 100%;
+}

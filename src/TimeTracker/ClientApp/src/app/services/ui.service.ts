@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from "@angular/material/snack-bar";
-import { ValidationErrorDialog, ValidationErrorDialogData } from "../components/dialogs/validation-error/validation-error.dialog";
+import { ValidationErrorDialog, ValidationErrorDialogData } from "../dialogs/validation-error/validation-error.dialog";
 import { DIALOG_DEFAULTS } from "../constants";
 
 export interface NotifyOptions {

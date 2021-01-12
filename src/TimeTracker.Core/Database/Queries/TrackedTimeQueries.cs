@@ -3,6 +3,9 @@
   public interface ITrackedTimeQueries
   {
     string StartNew();
+    string GetExistingTimer();
+
+
     string GetCurrentEntry();
     string GetActiveTimers();
     string PauseTimer();
@@ -18,18 +21,33 @@
     string UpdateNotes();
     string UpdateTimerDuration();
     string GetRunningTimers();
-    string SearchExistingTimer();
   }
 
   public class TrackedTimeQueries : ITrackedTimeQueries
   {
     public string StartNew()
     {
-      return @"INSERT INTO `RawTimers`
-	      (`ParentEntryId`, `RootEntryId`, `ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryState`, `Running`)
+      return @"INSERT INTO `TrackedTime`
+	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`)
       VALUES
-	      (@ParentEntryId, @RootEntryId, @ClientId, @ProductId, @ProjectId, @UserId, @EntryState, 1)";
+	      (@ClientId, @ProductId, @ProjectId, @UserId)";
     }
+
+    public string GetExistingTimer()
+    {
+      return @"SELECT *
+      FROM `TrackedTime`
+      WHERE
+	      `ClientId` = @ClientId AND
+	      `ProductId` = @ProductId AND
+	      `ProjectId` = @ProjectId AND
+	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `Running` = 1";
+    }
+
+
+
 
     public string GetCurrentEntry()
     {
@@ -225,21 +243,6 @@
          rtt.`Running` = 1 AND
          rtt.`EntryState` = 1
       ORDER BY `EntryState`, `RootEntryId`, `StartTimeUtc` ASC";
-    }
-
-    public string SearchExistingTimer()
-    {
-      return @"SELECT *
-      FROM `RawTimers`
-      WHERE
-	      `UserId` = @UserId AND
-	      `Deleted` = 0 AND
-	      `Completed` = 0 AND
-	      `Processed` = 0 AND
-	      `ClientId` = @ClientId AND
-	      `ProductId` = @ProductId AND
-	      `ProjectId` = @ProjectId AND
-	      `Running` = 1";
     }
   }
 }

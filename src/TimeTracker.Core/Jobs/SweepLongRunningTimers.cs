@@ -18,7 +18,7 @@ namespace TimeTracker.Core.Jobs
     private readonly ILoggerAdapter<SweepLongRunningTimers> _logger;
     private readonly ITrackedTimeRepo _trackedTimeRepo;
     private readonly IOptionsService _optionService;
-    private readonly IRawTimerService _timerService;
+    private readonly ITrackedTimeService _timerService;
     private readonly IMetricService _metrics;
 
     public SweepLongRunningTimers(IServiceProvider services)
@@ -26,7 +26,7 @@ namespace TimeTracker.Core.Jobs
       _logger = services.GetRequiredService<ILoggerAdapter<SweepLongRunningTimers>>();
       _trackedTimeRepo = services.GetRequiredService<ITrackedTimeRepo>();
       _optionService = services.GetRequiredService<IOptionsService>();
-      _timerService = services.GetRequiredService<IRawTimerService>();
+      _timerService = services.GetRequiredService<ITrackedTimeService>();
       _metrics = services.GetRequiredService<IMetricService>();
     }
 
@@ -34,7 +34,7 @@ namespace TimeTracker.Core.Jobs
     {
       // TODO: [TESTS] (SweepLongRunningTimers.Run) Add tests
       var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(Run))
-        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update);
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update);
 
       try
       {
@@ -70,7 +70,7 @@ namespace TimeTracker.Core.Jobs
     {
       // TODO: [TESTS] (SweepLongRunningTimers.ProcessUserTimers) Add tests
       var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(ProcessUserTimers))
-        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithCustomInt1(userId);
 
       try

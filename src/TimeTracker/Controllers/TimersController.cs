@@ -17,13 +17,13 @@ namespace TimeTracker.Controllers
   [ApiController, Route("api/[controller]")]
   public class TimersController : BaseController<TimersController>
   {
-    private readonly IRawTimerService _timerService;
+    private readonly ITrackedTimeService _timerService;
 
     public TimersController(
       ILoggerAdapter<TimersController> logger,
       IMetricService metrics,
       IUserService userService,
-      IRawTimerService timerService
+      ITrackedTimeService timerService
     ) : base(logger, metrics, userService)
     {
       _timerService = timerService;
@@ -47,7 +47,7 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.StartNew(trackedTimeDto));
+        .WithValidation(TrackedTimeDtoValidator.StartNew(trackedTimeDto));
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.StartNew(
@@ -171,7 +171,7 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(trackedTimeDto));
+        .WithValidation(TrackedTimeDtoValidator.UpdateTimerDuration(trackedTimeDto));
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.UpdateTimerDuration(

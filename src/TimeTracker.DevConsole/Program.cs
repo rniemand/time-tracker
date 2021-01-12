@@ -128,7 +128,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<IRawTimerService, RawTimerService>()
+        .AddSingleton<ITrackedTimeService, TrackedTimeService>()
         .AddSingleton<IOptionsService, OptionsService>();
     }
 

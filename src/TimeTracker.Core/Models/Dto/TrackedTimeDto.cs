@@ -100,9 +100,9 @@ namespace TimeTracker.Core.Models.Dto
     }
   }
 
-  public class RawTimerDtoValidator : AbstractValidator<TrackedTimeDto>
+  public class TrackedTimeDtoValidator : AbstractValidator<TrackedTimeDto>
   {
-    public RawTimerDtoValidator()
+    public TrackedTimeDtoValidator()
     {
       RuleSet("StartNew", () =>
       {
@@ -124,14 +124,14 @@ namespace TimeTracker.Core.Models.Dto
 
     public static ValidationResult StartNew(TrackedTimeDto timer)
     {
-      return new RawTimerDtoValidator().Validate(timer,
+      return new TrackedTimeDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("StartNew")
       );
     }
 
     public static ValidationResult UpdateTimerDuration(TrackedTimeDto timer)
     {
-      return new RawTimerDtoValidator().Validate(timer,
+      return new TrackedTimeDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("UpdateTimerDuration")
       );
     }

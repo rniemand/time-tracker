@@ -119,7 +119,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     return ['timer-entry'];
   }
 
-  showSeries = (timer: RawTimerDto) => {
+  timerHistory = (timer: RawTimerDto) => {
     let dialogData: TimerSeriesDialogData = {
       rootTimerId: timer?.rootTimerId ?? 0
     };

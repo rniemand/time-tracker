@@ -1,4 +1,11 @@
-<h1 mat-dialog-title>Project (Timer Entries)</h1>
+<h1 mat-dialog-title *ngIf="!firstEntry">Project (Timer Entries)</h1>
+<h1 mat-dialog-title class="ui-navigation" *ngIf="firstEntry">
+  <mat-icon routerLink="/" (click)="onNoClick()">home</mat-icon> >
+  <a [routerLink]="['/products', firstEntry.clientId]" (click)="onNoClick()">{{ firstEntry.clientName }}</a> >
+  <a [routerLink]="['/projects', firstEntry.clientId, firstEntry.productId]" (click)="onNoClick()">{{ firstEntry.productName }}</a> >
+  {{ firstEntry.projectName }}
+</h1>
+
 <div mat-dialog-content>
   <div class="mat-elevation-z8 entries">
     <table mat-table [dataSource]="dataSource" matSort class="data-table">
@@ -17,6 +24,11 @@
         <td mat-cell *matCellDef="let timer"> {{timer.entryState | entryState}} </td>
       </ng-container>
   
+      <ng-container matColumnDef="startTime">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Time </th>
+        <td mat-cell *matCellDef="let timer" class="date"> {{ timer.entryStartTimeUtc | date:'yyyy-MM-dd HH:mm' }} </td>
+      </ng-container>
+
       <ng-container matColumnDef="endTime">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> End Time </th>
         <td mat-cell *matCellDef="let timer" class="date"> {{ timer.entryEndTimeUtc | date:'yyyy-MM-dd HH:mm' }} </td>
@@ -44,10 +56,6 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <mat-paginator [pageSizeOptions]="[10, 20, 30, 40, 50]" showFirstLastButtons></mat-paginator>
+    <mat-paginator [pageSizeOptions]="[2, 5, 10, 15]" [pageSize]="pageSize" showFirstLastButtons></mat-paginator>
   </div>
 </div>
-<!-- <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No Thanks</button>
-  <button mat-button [mat-dialog-close] cdkFocusInitial>Ok</button>
-</div> -->

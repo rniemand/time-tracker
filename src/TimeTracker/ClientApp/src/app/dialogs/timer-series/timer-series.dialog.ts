@@ -18,8 +18,10 @@ export interface TimerSeriesDialogData {
   styleUrls: ['./timer-series.dialog.css']
 })
 export class TimerSeriesDialog implements OnInit {
-  displayedColumns: string[] = ['client', 'product', 'endTime', 'state', 'length', 'notes', 'controls'];
+  displayedColumns: string[] = ['startTime', 'endTime', 'state', 'length', 'notes', 'controls'];
   dataSource = new MatTableDataSource<RawTimerDto>();
+  firstEntry?: RawTimerDto = undefined;
+  pageSize: number = 5;
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -79,8 +81,18 @@ export class TimerSeriesDialog implements OnInit {
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
+        this.setTitle(entries);
       },
       this.uiService.handleClientError
     );
+  }
+
+  private setTitle = (entries: RawTimerDto[]) => {
+    this.firstEntry = undefined;
+    
+    if(entries.length == 0)
+      return;
+
+    this.firstEntry = entries[0];
   }
 }

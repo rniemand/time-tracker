@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/components/dialogs/timer-series/timer-series.dialog';
+import { TimerSeriesDialog, TimerSeriesDialogData } from 'src/app/dialogs/timer-series/timer-series.dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { LoggerService } from 'src/app/services/logger.service';
 import { StorageService } from 'src/app/services/storage.service';

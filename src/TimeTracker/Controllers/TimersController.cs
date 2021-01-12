@@ -30,11 +30,11 @@ namespace TimeTracker.Controllers
     }
 
     [HttpGet, Route("timers/active"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetActiveTimers(
+    public async Task<ActionResult<List<TrackedTimeDto>>> GetActiveTimers(
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>()
+      var response = new BaseResponse<List<TrackedTimeDto>>()
         .WithResponse(await _timerService.GetActiveTimers(request.UserId));
 
       return ProcessResponse(response);
@@ -42,17 +42,17 @@ namespace TimeTracker.Controllers
 
     [HttpPost, Route("timer/start-new"), Authorize]
     public async Task<ActionResult<bool>> StartNewTimer(
-      [FromBody] RawTimerDto rawTimerDto,
+      [FromBody] TrackedTimeDto trackedTimeDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.StartNew(rawTimerDto));
+        .WithValidation(RawTimerDtoValidator.StartNew(trackedTimeDto));
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.StartNew(
           request.UserId,
-          rawTimerDto
+          trackedTimeDto
         ));
 
       return ProcessResponse(response);
@@ -121,12 +121,12 @@ namespace TimeTracker.Controllers
     }
 
     [HttpGet, Route("timer/{rootTimerId}/series"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetTimerSeries(
+    public async Task<ActionResult<List<TrackedTimeDto>>> GetTimerSeries(
       [FromRoute] long rootTimerId,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>()
+      var response = new BaseResponse<List<TrackedTimeDto>>()
         .WithValidation(new AdHockValidator()
           .GreaterThanZero(nameof(rootTimerId), rootTimerId)
         );
@@ -166,17 +166,17 @@ namespace TimeTracker.Controllers
     [HttpPost, Route("timer/{rawTimerId}/update-duration"), Authorize]
     public async Task<ActionResult<bool>> UpdateTimerDuration(
       [FromRoute] long rawTimerId,
-      [FromBody] RawTimerDto rawTimerDto,
+      [FromBody] TrackedTimeDto trackedTimeDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(rawTimerDto));
+        .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(trackedTimeDto));
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.UpdateTimerDuration(
           request.UserId,
-          rawTimerDto
+          trackedTimeDto
         ));
 
       return ProcessResponse(response);

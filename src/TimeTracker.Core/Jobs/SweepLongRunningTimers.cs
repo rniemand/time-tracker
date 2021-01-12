@@ -16,7 +16,7 @@ namespace TimeTracker.Core.Jobs
   public class SweepLongRunningTimers
   {
     private readonly ILoggerAdapter<SweepLongRunningTimers> _logger;
-    private readonly IRawTimersRepo _rawTimersRepo;
+    private readonly ITrackedTimeRepo _trackedTimeRepo;
     private readonly IOptionsService _optionService;
     private readonly IRawTimerService _timerService;
     private readonly IMetricService _metrics;
@@ -24,7 +24,7 @@ namespace TimeTracker.Core.Jobs
     public SweepLongRunningTimers(IServiceProvider services)
     {
       _logger = services.GetRequiredService<ILoggerAdapter<SweepLongRunningTimers>>();
-      _rawTimersRepo = services.GetRequiredService<IRawTimersRepo>();
+      _trackedTimeRepo = services.GetRequiredService<ITrackedTimeRepo>();
       _optionService = services.GetRequiredService<IOptionsService>();
       _timerService = services.GetRequiredService<IRawTimerService>();
       _metrics = services.GetRequiredService<IMetricService>();
@@ -44,7 +44,7 @@ namespace TimeTracker.Core.Jobs
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            users = await _rawTimersRepo.GetUsersWithRunningTimers();
+            users = await _trackedTimeRepo.GetUsersWithRunningTimers();
             builder.WithResultsCount(users.Count);
           }
 
@@ -85,11 +85,11 @@ namespace TimeTracker.Core.Jobs
           }
 
           var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
-          List<RawTimerEntity> timers;
+          List<TrackedTimeEntity> timers;
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            timers = await _rawTimersRepo.GetLongRunningTimers(userId, maxRunTimeSec);
+            timers = await _trackedTimeRepo.GetLongRunningTimers(userId, maxRunTimeSec);
             builder.WithResultsCount(timers.Count);
           }
 
@@ -98,7 +98,7 @@ namespace TimeTracker.Core.Jobs
             builder.IncrementQueryCount();
             await _timerService.PauseTimer(
               userId,
-              timer.RawTimerId,
+              timer.EntryId,
               EntryRunningState.CronJobPaused,
               "auto-paused"
             );

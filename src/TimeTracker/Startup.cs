@@ -185,17 +185,17 @@ namespace TimeTracker
     {
       services
         .AddSingleton<IUserRepo, UserRepo>()
-        .AddSingleton<IUserRepoQueries, UserRepoQueries>()
+        .AddSingleton<IUserQueries, UserQueries>()
         .AddSingleton<IClientRepo, ClientRepo>()
-        .AddSingleton<IClientRepoQueries, ClientRepoQueries>()
+        .AddSingleton<IClientQueries, ClientQueries>()
         .AddSingleton<IProductRepo, ProductRepo>()
-        .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
+        .AddSingleton<IProductQueries, ProductQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
-        .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
-        .AddSingleton<IRawTimersRepo, RawTimersRepo>()
-        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>()
+        .AddSingleton<IProjectQueries, ProjectQueries>()
+        .AddSingleton<ITrackedTimeRepo, TrackedTimeRepo>()
+        .AddSingleton<ITrackedTimeQueries, TrackedTimeQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
-        .AddSingleton<IOptionRepoQueries, OptionRepoQueries>();
+        .AddSingleton<IOptionQueries, OptionQueries>();
     }
 
     private static void ConfigureServices_Metrics(IServiceCollection services)

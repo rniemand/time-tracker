@@ -14,14 +14,14 @@ namespace TimeTracker.Core.Services
 {
   public interface IRawTimerService
   {
-    Task<bool> StartNew(int userId, RawTimerDto timerDto);
-    Task<List<RawTimerDto>> GetActiveTimers(int userId);
+    Task<bool> StartNew(int userId, TrackedTimeDto timerDto);
+    Task<List<TrackedTimeDto>> GetActiveTimers(int userId);
     Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
     Task<bool> StopTimer(int userId, long rawTimerId);
-    Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId);
+    Task<List<TrackedTimeDto>> GetTimerSeries(int userId, long rootTimerId);
     Task<bool> UpdateNotes(int userId, long rawTimerId, string notes);
-    Task<bool> UpdateTimerDuration(int userId, RawTimerDto timerDto);
+    Task<bool> UpdateTimerDuration(int userId, TrackedTimeDto timerDto);
     Task<bool> ResumeSingleTimer(int userId, long rawTimerId);
   }
 
@@ -29,19 +29,19 @@ namespace TimeTracker.Core.Services
   {
     private readonly ILoggerAdapter<RawTimerService> _logger;
     private readonly IMetricService _metrics;
-    private readonly IRawTimersRepo _rawTimersRepo;
+    private readonly ITrackedTimeRepo _trackedTimeRepo;
 
     public RawTimerService(
       ILoggerAdapter<RawTimerService> logger,
       IMetricService metrics,
-      IRawTimersRepo rawTimersRepo)
+      ITrackedTimeRepo trackedTimeRepo)
     {
       _logger = logger;
       _metrics = metrics;
-      _rawTimersRepo = rawTimersRepo;
+      _trackedTimeRepo = trackedTimeRepo;
     }
 
-    public async Task<bool> StartNew(int userId, RawTimerDto timerDto)
+    public async Task<bool> StartNew(int userId, TrackedTimeDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.StartNew) Add tests
       var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(StartNew))
@@ -59,11 +59,11 @@ namespace TimeTracker.Core.Services
           var timerEntity = timerDto.AsEntity(userId);
 
           // Check if we can resume an existing timer
-          RawTimerEntity existingTimer;
+          TrackedTimeEntity existingTimer;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            existingTimer = await _rawTimersRepo.SearchExistingTimer(timerEntity);
+            existingTimer = await _trackedTimeRepo.SearchExistingTimer(timerEntity);
             builder.CountResult(existingTimer);
           }
 
@@ -72,7 +72,7 @@ namespace TimeTracker.Core.Services
             using (builder.WithCustomTiming2())
             {
               builder.IncrementQueryCount().WithCustomTag1("resumed");
-              return await ResumeTimer(userId, existingTimer.RawTimerId);
+              return await ResumeTimer(userId, existingTimer.EntryId);
             }
           }
 
@@ -80,23 +80,23 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            if (await _rawTimersRepo.StartNew(timerEntity) <= 0)
+            if (await _trackedTimeRepo.StartNew(timerEntity) <= 0)
               return false;
           }
 
-          // Ensure that the "RootTimerId" is set to itself (top level timer)
-          RawTimerEntity dbTimerEntity;
+          // Ensure that the "RootEntryId" is set to itself (top level timer)
+          TrackedTimeEntity dbTimerEntity;
           using (builder.WithCustomTiming3())
           {
             builder.IncrementQueryCount();
-            dbTimerEntity = await _rawTimersRepo.GetCurrentEntry(timerEntity);
+            dbTimerEntity = await _trackedTimeRepo.GetCurrentEntry(timerEntity);
           }
 
-          var rootTimerId = dbTimerEntity.RawTimerId;
+          var rootTimerId = dbTimerEntity.EntryId;
           using (builder.WithCustomTiming4())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.SetRootTimerId(rootTimerId, rootTimerId) != 0;
+            return await _trackedTimeRepo.SetRootTimerId(rootTimerId, rootTimerId) != 0;
           }
         }
       }
@@ -112,7 +112,7 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<List<RawTimerDto>> GetActiveTimers(int userId)
+    public async Task<List<TrackedTimeDto>> GetActiveTimers(int userId)
     {
       // TODO: [TESTS] (RawTimerService.GetActiveTimers) Add tests
       var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(GetActiveTimers))
@@ -123,22 +123,22 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<RawTimerEntity> dbEntries;
+          List<TrackedTimeEntity> dbEntries;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbEntries = await _rawTimersRepo.GetActiveTimers(userId);
+            dbEntries = await _trackedTimeRepo.GetActiveTimers(userId);
             builder.WithResultsCount(dbEntries.Count);
           }
 
-          return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
+          return dbEntries.AsQueryable().Select(TrackedTimeDto.Projection).ToList();
         }
       }
       catch (Exception ex)
       {
         _logger.LogUnexpectedException(ex);
         builder.WithException(ex);
-        return new List<RawTimerDto>();
+        return new List<TrackedTimeDto>();
       }
       finally
       {
@@ -158,11 +158,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity dbEntry;
+          TrackedTimeEntity dbEntry;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            dbEntry = await _trackedTimeRepo.GetByRawTimerId(rawTimerId);
             builder.CountResult(dbEntry);
           }
 
@@ -180,7 +180,7 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.PauseTimer(rawTimerId, state, notes) > 0;
+            return await _trackedTimeRepo.PauseTimer(rawTimerId, state, notes) > 0;
           }
         }
       }
@@ -207,11 +207,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity parentEntry;
+          TrackedTimeEntity parentEntry;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            parentEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            parentEntry = await _trackedTimeRepo.GetByRawTimerId(rawTimerId);
             builder.CountResult(parentEntry);
           }
 
@@ -230,14 +230,14 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            if (await _rawTimersRepo.SpawnResumedTimer(resumedEntity) == 0)
+            if (await _trackedTimeRepo.SpawnResumedTimer(resumedEntity) == 0)
               return false;
           }
 
           using (builder.WithCustomTiming3())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.FlagAsResumed(rawTimerId) != 0;
+            return await _trackedTimeRepo.FlagAsResumed(rawTimerId) != 0;
           }
         }
       }
@@ -264,11 +264,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity dbTimer;
+          TrackedTimeEntity dbTimer;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            dbTimer = await _trackedTimeRepo.GetByRawTimerId(rawTimerId);
             builder.CountResult(dbTimer);
           }
 
@@ -286,14 +286,14 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            if (await _rawTimersRepo.StopTimer(rawTimerId) == 0)
+            if (await _trackedTimeRepo.StopTimer(rawTimerId) == 0)
               return false;
           }
 
           using (builder.WithCustomTiming3())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.CompleteTimerSet(dbTimer.RootTimerId) != 0;
+            return await _trackedTimeRepo.CompleteTimerSet(dbTimer.RootEntryId) != 0;
           }
         }
       }
@@ -309,7 +309,7 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<List<RawTimerDto>> GetTimerSeries(int userId, long rootTimerId)
+    public async Task<List<TrackedTimeDto>> GetTimerSeries(int userId, long rootTimerId)
     {
       // TODO: [TESTS] (RawTimerService.GetTimerSeries) Add tests
       var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(GetTimerSeries))
@@ -320,18 +320,18 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<RawTimerEntity> dbEntries;
+          List<TrackedTimeEntity> dbEntries;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbEntries = await _rawTimersRepo.GetTimerSeries(rootTimerId);
+            dbEntries = await _trackedTimeRepo.GetTimerSeries(rootTimerId);
             builder.WithResultsCount(dbEntries?.Count ?? 0);
           }
 
           if (dbEntries == null || dbEntries.Count == 0)
           {
             // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
-            return new List<RawTimerDto>();
+            return new List<TrackedTimeDto>();
           }
 
           builder
@@ -343,17 +343,17 @@ namespace TimeTracker.Core.Services
           if (dbEntries.First().UserId != userId)
           {
             // TODO: [HANDLE] (RawTimerService.GetTimerSeries) Handle this
-            return new List<RawTimerDto>();
+            return new List<TrackedTimeDto>();
           }
 
-          return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
+          return dbEntries.AsQueryable().Select(TrackedTimeDto.Projection).ToList();
         }
       }
       catch (Exception ex)
       {
         _logger.LogUnexpectedException(ex);
         builder.WithException(ex);
-        return new List<RawTimerDto>();
+        return new List<TrackedTimeDto>();
       }
       finally
       {
@@ -372,11 +372,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity dbEntry;
+          TrackedTimeEntity dbEntry;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbEntry = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            dbEntry = await _trackedTimeRepo.GetByRawTimerId(rawTimerId);
             builder.CountResult(dbEntry);
           }
 
@@ -397,7 +397,7 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.UpdateNotes(rawTimerId, notes) != 0;
+            return await _trackedTimeRepo.UpdateNotes(rawTimerId, notes) != 0;
           }
         }
       }
@@ -413,7 +413,7 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> UpdateTimerDuration(int userId, RawTimerDto timerDto)
+    public async Task<bool> UpdateTimerDuration(int userId, TrackedTimeDto timerDto)
     {
       // TODO: [TESTS] (RawTimerService.UpdateTimerDuration) Add tests
       var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(UpdateTimerDuration))
@@ -427,11 +427,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity dbTimer;
+          TrackedTimeEntity dbTimer;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            dbTimer = await _rawTimersRepo.GetByRawTimerId(timerDto.RawTimerId);
+            dbTimer = await _trackedTimeRepo.GetByRawTimerId(timerDto.EntryId);
             builder.CountResult(dbTimer);
           }
 
@@ -448,7 +448,7 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            return await _rawTimersRepo.UpdateTimerDuration(timerEntity) != 0;
+            return await _trackedTimeRepo.UpdateTimerDuration(timerEntity) != 0;
           }
         }
       }
@@ -475,11 +475,11 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          RawTimerEntity parentTimer;
+          TrackedTimeEntity parentTimer;
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            parentTimer = await _rawTimersRepo.GetByRawTimerId(rawTimerId);
+            parentTimer = await _trackedTimeRepo.GetByRawTimerId(rawTimerId);
             builder.CountResult(parentTimer);
           }
 
@@ -500,14 +500,14 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            var runningTimers = await _rawTimersRepo.GetRunningTimers(userId);
+            var runningTimers = await _trackedTimeRepo.GetRunningTimers(userId);
 
             if (runningTimers.Count > 0)
             {
               foreach (var timer in runningTimers)
               {
                 builder.IncrementQueryCount();
-                await _rawTimersRepo.PauseTimer(timer.RawTimerId, EntryRunningState.Paused, "user-paused (auto)");
+                await _trackedTimeRepo.PauseTimer(timer.EntryId, EntryRunningState.Paused, "user-paused (auto)");
               }
             }
           }
@@ -533,13 +533,13 @@ namespace TimeTracker.Core.Services
     }
 
     // Internal methods
-    private static RawTimerEntity CreateResumedTimer(RawTimerEntity parentTimer)
+    private static TrackedTimeEntity CreateResumedTimer(TrackedTimeEntity parentTimer)
     {
       // TODO: [TESTS] (RawTimerService.CreateResumedTimer) Add tests
-      return new RawTimerEntity
+      return new TrackedTimeEntity
       {
-        ParentTimerId = parentTimer.RawTimerId,
-        RootTimerId = parentTimer.RootTimerId,
+        ParentEntryId = parentTimer.EntryId,
+        RootEntryId = parentTimer.RootEntryId,
         ClientId = parentTimer.ClientId,
         ProductId = parentTimer.ProductId,
         ProjectId = parentTimer.ProjectId,
@@ -547,7 +547,7 @@ namespace TimeTracker.Core.Services
         Running = true,
         EntryState = EntryRunningState.Running,
         Completed = false,
-        TimerNotes = "user-resumed"
+        Notes = "user-resumed"
       };
     }
   }

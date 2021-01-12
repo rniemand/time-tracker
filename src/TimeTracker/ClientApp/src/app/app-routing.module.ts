@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AddClientComponent } from './components/views/clients/add-client/add-client.component';
-import { ClientsComponent } from './components/views/clients/clients.component';
-import { EditClientComponent } from './components/views/clients/edit-client/edit-client.component';
-import { HomeComponent } from './components/views/home/home.component';
-import { LoginComponent } from './components/views/login/login.component';
-import { AddProductComponent } from './components/views/products/add-product/add-product.component';
-import { EditProductComponent } from './components/views/products/edit-product/edit-product.component';
-import { ProductsComponent } from './components/views/products/products.component';
-import { AddProjectComponent } from './components/views/projects/add-project/add-project.component';
-import { EditProjectComponent } from './components/views/projects/edit-project/edit-project.component';
-import { ProjectsComponent } from './components/views/projects/projects.component';
+import { AddClientComponent } from './views/clients/add-client/add-client.component';
+import { ClientsComponent } from './views/clients/clients.component';
+import { EditClientComponent } from './views/clients/edit-client/edit-client.component';
+import { HomeComponent } from './views/home/home.component';
+import { LoginComponent } from './views/login/login.component';
+import { AddProductComponent } from './views/products/add-product/add-product.component';
+import { EditProductComponent } from './views/products/edit-product/edit-product.component';
+import { ProductsComponent } from './views/products/products.component';
+import { AddProjectComponent } from './views/projects/add-project/add-project.component';
+import { EditProjectComponent } from './views/projects/edit-project/edit-project.component';
+import { ProjectsComponent } from './views/projects/projects.component';
 import { AuthGuard } from './providers/append-token.interceptor';
 
 const routes: Routes = [

@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UiService } from 'src/app/services/ui.service';
 import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
-import { DateTimeEditorEvent } from '../../ui/edit-timer-entry/edit-timer-entry.component';
+import { DateTimeEditorEvent } from './../../components/ui/edit-timer-entry/edit-timer-entry.component';
 import { TimerSeriesDialog } from '../timer-series/timer-series.dialog';
 
 export interface EditTimerEntryDialogData {

@@ -56,7 +56,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbEntries = await _projectRepo.GetAllForProduct(productId);
-            builder.WithResultCount(dbEntries.Count);
+            builder.WithResultsCount(dbEntries.Count);
           }
 
           return dbEntries
@@ -73,7 +73,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -122,7 +122,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -149,7 +149,7 @@ namespace TimeTracker.Core.Services
             if (await _projectRepo.Add(projectEntity) <= 0)
               return false;
 
-            builder.WithResultCount(1);
+            builder.WithResultsCount(1);
             return true;
           }
         }
@@ -162,7 +162,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -209,7 +209,7 @@ namespace TimeTracker.Core.Services
             if (await _projectRepo.Update(projectEntity) <= 0)
               return false;
 
-            builder.IncrementResultCount();
+            builder.IncrementResultsCount();
             return true;
           }
         }
@@ -222,7 +222,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -244,7 +244,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbEntries = await _projectRepo.GetAllForProduct(productId);
-            builder.WithResultCount(dbEntries?.Count ?? 0);
+            builder.WithResultsCount(dbEntries?.Count ?? 0);
           }
 
           if (dbEntries == null || dbEntries.Count <= 0)
@@ -277,7 +277,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
   }

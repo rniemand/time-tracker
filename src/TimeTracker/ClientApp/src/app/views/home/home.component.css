@@ -1,0 +1,16 @@
+.last-btn {
+  margin-right: 0 !important;
+}
+
+.welcome p {
+  text-align: center;
+  font-size: 1.2em;
+}
+  .welcome p a {
+    color: #ba72d8;
+    font-weight: normal;
+    text-decoration: none;
+  }
+    .welcome p a:hover {
+      text-decoration: underline;
+    }

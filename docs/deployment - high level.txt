@@ -152,6 +152,12 @@ More information:
 	
 	> tail -f /var/www/dotnet/time-tracker/logs/time-logger.log
 	
+	
+	
+FULL DEPLOYMENT IN SINGLE COMMAND
+
+	> sudo systemctl stop time-tracker.service && sudo rm -fr /var/www/dotnet/time-tracker && cd /var/www/dotnet && unzip time-tracker.zip && rm -f time-tracker.zip && sudo mkdir /var/www/dotnet/time-tracker/logs && sudo chmod 0777 /var/www/dotnet/time-tracker/logs && sudo systemctl start time-tracker.service && sleep 2 && sudo systemctl status time-tracker.service
+	
 
 ============================================================
 = Working on

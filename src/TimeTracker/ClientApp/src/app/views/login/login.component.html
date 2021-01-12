@@ -1,6 +1,6 @@
 <div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
   <div class="content-row" *ngIf="!loggedIn">
-    <h1>Welcome, Please login</h1>
+    <h1 class="title">Login</h1>
   </div>
 
   <div class="content-row" fxLayout="column" fxLayoutAlign="start center" *ngIf="!loggedIn">
@@ -24,7 +24,13 @@
   </div>
 
   <div class="content-row" *ngIf="loggedIn">
-    <h1>Welcome, {{ currentUser?.firstName }}</h1>
+    <h1 class="title">Welcome, {{ currentUser?.firstName }}</h1>
+
+    <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="8px">
+      <app-home-card title="Home" icon="house">
+        <button mat-stroked-button class="last-btn" [routerLink]="['/home']" fxFlex>Home</button>
+      </app-home-card>
+    </div>
 
     <div class="user-controls">
       <button mat-stroked-button class="logout" type="button" (click)="logout()">Logout</button>

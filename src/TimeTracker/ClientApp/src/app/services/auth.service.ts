@@ -88,15 +88,18 @@ export class AuthService {
   private setLoggedInSate = (loggedIn: boolean, token?: string) => {
     this.loggedIn = loggedIn;
 
-    if(this.loggedIn === false) {
+    if(loggedIn === false) {
       this._currentToken = '';
+      this.removeCurrentUser();
       
       if(this.storage.hasItem(KEY_TOKEN)) {
         this.storage.removeItem(KEY_TOKEN);
       }
     }
-
-    this.updateAuthToken(token);
+    else {
+      this.updateAuthToken(token);
+    }
+    
     this.authChanged.next(this.loggedIn);
   }
 
@@ -128,6 +131,15 @@ export class AuthService {
       this.setLoggedInSate(true, response.token);
     } else {
       this.setLoggedInSate(false);
+    }
+  }
+
+  private removeCurrentUser = () => {
+    this.currentUser = undefined;
+
+    if(this.storage.hasItem(KEY_USER_INFO)) {
+      this.storage.removeItem(KEY_USER_INFO);
+      this.logger.trace('Removed current user info');
     }
   }
 }

@@ -53,7 +53,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbClients = await _clientRepo.GetAll(userId);
-            builder.WithResultCount(dbClients?.Count ?? 0);
+            builder.WithResultsCount(dbClients?.Count ?? 0);
           }
 
           if (dbClients == null || dbClients.Count == 0)
@@ -73,7 +73,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -97,7 +97,7 @@ namespace TimeTracker.Core.Services
             if (await _clientRepo.Add(clientEntity) <= 0)
               return false;
 
-            builder.WithResultCount(1);
+            builder.WithResultsCount(1);
             return true;
           }
         }
@@ -110,7 +110,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -161,7 +161,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -203,7 +203,7 @@ namespace TimeTracker.Core.Services
             if (await _clientRepo.Update(clientDto.ToDbEntity()) <= 0)
               return false;
 
-            builder.IncrementResultCount();
+            builder.IncrementResultsCount();
             return true;
           }
         }
@@ -216,7 +216,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -236,7 +236,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             clientEntries = await _clientRepo.GetAll(userId);
-            builder.WithResultCount(clientEntries.Count);
+            builder.WithResultsCount(clientEntries.Count);
           }
 
           return clientEntries
@@ -257,7 +257,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
   }

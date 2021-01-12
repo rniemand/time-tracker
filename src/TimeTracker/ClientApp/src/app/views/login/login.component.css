@@ -13,6 +13,7 @@
 
 .user-controls {
   text-align: center;
+  margin-top: 5px;
 }
   .user-controls .logout {
     width: 50%;

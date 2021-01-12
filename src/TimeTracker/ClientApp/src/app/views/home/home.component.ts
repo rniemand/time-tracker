@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { RawTimerDto } from 'src/app/time-tracker-api';
-import { TimeLoggerEvent } from '../../ui/time-logger/time-logger.component';
+import { TimeLoggerEvent } from './../../components/ui/time-logger/time-logger.component';
 
 @Component({
   selector: 'app-home',

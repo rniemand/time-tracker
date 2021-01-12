@@ -53,3 +53,10 @@ body {
 .validation-error {
   background-color: #6f2c2c91;
 }
+
+h1.title {
+  background-color: #6d258cb8;
+  padding: 5px;
+  border-radius: 14px;
+  margin-top: 16px;
+}

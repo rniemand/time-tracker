@@ -219,18 +219,18 @@ namespace TimeTracker
           new MySqlStorageOptions
           {
             TransactionIsolationLevel = IsolationLevel.ReadCommitted,
-            QueuePollInterval = TimeSpan.FromSeconds(15),
+            QueuePollInterval = TimeSpan.FromSeconds(20),
             JobExpirationCheckInterval = TimeSpan.FromHours(1),
             CountersAggregateInterval = TimeSpan.FromMinutes(5),
             PrepareSchemaIfNecessary = true,
             DashboardJobListLimit = 50000,
-            TransactionTimeout = TimeSpan.FromMinutes(1),
+            TransactionTimeout = TimeSpan.FromSeconds(30),
             TablesPrefix = "Hangfire"
           })));
 
       services.AddHangfireServer(options =>
       {
-        options.WorkerCount = 1;
+        options.WorkerCount = 3;
       });
     }
   }

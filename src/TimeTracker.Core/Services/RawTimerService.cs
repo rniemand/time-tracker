@@ -108,7 +108,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -128,7 +128,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbEntries = await _rawTimersRepo.GetActiveTimers(userId);
-            builder.WithResultCount(dbEntries.Count);
+            builder.WithResultsCount(dbEntries.Count);
           }
 
           return dbEntries.AsQueryable().Select(RawTimerDto.Projection).ToList();
@@ -142,7 +142,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -152,7 +152,7 @@ namespace TimeTracker.Core.Services
       var builder = new ServiceMetricBuilder(nameof(RawTimerService), nameof(PauseTimer))
         .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
         .WithCustomInt1(userId)
-        .WithCustomDouble1(rawTimerId);
+        .WithCustomLong1(rawTimerId);
 
       try
       {
@@ -192,7 +192,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -249,7 +249,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -305,7 +305,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -325,7 +325,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbEntries = await _rawTimersRepo.GetTimerSeries(rootTimerId);
-            builder.WithResultCount(dbEntries?.Count ?? 0);
+            builder.WithResultsCount(dbEntries?.Count ?? 0);
           }
 
           if (dbEntries == null || dbEntries.Count == 0)
@@ -357,7 +357,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -409,7 +409,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -460,7 +460,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -528,7 +528,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 

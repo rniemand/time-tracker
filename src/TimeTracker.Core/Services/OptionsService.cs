@@ -51,7 +51,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
             dbOptions = await _optionRepo.GetRawOptionsForCategory(category, userId);
-            builder.WithResultCount(dbOptions.Count);
+            builder.WithResultsCount(dbOptions.Count);
           }
 
           foreach (var dbOption in dbOptions)
@@ -67,7 +67,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
 
       return generated;

@@ -95,7 +95,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -141,7 +141,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        await _metrics.SubmitPointAsync(builder);
+        await _metrics.SubmitPointAsync(builder.Build());
       }
     }
 
@@ -167,7 +167,7 @@ namespace TimeTracker.Core.Services
       }
       finally
       {
-        _metrics.SubmitPoint(builder);
+        _metrics.SubmitPoint(builder.Build());
       }
     }
 

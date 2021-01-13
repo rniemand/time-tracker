@@ -15,6 +15,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<TrackedTimeEntity> GetRunningExisting(TrackedTimeEntity entity);
     Task<List<TrackedTimeEntity>> GetActive(int userId);
     Task<int> Pause(long entryId, TimerEndReason endReason, string notes);
+    Task<int> Complete(long entryId, TimerEndReason endReason, string notes);
     Task<TrackedTimeEntity> GetByEntryId(long entryId);
     Task<int> Stop(long entryId, TimerEndReason endReason);
     Task<List<TrackedTimeEntity>> GetProjectEntries(int projectId);
@@ -84,6 +85,21 @@ namespace TimeTracker.Core.Database.Repos
       return await ExecuteAsync(
         nameof(Pause),
         _queries.Pause(),
+        new
+        {
+          EntryId = entryId,
+          EndReason = endReason,
+          Notes = notes
+        }
+      );
+    }
+
+    public async Task<int> Complete(long entryId, TimerEndReason endReason, string notes)
+    {
+      // TODO: [TESTS] (TrackedTimeRepo.Complete) Add tests
+      return await ExecuteAsync(
+        nameof(Pause),
+        _queries.Complete(),
         new
         {
           EntryId = entryId,

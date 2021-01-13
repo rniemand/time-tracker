@@ -6,6 +6,7 @@
     string GetRunningExisting();
     string GetActive();
     string Pause();
+    string Complete();
     string GetByEntryId();
     string Stop();
     string GetProjectEntries();
@@ -68,6 +69,19 @@
     }
 
     public string Pause()
+    {
+      return @"UPDATE `TrackedTime`
+      SET
+	      `Running` = 0,
+	      `EndReason` = @EndReason,
+	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
+	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
+	      `Notes` = @Notes
+      WHERE
+	      `EntryId` = @EntryId";
+    }
+
+    public string Complete()
     {
       return @"UPDATE `TrackedTime`
       SET

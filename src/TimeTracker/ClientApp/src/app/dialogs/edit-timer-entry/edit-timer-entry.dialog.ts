@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UiService } from 'src/app/services/ui.service';
-import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { TrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
 import { DateTimeEditorEvent } from './../../components/ui/edit-timer-entry/edit-timer-entry.component';
 import { TimerSeriesDialog } from '../timer-series/timer-series.dialog';
 
 export interface EditTimerEntryDialogData {
-  timer: RawTimerDto;
+  timer: TrackedTimeDto;
 }
 
 @Component({
@@ -15,7 +15,7 @@ export interface EditTimerEntryDialogData {
   styleUrls: ['./edit-timer-entry.dialog.css']
 })
 export class EditTimerEntryDialog implements OnInit {
-  timer?: RawTimerDto;
+  timer?: TrackedTimeDto;
   startDate?: Date;
   durationSeconds: number = 0;
   notes?: string;
@@ -49,19 +49,18 @@ export class EditTimerEntryDialog implements OnInit {
   }
 
   saveChanges = () => {
-    let rawTimerId = this.timer?.rawTimerId ?? 0;
-    if(rawTimerId === 0)
-      return;
+    let entryId = this.timer?.entryId ?? 0;
+    if(entryId === 0) return;
 
-    let updatedTimer = new RawTimerDto({
+    let updatedTimer = new TrackedTimeDto({
       ...this.timer,
-      'entryStartTimeUtc': this.startDate,
-      'entryRunningTimeSec': this.durationSeconds,
-      'timerNotes': this.notes
+      'startTimeUtc': this.startDate,
+      'totalSeconds': this.durationSeconds,
+      'notes': this.notes
     });
 
     this.uiService.showLoader(true);
-    this.timersClient.updateTimerDuration(rawTimerId, updatedTimer).toPromise().then(
+    this.timersClient.updateTimerDuration(entryId, updatedTimer).toPromise().then(
       (success: boolean) => {
         this.uiService.hideLoader();
         this.closeDialog('updated');

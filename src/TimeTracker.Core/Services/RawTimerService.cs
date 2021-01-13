@@ -220,16 +220,32 @@ namespace TimeTracker.Core.Services
           if (parentTimer.Running)
             return true;
 
-          // We will need to spawn a new timer
+          // End the current timer so we can start a new one
           using (builder.WithCustomTiming2())
           {
-            if (await _timeRepo.StartNew(parentTimer) == 0)
+            builder.IncrementQueryCount();
+
+            if (await _timeRepo.Stop(parentTimer.EntryId, TimerEndReason.Completed) == 0)
             {
-              builder.IncrementQueryCount().MarkFailed();
+              builder.MarkFailed();
               return false;
             }
 
-            builder.IncrementQueryCount().IncrementResultsCount();
+            builder.IncrementResultsCount();
+          }
+
+          // Create a new timer
+          using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+
+            if (await _timeRepo.StartNew(parentTimer) == 0)
+            {
+              builder.MarkFailed();
+              return false;
+            }
+
+            builder.IncrementResultsCount();
             return true;
           }
         }
@@ -466,13 +482,13 @@ namespace TimeTracker.Core.Services
 
             if (runningTimers.Count > 0)
             {
-              const TimerEndReason endReason = TimerEndReason.ServicePaused;
-              const string endReasonString = "auto-paused";
+              const TimerEndReason endReason = TimerEndReason.Completed;
+              const string endReasonString = "auto-completed";
 
               foreach (var timer in runningTimers)
               {
                 builder.IncrementQueryCount();
-                if (await _timeRepo.Pause(timer.EntryId, endReason, endReasonString) > 0)
+                if (await _timeRepo.Complete(timer.EntryId, endReason, endReasonString) > 0)
                   builder.IncrementResultsCount();
               }
             }

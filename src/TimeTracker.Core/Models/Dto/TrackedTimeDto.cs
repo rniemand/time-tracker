@@ -46,7 +46,8 @@ namespace TimeTracker.Core.Models.Dto
           ProductName = entity.ProductName,
           ProjectName = entity.ProjectName,
           ClientName = entity.ClientName,
-          Notes = entity.Notes
+          Notes = entity.Notes,
+          EndReason = entity.EndReason
         };
       }
     }
@@ -95,7 +96,8 @@ namespace TimeTracker.Core.Models.Dto
         ProductName = ProductName,
         ProjectName = ProjectName,
         ClientName = ClientName,
-        Notes = Notes
+        Notes = Notes,
+        EndReason = EndReason
       };
     }
   }

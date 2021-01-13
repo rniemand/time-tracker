@@ -2,7 +2,7 @@ import { EventEmitter } from '@angular/core';
 import { Component, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { RawTimerDto } from 'src/app/time-tracker-api';
+import { TrackedTimeDto } from 'src/app/time-tracker-api';
 
 interface TimeDuration {
   hours: number;
@@ -12,7 +12,7 @@ interface TimeDuration {
 
 export interface DateTimeEditorEvent {
   type: string;
-  timer?: RawTimerDto;
+  timer?: TrackedTimeDto;
   startDate?: Date;
   durationSec?: number;
   notes?: string;
@@ -40,7 +40,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
   endDate?: Date = undefined;
   
   private _onChangeFn = (_: any) => { };
-  private _timer?: RawTimerDto = undefined;
+  private _timer?: TrackedTimeDto = undefined;
 
   constructor() {
     this.editForm =  new FormGroup({
@@ -64,7 +64,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
     if(!obj) return;
 
     if(typeof(obj) === 'object') {
-      if(obj instanceof RawTimerDto) {
+      if(obj instanceof TrackedTimeDto) {
         this.setRawTimer(obj);
       }
       else {
@@ -142,14 +142,14 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
 
 
   // Internal methods
-  private setRawTimer = (timer: RawTimerDto) => {
-    if(!(timer?.entryStartTimeUtc instanceof Date))
+  private setRawTimer = (timer: TrackedTimeDto) => {
+    if(!(timer?.startTimeUtc instanceof Date))
       return;
 
-    let date = timer.entryStartTimeUtc;
+    let date = timer.startTimeUtc;
     this._timer = timer;
 
-    let duration = this.extractDuration(timer?.entryRunningTimeSec ?? 0);
+    let duration = this.extractDuration(timer?.totalSeconds ?? 0);
     this.pickedDate = new FormControl(new Date(
       date.getFullYear(),
       date.getMonth(),
@@ -166,7 +166,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
       'durationHour': duration.hours,
       'durationMin': duration.minutes,
       'durationSeconds': duration.seconds,
-      'notes': timer.timerNotes
+      'notes': timer.notes
     });
 
     this.calculateValues();

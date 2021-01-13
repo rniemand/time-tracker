@@ -16,6 +16,7 @@ export interface TimeLoggerEvent {
 export class TimeLoggerComponent implements OnInit {
   @Output('onEvent') onEvent = new EventEmitter<TimeLoggerEvent>();
   @ViewChild('runningTimers', { static: true }) runningTimers!: ListTimersComponent;
+  selectedTab: number = 0;
 
   constructor() { }
 
@@ -25,6 +26,7 @@ export class TimeLoggerComponent implements OnInit {
   handleEvent = (e: TimeLoggerEvent) => {
     if(e.type === 'timer.created') {
       this.runningTimers.refresh();
+      this.selectedTab = 0;
     }
 
     this.onEvent.next(e);

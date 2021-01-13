@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { RawTimerDto } from '../time-tracker-api';
+import { TimerEndReason, TrackedTimeDto } from '../time-tracker-api';
 
 interface MappedTime {
   hours: string,
@@ -16,7 +16,7 @@ export class RunningTimerPipe implements PipeTransform {
     if(typeof(value) === 'number')
       return this.toHumanTime(value);
 
-    if(value instanceof RawTimerDto)
+    if(value instanceof TrackedTimeDto)
       return this.handleTimerDto(value);
 
     if(!value || !(value instanceof Date))
@@ -63,25 +63,29 @@ export class RunningTimerPipe implements PipeTransform {
     return this.toHumanTime(runningSeconds);
   }
 
-  private workEntryState = (timer: RawTimerDto) => {
-    switch(timer?.entryState ?? 0) {
-      case 2: return 'paused';
-      case 3: return 'completed';
-      case 4: return 'cron-paused';
-      default: return 'unknown';
+  private workEntryState = (timer: TrackedTimeDto) => {
+    switch(timer?.endReason ?? 0) {
+      case 0: return 'unknown';
+      case 1: return 'completed';
+      case 2: return 'user-paused';
+      case 3: return 'user-stopped';
+      case 4: return 'service-paused';
+      case 5: return 'cron-paused';
+      default: return 'N/A';
     }
   }
 
-  private handleTimerDto = (timer: RawTimerDto) => {
-    if((timer?.entryState ?? 0) !== 1) {
-      return `${this.workEntryState(timer)} (${this.toHumanTime(timer?.entryRunningTimeSec ?? 0)})`;
+  private handleTimerDto = (timer: TrackedTimeDto) => {
+    if((timer?.running ?? false) === true) {
+      if(!timer?.startTimeUtc) return '!';
+      return this.fromStartDate(timer?.startTimeUtc);
     }
 
-    if(timer.entryStartTimeUtc) {
-      return this.fromStartDate(timer.entryStartTimeUtc);
+    let endReason: TimerEndReason = timer?.endReason ?? TimerEndReason.Unknown;
+    if(endReason !== TimerEndReason.Unknown) {
+      return `${this.workEntryState(timer)} (${this.toHumanTime(timer?.totalSeconds ?? 0)})`;
     }
 
     return 'ERR';
   }
-
 }

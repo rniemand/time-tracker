@@ -5,7 +5,7 @@ import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { LoggerService } from 'src/app/services/logger.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
-import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { TrackedTimeDto, TimersClient, TimerEndReason } from 'src/app/time-tracker-api';
 
 const KEY_STATE = 'tt.list_timer.state';
 
@@ -20,7 +20,7 @@ interface ListTimersState {
   encapsulation: ViewEncapsulation.None
 })
 export class ListTimersComponent implements OnInit, OnDestroy {
-  timers: RawTimerDto[] = [];
+  timers: TrackedTimeDto[] = [];
   flipFlop: boolean = false;
   remaining: number = 30;
   autoRefresh: boolean = true;
@@ -49,8 +49,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
 
   // Template methods
-  pause = (timer: RawTimerDto) => {
-    let entryId = timer?.rawTimerId ?? 0;
+  pause = (timer: TrackedTimeDto) => {
+    let entryId = timer?.entryId ?? 0;
     if(entryId == 0) return;
 
     this.uiService.showLoader(true);
@@ -62,8 +62,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     );
   }
 
-  resume = (timer: RawTimerDto) => {
-    let entryId = timer?.rawTimerId ?? 0;
+  resume = (timer: TrackedTimeDto) => {
+    let entryId = timer?.entryId ?? 0;
     if(entryId == 0) return;
 
     this.uiService.showLoader(true);
@@ -73,8 +73,8 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     );
   }
 
-  resumeSingleTimer = (timer: RawTimerDto) => {
-    let rawTimerId = timer?.rawTimerId ?? 0;
+  resumeSingleTimer = (timer: TrackedTimeDto) => {
+    let rawTimerId = timer?.entryId ?? 0;
     if(rawTimerId === 0)
       return;
     
@@ -88,17 +88,16 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     );
   }
 
-  stop = (timer: RawTimerDto) => {
-    let rawTimerId = timer?.rawTimerId ?? 0;
-    if(rawTimerId == 0)
-      return;
+  stop = (timer: TrackedTimeDto) => {
+    let entryId = timer?.entryId ?? 0;
+    if(entryId == 0) return;
 
     if(!confirm(`Stop timer: ${timer.projectName} (${timer.productName})?`)) {
       return;
     }
 
     this.uiService.showLoader(true);
-    this.timersClient.stopTimer(rawTimerId).toPromise().then(
+    this.timersClient.stopTimer(entryId).toPromise().then(
       (success: boolean) => {
         this.refreshTimers();
         if(success) { this.uiService.notify('Timer stopped'); }
@@ -111,17 +110,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.refreshTimers();
   }
 
-  getClass = (timer: RawTimerDto) => {
-    if(timer.entryState === 1) {
+  getClass = (timer: TrackedTimeDto) => {
+    if(timer?.running) {
       return ['timer-entry', 'running'];
     }
 
     return ['timer-entry'];
   }
 
-  timerHistory = (timer: RawTimerDto) => {
+  timerHistory = (timer: TrackedTimeDto) => {
     let dialogData: TimerSeriesDialogData = {
-      rootTimerId: timer?.rootTimerId ?? 0
+      projectId: timer?.projectId ?? 0
     };
 
     this.stopTicker();
@@ -135,7 +134,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     });
   }
 
-  getTooltip = (timer: RawTimerDto) => {
+  getTooltip = (timer: TrackedTimeDto) => {
     return `Client: ${timer?.clientName ?? 'Unknown'}`;
   }
 
@@ -148,7 +147,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.uiService.showLoader(true);
 
     this.timersClient.getActiveTimers().toPromise().then(
-      (timers: RawTimerDto[]) => {
+      (timers: TrackedTimeDto[]) => {
         this.timers = timers;
         this.remaining = 30;
         this._decrementTimer = true;
@@ -188,12 +187,12 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private containsRunningTimers = (timers: RawTimerDto[]) => {
+  private containsRunningTimers = (timers: TrackedTimeDto[]) => {
     if(timers.length === 0)
       return false;
 
     for(var i = 0; i < timers.length; i++) {
-      if(timers[i].entryState == 1) {
+      if(timers[i]?.running) {
         return true;
       }
     }

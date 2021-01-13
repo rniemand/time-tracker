@@ -40,6 +40,7 @@ import { TimersComponent } from './views/timers/timers.component';
 import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
 import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
 import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
+import { TimerStatePipe } from './pipes/timer-state.pipe';
 
 @NgModule({
   declarations: [
@@ -74,7 +75,8 @@ import { ProjectTimersComponent } from './views/timers/project-timers/project-ti
     TimersComponent,
     ClientTimersComponent,
     ProductTimersComponent,
-    ProjectTimersComponent
+    ProjectTimersComponent,
+    TimerStatePipe
   ],
   imports: [
     BrowserModule,

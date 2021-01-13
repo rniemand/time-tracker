@@ -33,12 +33,8 @@
       
       <ng-container matColumnDef="controls">
         <th mat-header-cell *matHeaderCellDef> &nbsp; </th>
-        <td mat-cell *matCellDef="let product" class="controls">
-          <button mat-icon-button [routerLink]="['/projects', client!.clientId, product.productId]">
-            <mat-icon>work_outline</mat-icon>
-          </button>
-
-          <button mat-icon-button [routerLink]="['/timers', 'product', product.productId]">
+        <td mat-cell *matCellDef="let project" class="controls">
+          <button mat-icon-button [routerLink]="['/timers', 'project', project.projectId]">
             <mat-icon>alarm</mat-icon>
           </button>
         </td>

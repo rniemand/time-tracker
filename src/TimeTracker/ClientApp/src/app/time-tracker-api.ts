@@ -932,15 +932,14 @@ export class ProjectsClient implements IProjectsClient {
 }
 
 export interface ITimersClient {
-    getActiveTimers(): Observable<RawTimerDto[]>;
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<boolean>;
-    pauseTimer(rawTimerId: number): Observable<boolean>;
-    resumeTimer(rawTimerId: number): Observable<boolean>;
-    stopTimer(rawTimerId: number): Observable<boolean>;
-    getTimerSeries(rootTimerId: number): Observable<RawTimerDto[]>;
-    updateNotes(rawTimerId: number, notes: string): Observable<boolean>;
-    updateTimerDuration(rawTimerId: number, rawTimerDto: RawTimerDto): Observable<boolean>;
-    resumeSingleTimer(rawTimerId: number): Observable<boolean>;
+    startNew(timerDto: TimerDto): Observable<boolean>;
+    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean>;
+    resumeSingleTimer(entryId: number): Observable<boolean>;
+    completeTimer(entryId: number): Observable<boolean>;
+    resumeTimer(entryId: number): Observable<boolean>;
+    pauseTimer(entryId: number): Observable<boolean>;
+    getActiveTimers(): Observable<TimerDto[]>;
+    getProjectEntries(projectId: number): Observable<TimerDto[]>;
 }
 
 @Injectable()
@@ -954,63 +953,11 @@ export class TimersClient implements ITimersClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getActiveTimers(): Observable<RawTimerDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/timers/active";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetActiveTimers(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetActiveTimers(<any>response_);
-                } catch (e) {
-                    return <Observable<RawTimerDto[]>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<RawTimerDto[]>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processGetActiveTimers(response: HttpResponseBase): Observable<RawTimerDto[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(RawTimerDto.fromJS(item));
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<RawTimerDto[]>(<any>null);
-    }
-
-    startNewTimer(rawTimerDto: RawTimerDto): Observable<boolean> {
+    startNew(timerDto: TimerDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Timers/timer/start-new";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(rawTimerDto);
+        const content_ = JSON.stringify(timerDto);
 
         let options_ : any = {
             body: content_,
@@ -1023,11 +970,11 @@ export class TimersClient implements ITimersClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processStartNewTimer(response_);
+            return this.processStartNew(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processStartNewTimer(<any>response_);
+                    return this.processStartNew(<any>response_);
                 } catch (e) {
                     return <Observable<boolean>><any>_observableThrow(e);
                 }
@@ -1036,7 +983,7 @@ export class TimersClient implements ITimersClient {
         }));
     }
 
-    protected processStartNewTimer(response: HttpResponseBase): Observable<boolean> {
+    protected processStartNew(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1058,277 +1005,14 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    pauseTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/pause";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
+    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/update-duration";
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
         url_ = url_.replace(/[?&]$/, "");
 
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processPauseTimer(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processPauseTimer(<any>response_);
-                } catch (e) {
-                    return <Observable<boolean>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<boolean>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processPauseTimer(response: HttpResponseBase): Observable<boolean> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<boolean>(<any>null);
-    }
-
-    resumeTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/resume";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processResumeTimer(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processResumeTimer(<any>response_);
-                } catch (e) {
-                    return <Observable<boolean>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<boolean>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processResumeTimer(response: HttpResponseBase): Observable<boolean> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<boolean>(<any>null);
-    }
-
-    stopTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/stop";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processStopTimer(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processStopTimer(<any>response_);
-                } catch (e) {
-                    return <Observable<boolean>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<boolean>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processStopTimer(response: HttpResponseBase): Observable<boolean> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<boolean>(<any>null);
-    }
-
-    getTimerSeries(rootTimerId: number): Observable<RawTimerDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rootTimerId}/series";
-        if (rootTimerId === undefined || rootTimerId === null)
-            throw new Error("The parameter 'rootTimerId' must be defined.");
-        url_ = url_.replace("{rootTimerId}", encodeURIComponent("" + rootTimerId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetTimerSeries(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetTimerSeries(<any>response_);
-                } catch (e) {
-                    return <Observable<RawTimerDto[]>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<RawTimerDto[]>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processGetTimerSeries(response: HttpResponseBase): Observable<RawTimerDto[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(RawTimerDto.fromJS(item));
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<RawTimerDto[]>(<any>null);
-    }
-
-    updateNotes(rawTimerId: number, notes: string): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/update-notes";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(notes);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateNotes(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateNotes(<any>response_);
-                } catch (e) {
-                    return <Observable<boolean>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<boolean>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processUpdateNotes(response: HttpResponseBase): Observable<boolean> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = resultData200 !== undefined ? resultData200 : <any>null;
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<boolean>(<any>null);
-    }
-
-    updateTimerDuration(rawTimerId: number, rawTimerDto: RawTimerDto): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/update-duration";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(rawTimerDto);
+        const content_ = JSON.stringify(timerDto);
 
         let options_ : any = {
             body: content_,
@@ -1376,11 +1060,11 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    resumeSingleTimer(rawTimerId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{rawTimerId}/resume-single";
-        if (rawTimerId === undefined || rawTimerId === null)
-            throw new Error("The parameter 'rawTimerId' must be defined.");
-        url_ = url_.replace("{rawTimerId}", encodeURIComponent("" + rawTimerId));
+    resumeSingleTimer(entryId: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/resume-single";
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1391,7 +1075,7 @@ export class TimersClient implements ITimersClient {
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processResumeSingleTimer(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -1425,6 +1109,266 @@ export class TimersClient implements ITimersClient {
             }));
         }
         return _observableOf<boolean>(<any>null);
+    }
+
+    completeTimer(entryId: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/complete";
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCompleteTimer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCompleteTimer(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processCompleteTimer(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+
+    resumeTimer(entryId: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/resume";
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processResumeTimer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processResumeTimer(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processResumeTimer(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+
+    pauseTimer(entryId: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/pause";
+        if (entryId === undefined || entryId === null)
+            throw new Error("The parameter 'entryId' must be defined.");
+        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPauseTimer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPauseTimer(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processPauseTimer(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+
+    getActiveTimers(): Observable<TimerDto[]> {
+        let url_ = this.baseUrl + "/api/Timers/timers/active";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActiveTimers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActiveTimers(<any>response_);
+                } catch (e) {
+                    return <Observable<TimerDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<TimerDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetActiveTimers(response: HttpResponseBase): Observable<TimerDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TimerDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<TimerDto[]>(<any>null);
+    }
+
+    getProjectEntries(projectId: number): Observable<TimerDto[]> {
+        let url_ = this.baseUrl + "/api/Timers/timers/project/{projectId}";
+        if (projectId === undefined || projectId === null)
+            throw new Error("The parameter 'projectId' must be defined.");
+        url_ = url_.replace("{projectId}", encodeURIComponent("" + projectId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetProjectEntries(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetProjectEntries(<any>response_);
+                } catch (e) {
+                    return <Observable<TimerDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<TimerDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetProjectEntries(response: HttpResponseBase): Observable<TimerDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TimerDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<TimerDto[]>(<any>null);
     }
 }
 
@@ -1744,28 +1688,25 @@ export interface IProjectDto {
     projectName?: string | undefined;
 }
 
-export class RawTimerDto implements IRawTimerDto {
-    rawTimerId?: number;
-    parentTimerId?: number;
-    rootTimerId?: number;
+export class TimerDto implements ITimerDto {
+    entryId?: number;
     clientId?: number;
     productId?: number;
     projectId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
-    completed?: boolean;
-    processed?: boolean;
-    entryState?: EntryRunningState;
-    entryRunningTimeSec?: number;
-    entryStartTimeUtc?: Date;
-    entryEndTimeUtc?: Date | undefined;
-    timerNotes?: string | undefined;
+    entryState?: TimerState;
+    entryType?: TimerType;
+    totalSeconds?: number;
+    startTimeUtc?: Date;
+    endTimeUtc?: Date | undefined;
+    notes?: string | undefined;
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
 
-    constructor(data?: IRawTimerDto) {
+    constructor(data?: ITimerDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1776,53 +1717,47 @@ export class RawTimerDto implements IRawTimerDto {
 
     init(_data?: any) {
         if (_data) {
-            this.rawTimerId = _data["rawTimerId"];
-            this.parentTimerId = _data["parentTimerId"];
-            this.rootTimerId = _data["rootTimerId"];
+            this.entryId = _data["entryId"];
             this.clientId = _data["clientId"];
             this.productId = _data["productId"];
             this.projectId = _data["projectId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
             this.running = _data["running"];
-            this.completed = _data["completed"];
-            this.processed = _data["processed"];
             this.entryState = _data["entryState"];
-            this.entryRunningTimeSec = _data["entryRunningTimeSec"];
-            this.entryStartTimeUtc = _data["entryStartTimeUtc"] ? new Date(_data["entryStartTimeUtc"].toString()) : <any>undefined;
-            this.entryEndTimeUtc = _data["entryEndTimeUtc"] ? new Date(_data["entryEndTimeUtc"].toString()) : <any>undefined;
-            this.timerNotes = _data["timerNotes"];
+            this.entryType = _data["entryType"];
+            this.totalSeconds = _data["totalSeconds"];
+            this.startTimeUtc = _data["startTimeUtc"] ? new Date(_data["startTimeUtc"].toString()) : <any>undefined;
+            this.endTimeUtc = _data["endTimeUtc"] ? new Date(_data["endTimeUtc"].toString()) : <any>undefined;
+            this.notes = _data["notes"];
             this.productName = _data["productName"];
             this.projectName = _data["projectName"];
             this.clientName = _data["clientName"];
         }
     }
 
-    static fromJS(data: any): RawTimerDto {
+    static fromJS(data: any): TimerDto {
         data = typeof data === 'object' ? data : {};
-        let result = new RawTimerDto();
+        let result = new TimerDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["rawTimerId"] = this.rawTimerId;
-        data["parentTimerId"] = this.parentTimerId;
-        data["rootTimerId"] = this.rootTimerId;
+        data["entryId"] = this.entryId;
         data["clientId"] = this.clientId;
         data["productId"] = this.productId;
         data["projectId"] = this.projectId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
         data["running"] = this.running;
-        data["completed"] = this.completed;
-        data["processed"] = this.processed;
         data["entryState"] = this.entryState;
-        data["entryRunningTimeSec"] = this.entryRunningTimeSec;
-        data["entryStartTimeUtc"] = this.entryStartTimeUtc ? this.entryStartTimeUtc.toISOString() : <any>undefined;
-        data["entryEndTimeUtc"] = this.entryEndTimeUtc ? this.entryEndTimeUtc.toISOString() : <any>undefined;
-        data["timerNotes"] = this.timerNotes;
+        data["entryType"] = this.entryType;
+        data["totalSeconds"] = this.totalSeconds;
+        data["startTimeUtc"] = this.startTimeUtc ? this.startTimeUtc.toISOString() : <any>undefined;
+        data["endTimeUtc"] = this.endTimeUtc ? this.endTimeUtc.toISOString() : <any>undefined;
+        data["notes"] = this.notes;
         data["productName"] = this.productName;
         data["projectName"] = this.projectName;
         data["clientName"] = this.clientName;
@@ -1830,33 +1765,35 @@ export class RawTimerDto implements IRawTimerDto {
     }
 }
 
-export interface IRawTimerDto {
-    rawTimerId?: number;
-    parentTimerId?: number;
-    rootTimerId?: number;
+export interface ITimerDto {
+    entryId?: number;
     clientId?: number;
     productId?: number;
     projectId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
-    completed?: boolean;
-    processed?: boolean;
-    entryState?: EntryRunningState;
-    entryRunningTimeSec?: number;
-    entryStartTimeUtc?: Date;
-    entryEndTimeUtc?: Date | undefined;
-    timerNotes?: string | undefined;
+    entryState?: TimerState;
+    entryType?: TimerType;
+    totalSeconds?: number;
+    startTimeUtc?: Date;
+    endTimeUtc?: Date | undefined;
+    notes?: string | undefined;
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
 }
 
-export enum EntryRunningState {
-    Running = 1,
+export enum TimerState {
+    Unknown = 0,
+    Completed = 1,
     Paused = 2,
-    Completed = 3,
-    CronJobPaused = 4,
+    Stopped = 3,
+}
+
+export enum TimerType {
+    Unspecified = 0,
+    ProjectWork = 1,
 }
 
 export class SwaggerException extends Error {

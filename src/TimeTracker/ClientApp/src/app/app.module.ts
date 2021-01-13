@@ -35,6 +35,12 @@ import { EntryStatePipe } from './pipes/entry-state.pipe';
 import { EditTimerEntryDialog } from './dialogs/edit-timer-entry/edit-timer-entry.dialog';
 import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-timer-entry.component';
 import { ValidationErrorDialog } from './dialogs/validation-error/validation-error.dialog';
+import { PausedTimerPipe } from './pipes/paused-timer.pipe';
+import { TimersComponent } from './views/timers/timers.component';
+import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
+import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
+import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
+import { TimerStatePipe } from './pipes/timer-state.pipe';
 
 @NgModule({
   declarations: [
@@ -64,7 +70,13 @@ import { ValidationErrorDialog } from './dialogs/validation-error/validation-err
     EntryStatePipe,
     EditTimerEntryDialog,
     EditTimerEntryComponent,
-    ValidationErrorDialog
+    ValidationErrorDialog,
+    PausedTimerPipe,
+    TimersComponent,
+    ClientTimersComponent,
+    ProductTimersComponent,
+    ProjectTimersComponent,
+    TimerStatePipe
   ],
   imports: [
     BrowserModule,

@@ -16,13 +16,13 @@ namespace TimeTracker.Core.Database.Repos
 
   public class UserRepo : BaseRepo<UserRepo>, IUserRepo
   {
-    private readonly IUserRepoQueries _queries;
+    private readonly IUserQueries _queries;
 
     public UserRepo(
       ILoggerAdapter<UserRepo> logger,
       IDbHelper dbHelper,
       IMetricService metricService,
-      IUserRepoQueries queries)
+      IUserQueries queries)
       : base(logger, dbHelper, metricService, nameof(UserRepo), TargetDB.TimeTracker)
     {
       _queries = queries;

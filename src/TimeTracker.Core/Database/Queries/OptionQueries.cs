@@ -1,12 +1,12 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface IOptionRepoQueries
+  public interface IOptionQueries
   {
     string GetRawOption();
     string GetRawOptionsForCategory();
   }
 
-  public class OptionRepoQueries : IOptionRepoQueries
+  public class OptionQueries : IOptionQueries
   {
     public string GetRawOption()
     {

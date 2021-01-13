@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
-using TimeTracker.Core.Enums;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
@@ -17,185 +16,137 @@ namespace TimeTracker.Controllers
   [ApiController, Route("api/[controller]")]
   public class TimersController : BaseController<TimersController>
   {
-    private readonly IRawTimerService _timerService;
+    private readonly ITimerService _timerService;
 
     public TimersController(
       ILoggerAdapter<TimersController> logger,
       IMetricService metrics,
       IUserService userService,
-      IRawTimerService timerService
+      ITimerService timerService
     ) : base(logger, metrics, userService)
     {
       _timerService = timerService;
     }
 
+
+    // Timer methods (GLOBAL)
+    [HttpPost, Route("timer/start-new"), Authorize]
+    public async Task<ActionResult<bool>> StartNew(
+      [FromBody] TimerDto timerDto,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.StartNew) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(TrackedTimeDtoValidator.StartNew(timerDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.StartTimer(request.UserId, timerDto));
+
+      return ProcessResponse(response);
+    }
+
+
+    // Timer methods (entryId)
+    [HttpPost, Route("timer/{entryId}/update-duration"), Authorize]
+    public async Task<ActionResult<bool>> UpdateTimerDuration(
+      [FromRoute] long entryId,
+      [FromBody] TimerDto timerDto,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(TrackedTimeDtoValidator.UpdateDuration(timerDto));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.UpdateTimerDuration(request.UserId, timerDto));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("timer/{entryId}/resume-single"), Authorize]
+    public async Task<ActionResult<bool>> ResumeSingleTimer(
+      [FromRoute] long entryId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.ResumeSingleTimer) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.ResumeSingleTimer(request.UserId, entryId));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("timer/{entryId}/complete"), Authorize]
+    public async Task<ActionResult<bool>> CompleteTimer(
+      [FromRoute] long entryId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.CompleteTimer) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.CompleteTimer(request.UserId, entryId));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("timer/{entryId}/resume"), Authorize]
+    public async Task<ActionResult<bool>> ResumeTimer(
+      [FromRoute] long entryId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.ResumeTimer(request.UserId, entryId));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("timer/{entryId}/pause"), Authorize]
+    public async Task<ActionResult<bool>> PauseTimer(
+      [FromRoute] long entryId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.PauseTimer) Add tests
+      var response = new BaseResponse<bool>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.PauseTimer(request.UserId, entryId));
+
+      return ProcessResponse(response);
+    }
+
+
+    // Timer(s) methods
     [HttpGet, Route("timers/active"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetActiveTimers(
+    public async Task<ActionResult<List<TimerDto>>> GetActiveTimers(
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>()
+      var response = new BaseResponse<List<TimerDto>>()
         .WithResponse(await _timerService.GetActiveTimers(request.UserId));
 
       return ProcessResponse(response);
     }
 
-    [HttpPost, Route("timer/start-new"), Authorize]
-    public async Task<ActionResult<bool>> StartNewTimer(
-      [FromBody] RawTimerDto rawTimerDto,
+    [HttpGet, Route("timers/project/{projectId}"), Authorize]
+    public async Task<ActionResult<List<TimerDto>>> GetProjectEntries(
+      [FromRoute] int projectId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TimersController.StartNewTimer) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.StartNew(rawTimerDto));
+      // TODO: [TESTS] (TimersController.GetProjectEntries) Add tests
+      var response = new BaseResponse<List<TimerDto>>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(projectId), projectId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.StartNew(
-          request.UserId,
-          rawTimerDto
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timer/{rawTimerId}/pause"), Authorize]
-    public async Task<ActionResult<bool>> PauseTimer(
-      [FromRoute] long rawTimerId,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.PauseTimer) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(new AdHockValidator()
-          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
-        );
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.PauseTimer(
-          request.UserId,
-          rawTimerId,
-          EntryRunningState.Paused,
-          "user-paused"
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timer/{rawTimerId}/resume"), Authorize]
-    public async Task<ActionResult<bool>> ResumeTimer(
-      [FromRoute] long rawTimerId,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.ResumeTimer) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(new AdHockValidator()
-          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
-        );
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.ResumeTimer(
-          request.UserId,
-          rawTimerId
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timer/{rawTimerId}/stop"), Authorize]
-    public async Task<ActionResult<bool>> StopTimer(
-      [FromRoute] long rawTimerId,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.StopTimer) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(new AdHockValidator()
-          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
-        );
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.StopTimer(
-          request.UserId,
-          rawTimerId
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timer/{rootTimerId}/series"), Authorize]
-    public async Task<ActionResult<List<RawTimerDto>>> GetTimerSeries(
-      [FromRoute] long rootTimerId,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.GetTimerSeries) Add tests
-      var response = new BaseResponse<List<RawTimerDto>>()
-        .WithValidation(new AdHockValidator()
-          .GreaterThanZero(nameof(rootTimerId), rootTimerId)
-        );
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.GetTimerSeries(
-          request.UserId,
-          rootTimerId
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpPost, Route("timer/{rawTimerId}/update-notes"), Authorize]
-    public async Task<ActionResult<bool>> UpdateNotes(
-      [FromRoute] long rawTimerId,
-      [FromBody] string notes,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.UpdateNotes) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(new AdHockValidator()
-          .GreaterThanZero(nameof(rawTimerId), rawTimerId)
-          .NotNullOrWhiteSpace(nameof(notes), notes)
-        );
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.UpdateNotes(
-          request.UserId,
-          rawTimerId,
-          notes
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpPost, Route("timer/{rawTimerId}/update-duration"), Authorize]
-    public async Task<ActionResult<bool>> UpdateTimerDuration(
-      [FromRoute] long rawTimerId,
-      [FromBody] RawTimerDto rawTimerDto,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(RawTimerDtoValidator.UpdateTimerDuration(rawTimerDto));
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.UpdateTimerDuration(
-          request.UserId,
-          rawTimerDto
-        ));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timer/{rawTimerId}/resume-single"), Authorize]
-    public async Task<ActionResult<bool>> ResumeSingleTimer(
-      [FromRoute] long rawTimerId,
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.ResumeSingleTimer) Add tests
-      var response = new BaseResponse<bool>()
-        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(rawTimerId), rawTimerId));
-
-      if (response.PassedValidation)
-        response.WithResponse(await _timerService.ResumeSingleTimer(
-          request.UserId,
-          rawTimerId
-        ));
+        response.WithResponse(await _timerService.GetProjectTimers(request.UserId, projectId));
 
       return ProcessResponse(response);
     }

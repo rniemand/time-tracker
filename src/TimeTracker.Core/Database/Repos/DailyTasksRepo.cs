@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
@@ -9,6 +10,8 @@ namespace TimeTracker.Core.Database.Repos
 {
   public interface IDailyTasksRepo
   {
+    Task<List<DailyTaskEntity>> ListClientTasks(int clientId);
+
     Task<int> AddTask(DailyTaskEntity taskEntity);
     Task<DailyTaskEntity> SearchByName(DailyTaskEntity taskEntity);
   }
@@ -25,6 +28,20 @@ namespace TimeTracker.Core.Database.Repos
     {
       _queries = queries;
     }
+
+    public async Task<List<DailyTaskEntity>> ListClientTasks(int clientId)
+    {
+      // TODO: [TESTS] (DailyTasksRepo.ListClientTasks) Add tests
+      return await GetList<DailyTaskEntity>(
+        nameof(ListClientTasks),
+        _queries.ListClientTasks(),
+        new
+        {
+          ClientId = clientId
+        }
+      );
+    }
+
 
     public async Task<int> AddTask(DailyTaskEntity taskEntity)
     {

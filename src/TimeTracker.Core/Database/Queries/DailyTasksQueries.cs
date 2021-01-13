@@ -4,6 +4,7 @@
   {
     string AddTask();
     string SearchByName();
+    string ListClientTasks();
   }
 
   public class DailyTasksQueries : IDailyTasksQueries
@@ -25,6 +26,16 @@
 	      `ClientId` = @ClientId AND
 	      `Deleted` = 0 AND
 	      `TaskName` = @TaskName";
+    }
+
+    public string ListClientTasks()
+    {
+      return @"SELECT *
+      FROM `DailyTasks`
+      WHERE
+	      `Deleted` = 0 AND
+	      `ClientId` = @ClientId
+      ORDER BY `TaskName` ASC";
     }
   }
 }

@@ -108,17 +108,17 @@ namespace TimeTracker.DevConsole
     {
       services
         .AddSingleton<IUserRepo, UserRepo>()
-        .AddSingleton<IUserRepoQueries, UserRepoQueries>()
+        .AddSingleton<IUserQueries, UserQueries>()
         .AddSingleton<IClientRepo, ClientRepo>()
-        .AddSingleton<IClientRepoQueries, ClientRepoQueries>()
+        .AddSingleton<IClientQueries, ClientQueries>()
         .AddSingleton<IProductRepo, ProductRepo>()
-        .AddSingleton<IProductRepoQueries, ProductRepoQueries>()
+        .AddSingleton<IProductQueries, ProductQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
-        .AddSingleton<IProjectRepoQueries, ProjectRepoQueries>()
-        .AddSingleton<IRawTimersRepo, RawTimersRepo>()
-        .AddSingleton<IRawTimersRepoQueries, RawTimersRepoQueries>()
+        .AddSingleton<IProjectQueries, ProjectQueries>()
+        .AddSingleton<ITimerRepo, TimerRepo>()
+        .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
-        .AddSingleton<IOptionRepoQueries, OptionRepoQueries>();
+        .AddSingleton<IOptionQueries, OptionQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -128,7 +128,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<IRawTimerService, RawTimerService>()
+        .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>();
     }
 

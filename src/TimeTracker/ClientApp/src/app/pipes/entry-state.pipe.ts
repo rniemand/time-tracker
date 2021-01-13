@@ -15,10 +15,12 @@ export class EntryStatePipe implements PipeTransform {
   // Internal methods
   private fromInt = (value: number) => {
     switch(value) {
-      case 1: return 'Running';
-      case 2: return 'Paused';
-      case 3: return 'Completed';
-      case 4: return 'Cron Paused';
+      case 0: return '-';
+      case 1: return 'Completed';
+      case 2: return 'User Paused';
+      case 3: return 'User Stopped';
+      case 4: return 'Service Paused';
+      case 5: return 'Cron Paused';
       default: return 'Unknown';
     }
   }

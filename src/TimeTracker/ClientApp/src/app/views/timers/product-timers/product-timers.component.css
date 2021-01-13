@@ -1,0 +1,18 @@
+.data-table table {
+  width: 100%;
+}
+
+.data-table a {
+  color: #f2d2ff;
+  text-decoration: none;
+}
+  .data-table a:hover {
+    cursor: pointer;
+    color: #d778fd;
+    text-decoration: underline;
+  }
+
+.data-table table tr td.controls {
+  width: 40px;
+  text-align: center;
+}

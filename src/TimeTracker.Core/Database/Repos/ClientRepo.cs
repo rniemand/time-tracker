@@ -19,13 +19,13 @@ namespace TimeTracker.Core.Database.Repos
 
   public class ClientRepo : BaseRepo<ClientRepo>, IClientRepo
   {
-    private readonly IClientRepoQueries _queries;
+    private readonly IClientQueries _queries;
 
     public ClientRepo(
       ILoggerAdapter<ClientRepo> logger,
       IDbHelper dbHelper,
       IMetricService metricService,
-      IClientRepoQueries queries)
+      IClientQueries queries)
         : base(logger, dbHelper, metricService, nameof(ClientRepo), TargetDB.TimeTracker)
     {
       _queries = queries;

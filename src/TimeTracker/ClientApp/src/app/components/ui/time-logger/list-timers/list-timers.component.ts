@@ -5,7 +5,7 @@ import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { LoggerService } from 'src/app/services/logger.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
-import { RawTimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { TimerDto, TimersClient } from 'src/app/time-tracker-api';
 
 const KEY_STATE = 'tt.list_timer.state';
 
@@ -20,11 +20,12 @@ interface ListTimersState {
   encapsulation: ViewEncapsulation.None
 })
 export class ListTimersComponent implements OnInit, OnDestroy {
-  timers: RawTimerDto[] = [];
+  timers: TimerDto[] = [];
   flipFlop: boolean = false;
   remaining: number = 30;
   autoRefresh: boolean = true;
   runningTimers: boolean = false;
+  refreshingTimers: boolean = true;
 
   private _interval: any = null;
   private _decrementTimer: boolean = true;
@@ -49,61 +50,63 @@ export class ListTimersComponent implements OnInit, OnDestroy {
 
 
   // Template methods
-  pause = (timer: RawTimerDto) => {
-    let entryId = timer?.rawTimerId ?? 0;
+  pauseTimer = (timer: TimerDto) => {
+    let entryId = timer?.entryId ?? 0;
     if(entryId == 0) return;
 
-    this.uiService.showLoader(true);
+    this.refreshingTimers = true;
     this.timersClient.pauseTimer(entryId).toPromise().then(
-      (updatedTimer: boolean) => {
+      (success: boolean) => {
+        if(success) this.uiService.notify('Paused');
         this.refreshTimers();
       },
-      this.uiService.handleClientError
+      this.handleClientError
     );
   }
 
-  resume = (timer: RawTimerDto) => {
-    let entryId = timer?.rawTimerId ?? 0;
+  resumeTimer = (timer: TimerDto) => {
+    let entryId = timer?.entryId ?? 0;
     if(entryId == 0) return;
 
-    this.uiService.showLoader(true);
+    this.refreshingTimers = true;
     this.timersClient.resumeTimer(entryId).toPromise().then(
-      (success: boolean) => { this.refreshTimers(); },
-      this.uiService.handleClientError
-    );
-  }
-
-  resumeSingleTimer = (timer: RawTimerDto) => {
-    let rawTimerId = timer?.rawTimerId ?? 0;
-    if(rawTimerId === 0)
-      return;
-    
-    this.uiService.showLoader(true);
-    this.timersClient.resumeSingleTimer(rawTimerId).toPromise().then(
       (success: boolean) => {
-        this.uiService.notify(success ? 'Timer resumed' : 'Resume failed');
+        if(success) this.uiService.notify('Resumed');
         this.refreshTimers();
       },
-      this.uiService.handleClientError
+      this.handleClientError
     );
   }
 
-  stop = (timer: RawTimerDto) => {
-    let rawTimerId = timer?.rawTimerId ?? 0;
-    if(rawTimerId == 0)
-      return;
+  resumeSingleTimer = (timer: TimerDto) => {
+    let entryId = timer?.entryId ?? 0;
+    if(entryId === 0) return;
+    
+    this.refreshingTimers = true;
+    this.timersClient.resumeSingleTimer(entryId).toPromise().then(
+      (success: boolean) => {
+        if(success) this.uiService.notify('Resumed');
+        this.refreshTimers();
+      },
+      this.handleClientError
+    );
+  }
 
-    if(!confirm(`Stop timer: ${timer.projectName} (${timer.productName})?`)) {
+  completeTimer = (timer: TimerDto) => {
+    let entryId = timer?.entryId ?? 0;
+    if(entryId == 0) return;
+
+    if(!confirm(`Complete timer: ${timer.projectName} (${timer.productName})?`)) {
       return;
     }
 
-    this.uiService.showLoader(true);
-    this.timersClient.stopTimer(rawTimerId).toPromise().then(
+    this.refreshingTimers = true;
+    this.timersClient.completeTimer(entryId).toPromise().then(
       (success: boolean) => {
+        if(success) this.uiService.notify('Timer completed');
         this.refreshTimers();
-        if(success) { this.uiService.notify('Timer stopped'); }
       },
-      this.uiService.handleClientError
+      this.handleClientError
     );
   }
 
@@ -111,17 +114,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.refreshTimers();
   }
 
-  getClass = (timer: RawTimerDto) => {
-    if(timer.entryState === 1) {
+  getClass = (timer: TimerDto) => {
+    if(timer?.running) {
       return ['timer-entry', 'running'];
     }
 
     return ['timer-entry'];
   }
 
-  timerHistory = (timer: RawTimerDto) => {
+  timerHistory = (timer: TimerDto) => {
     let dialogData: TimerSeriesDialogData = {
-      rootTimerId: timer?.rootTimerId ?? 0
+      projectId: timer?.projectId ?? 0
     };
 
     this.stopTicker();
@@ -135,7 +138,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     });
   }
 
-  getTooltip = (timer: RawTimerDto) => {
+  getTooltip = (timer: TimerDto) => {
     return `Client: ${timer?.clientName ?? 'Unknown'}`;
   }
 
@@ -145,17 +148,17 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     this.saveCurrentState();
     this.timers = [];
     this.runningTimers = false;
-    this.uiService.showLoader(true);
+    this.refreshingTimers = true;
 
     this.timersClient.getActiveTimers().toPromise().then(
-      (timers: RawTimerDto[]) => {
+      (timers: TimerDto[]) => {
         this.timers = timers;
         this.remaining = 30;
         this._decrementTimer = true;
         this.runningTimers = this.containsRunningTimers(timers);
-        this.uiService.hideLoader();
+        this.refreshingTimers = false;
       },
-      this.uiService.handleClientError
+      this.handleClientError
     );
   }
 
@@ -188,20 +191,19 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private containsRunningTimers = (timers: RawTimerDto[]) => {
+  private containsRunningTimers = (timers: TimerDto[]) => {
     if(timers.length === 0)
       return false;
 
     for(var i = 0; i < timers.length; i++) {
-      if(timers[i].entryState == 1) {
+      if(timers[i]?.running) {
         return true;
       }
     }
 
     return false;
   }
-
-  // State management
+  
   private saveCurrentState = () => {
     let state: ListTimersState = {
       autoRefresh: this.autoRefresh
@@ -222,5 +224,10 @@ export class ListTimersComponent implements OnInit, OnDestroy {
     }
 
     this.autoRefresh = state.autoRefresh;
+  }
+
+  private handleClientError = (error: any) => {
+    this.uiService.handleClientError(error);
+    this.refreshingTimers = false;
   }
 }

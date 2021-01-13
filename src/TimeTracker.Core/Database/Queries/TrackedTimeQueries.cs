@@ -12,19 +12,6 @@
     string GetProjectEntries();
     string UpdateDuration();
     string GetRunning();
-
-
-
-
-
-    string GetCurrentEntry();
-    string SpawnResumedTimer();
-    string FlagAsResumed();
-    string SetRootTimerId();
-    string CompleteTimerSet();
-    string GetUsersWithRunningTimers();
-    string GetLongRunningTimers();
-    string UpdateNotes();
   }
 
   public class TrackedTimeQueries : ITrackedTimeQueries
@@ -64,8 +51,8 @@
       WHERE
 	      tt.`UserId` = @UserId AND
 	      tt.`Deleted` = 0 AND
-	      tt.`EndReason` != 1
-      ORDER BY `EndReason`, `StartTimeUtc` ASC";
+	      tt.`EntryState` != 1
+      ORDER BY `EntryState`, `StartTimeUtc` ASC";
     }
 
     public string Pause()
@@ -73,7 +60,7 @@
       return @"UPDATE `TrackedTime`
       SET
 	      `Running` = 0,
-	      `EndReason` = @EndReason,
+	      `EntryState` = @EntryState,
 	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
 	      `Notes` = @Notes
@@ -86,7 +73,7 @@
       return @"UPDATE `TrackedTime`
       SET
 	      `Running` = 0,
-	      `EndReason` = @EndReason,
+	      `EntryState` = @EntryState,
 	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
 	      `Notes` = @Notes
@@ -106,7 +93,7 @@
       return @"UPDATE `TrackedTime`
       SET
 	      `Running` = 0,
-	      `EndReason` = @EndReason,
+	      `EntryState` = @EntryState,
 	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
 	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`))
       WHERE
@@ -158,106 +145,6 @@
 	      tt.`Deleted` = 0 AND
 	      tt.`Running` = 1
       ORDER BY `EntryId` ASC";
-    }
-
-
-
-
-
-
-
-    public string GetCurrentEntry()
-    {
-      return @"SELECT *
-      FROM `RawTimers`
-      WHERE
-	      `ParentEntryId` = @ParentEntryId AND
-	      `RootEntryId` = @RootEntryId AND
-	      `ClientId` = @ClientId AND
-	      `ProductId` = @ProductId AND
-	      `ProjectId` = @ProjectId AND
-	      `UserId` = @UserId AND
-	      `Deleted` = 0 AND
-	      `EntryState` = @EntryState
-      LIMIT 1";
-    }
-
-    public string SpawnResumedTimer()
-    {
-      return @"INSERT INTO `RawTimers`
-	      (
-          `ParentEntryId`, `RootEntryId`, `ClientId`, `ProductId`, `ProjectId`,
-          `UserId`, `Running`, `EntryState`, `Completed`, `Notes`
-        )
-      VALUES
-	      (
-          @ParentEntryId, @RootEntryId, @ClientId, @ProductId, @ProjectId,
-          @UserId, @Running, @EntryState, @Completed, @Notes
-        )";
-    }
-
-    public string FlagAsResumed()
-    {
-      return @"UPDATE `RawTimers`
-      SET
-	      `Running` = 0,
-	      `Completed` = 0
-      WHERE
-	      `EntryId` = @EntryId";
-    }
-
-    public string SetRootTimerId()
-    {
-      return @"UPDATE `RawTimers`
-      SET
-	      `RootEntryId` = @RootEntryId
-      WHERE
-	      `EntryId` = @EntryId";
-    }
-
-    public string CompleteTimerSet()
-    {
-      return @"UPDATE `RawTimers`
-      SET
-	      `Running` = 0,
-	      `Completed` = 1
-      WHERE
-	      `RootEntryId` = @RootEntryId";
-    }
-
-    public string GetUsersWithRunningTimers()
-    {
-      return @"SELECT
- 	      DISTINCT(u.`UserId`) AS 'Key',
-	      u.`Username` AS 'Value'
-      FROM `RawTimers` t
-	      INNER JOIN `Users` u ON u.`UserId` = t.`UserId`
-      WHERE
-	      `Completed` = 0 AND
-	      `Running` = 1 AND
-	      `EntryState` = 1";
-    }
-
-    public string GetLongRunningTimers()
-    {
-      return @"SELECT *
-      FROM `RawTimers`
-      WHERE
-	      `UserId` = @UserId AND
-	      `Deleted` = 0 AND
-	      `Completed` = 0 AND
-	      `Running` = 1 AND
-	      `EntryState` = 1 AND
-	      `StartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -@ThresholdSec SECOND)";
-    }
-
-    public string UpdateNotes()
-    {
-      return @"UPDATE `RawTimers`
-      SET
-	      `Notes` = @Notes
-      WHERE
-	      `EntryId` = @EntryId";
     }
   }
 }

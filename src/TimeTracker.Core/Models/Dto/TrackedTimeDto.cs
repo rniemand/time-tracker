@@ -16,7 +16,7 @@ namespace TimeTracker.Core.Models.Dto
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
-    public TimerEndReason EndReason { get; set; }
+    public TimerState EntryState { get; set; }
     public int TotalSeconds { get; set; }
     public DateTime StartTimeUtc { get; set; }
     public DateTime? EndTimeUtc { get; set; }
@@ -47,7 +47,7 @@ namespace TimeTracker.Core.Models.Dto
           ProjectName = entity.ProjectName,
           ClientName = entity.ClientName,
           Notes = entity.Notes,
-          EndReason = entity.EndReason
+          EntryState = entity.EntryState
         };
       }
     }
@@ -68,7 +68,7 @@ namespace TimeTracker.Core.Models.Dto
       UserId = 0;
       Deleted = false;
       Running = true;
-      EndReason = TimerEndReason.Unknown;
+      EntryState = TimerState.Unknown;
       TotalSeconds = 0;
       StartTimeUtc = DateTime.UtcNow;
       Notes = string.Empty;
@@ -97,7 +97,7 @@ namespace TimeTracker.Core.Models.Dto
         ProjectName = ProjectName,
         ClientName = ClientName,
         Notes = Notes,
-        EndReason = EndReason
+        EntryState = EntryState
       };
     }
   }

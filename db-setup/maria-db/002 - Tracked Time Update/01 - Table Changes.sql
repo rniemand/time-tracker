@@ -40,3 +40,6 @@ ALTER TABLE `TrackedTime`
 ALTER TABLE `TrackedTime`
 	CHANGE COLUMN ` ElapsedSeconds` `TotalSeconds` INT(11) NOT NULL DEFAULT '0' AFTER `EndReason`;
 	
+ALTER TABLE `TrackedTime`
+	CHANGE COLUMN `EndReason` `EntryState` TINYINT(4) NOT NULL DEFAULT '0' AFTER `Running`;
+	

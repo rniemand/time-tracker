@@ -16,7 +16,7 @@ namespace TimeTracker.Core.Services
   {
     Task<bool> StartNew(int userId, TrackedTimeDto entry);
     Task<List<TrackedTimeDto>> GetActive(int userId);
-    Task<bool> Pause(int userId, long entryId, TimerEndReason endReason, string notes);
+    Task<bool> Pause(int userId, long entryId, TimerState state, string notes);
     Task<bool> Resume(int userId, long entryId);
     Task<bool> Stop(int userId, long entryId);
     Task<List<TrackedTimeDto>> GetProjectEntries(int userId, int projectId);
@@ -122,12 +122,12 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> Pause(int userId, long entryId, TimerEndReason endReason, string notes)
+    public async Task<bool> Pause(int userId, long entryId, TimerState state, string notes)
     {
       // TODO: [TESTS] (TrackedTimeService.PauseTimer) Add tests
       var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(Pause))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithCustomTag1(endReason.ToString("G"), true)
+        .WithCustomTag1(state.ToString("G"), true)
         .WithUserId(userId);
 
       try
@@ -158,7 +158,7 @@ namespace TimeTracker.Core.Services
           // Attempt to pause the timer
           using (builder.WithCustomTiming2())
           {
-            if (await _timeRepo.Pause(entryId, endReason, notes) == 0)
+            if (await _timeRepo.Pause(entryId, state, notes) == 0)
             {
               builder.IncrementQueryCount().MarkFailed();
               return false;
@@ -225,7 +225,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
 
-            if (await _timeRepo.Stop(parentTimer.EntryId, TimerEndReason.Completed) == 0)
+            if (await _timeRepo.Stop(parentTimer.EntryId, TimerState.Completed) == 0)
             {
               builder.MarkFailed();
               return false;
@@ -302,7 +302,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
 
-            if (await _timeRepo.Stop(entryId, TimerEndReason.UserStopped) == 0)
+            if (await _timeRepo.Stop(entryId, TimerState.UserStopped) == 0)
             {
               builder.MarkFailed();
               return false;
@@ -482,7 +482,7 @@ namespace TimeTracker.Core.Services
 
             if (runningTimers.Count > 0)
             {
-              const TimerEndReason endReason = TimerEndReason.Completed;
+              const TimerState endReason = TimerState.Completed;
               const string endReasonString = "auto-completed";
 
               foreach (var timer in runningTimers)

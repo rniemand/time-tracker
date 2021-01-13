@@ -14,25 +14,13 @@ namespace TimeTracker.Core.Database.Repos
     Task<int> StartNew(TrackedTimeEntity entity);
     Task<TrackedTimeEntity> GetRunningExisting(TrackedTimeEntity entity);
     Task<List<TrackedTimeEntity>> GetActive(int userId);
-    Task<int> Pause(long entryId, TimerEndReason endReason, string notes);
-    Task<int> Complete(long entryId, TimerEndReason endReason, string notes);
+    Task<int> Pause(long entryId, TimerState state, string notes);
+    Task<int> Complete(long entryId, TimerState state, string notes);
     Task<TrackedTimeEntity> GetByEntryId(long entryId);
-    Task<int> Stop(long entryId, TimerEndReason endReason);
+    Task<int> Stop(long entryId, TimerState state);
     Task<List<TrackedTimeEntity>> GetProjectEntries(int projectId);
     Task<int> UpdateDuration(TrackedTimeEntity entity);
     Task<List<TrackedTimeEntity>> GetRunning(int userId);
-
-
-
-
-    Task<TrackedTimeEntity> GetCurrentEntry(TrackedTimeEntity timerEntity); // revise
-    Task<int> FlagAsResumed(long rawTimerId); // revise
-    Task<int> SpawnResumedTimer(TrackedTimeEntity timerEntity); // revise
-    Task<int> SetRootTimerId(long rawTimerId, long rootTimerId); // revise
-    Task<int> CompleteTimerSet(long rootTimerId); // revise
-    Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers(); // revise
-    Task<List<TrackedTimeEntity>> GetLongRunningTimers(int userId, int thresholdSec); // revise
-    Task<int> UpdateNotes(long rawTimerId, string notes); // revise
   }
 
   public class TrackedTimeRepo : BaseRepo<TrackedTimeRepo>, ITrackedTimeRepo
@@ -79,7 +67,7 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> Pause(long entryId, TimerEndReason endReason, string notes)
+    public async Task<int> Pause(long entryId, TimerState state, string notes)
     {
       // TODO: [TESTS] (TrackedTimeRepo.Pause) Add tests
       return await ExecuteAsync(
@@ -88,13 +76,13 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           EntryId = entryId,
-          EndReason = endReason,
+          EntryState = state,
           Notes = notes
         }
       );
     }
 
-    public async Task<int> Complete(long entryId, TimerEndReason endReason, string notes)
+    public async Task<int> Complete(long entryId, TimerState state, string notes)
     {
       // TODO: [TESTS] (TrackedTimeRepo.Complete) Add tests
       return await ExecuteAsync(
@@ -103,7 +91,7 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           EntryId = entryId,
-          EndReason = endReason,
+          EntryState = state,
           Notes = notes
         }
       );
@@ -119,7 +107,7 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> Stop(long entryId, TimerEndReason endReason)
+    public async Task<int> Stop(long entryId, TimerState state)
     {
       // TODO: [TESTS] (TrackedTimeRepo.Stop) Add tests
       return await ExecuteAsync(
@@ -128,7 +116,7 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           EntryId = entryId,
-          EndReason = endReason
+          EntryState = state
         }
       );
     }
@@ -160,108 +148,6 @@ namespace TimeTracker.Core.Database.Repos
         nameof(GetActive),
         _queries.GetRunning(),
         new { UserId = userId }
-      );
-    }
-
-
-
-
-
-
-    public async Task<TrackedTimeEntity> GetCurrentEntry(TrackedTimeEntity timerEntity)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.GetCurrentEntry) Add tests
-      return await GetSingle<TrackedTimeEntity>(
-        nameof(GetCurrentEntry),
-        _queries.GetCurrentEntry(),
-        timerEntity
-      );
-    }
-
-    public async Task<int> FlagAsResumed(long rawTimerId)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.FlagAsResumed) Add tests
-      return await ExecuteAsync(
-        nameof(FlagAsResumed),
-        _queries.FlagAsResumed(),
-        new
-        {
-          RawTimerId = rawTimerId
-        }
-      );
-    }
-
-    public async Task<int> SpawnResumedTimer(TrackedTimeEntity timerEntity)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.SpawnResumedTimer) Add tests
-      return await ExecuteAsync(
-        nameof(SpawnResumedTimer),
-        _queries.SpawnResumedTimer(),
-        timerEntity
-      );
-    }
-
-    public async Task<int> SetRootTimerId(long rawTimerId, long rootTimerId)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.SetRootTimerId) Add tests
-      return await ExecuteAsync(
-        nameof(SetRootTimerId),
-        _queries.SetRootTimerId(),
-        new
-        {
-          RawTimerId = rawTimerId,
-          RootTimerId = rootTimerId
-        }
-      );
-    }
-
-    public async Task<int> CompleteTimerSet(long rootTimerId)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.CompleteTimerSet) Add tests
-      return await ExecuteAsync(
-        nameof(CompleteTimerSet),
-        _queries.CompleteTimerSet(),
-        new
-        {
-          RootTimerId = rootTimerId
-        }
-      );
-    }
-
-    public async Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers()
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.GetUsersWithRunningTimers) Add tests
-      return await GetList<KeyValueEntity<int, string>>(
-        nameof(GetUsersWithRunningTimers),
-        _queries.GetUsersWithRunningTimers()
-      );
-    }
-
-    public async Task<List<TrackedTimeEntity>> GetLongRunningTimers(int userId, int thresholdSec)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.GetLongRunningTimers) Add tests
-      return await GetList<TrackedTimeEntity>(
-        nameof(GetLongRunningTimers),
-        _queries.GetLongRunningTimers(),
-        new
-        {
-          UserId = userId,
-          ThresholdSec = thresholdSec
-        }
-      );
-    }
-
-    public async Task<int> UpdateNotes(long rawTimerId, string notes)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.UpdateNotes) Add tests
-      return await ExecuteAsync(
-        nameof(UpdateNotes),
-        _queries.UpdateNotes(),
-        new
-        {
-          RawTimerId = rawTimerId,
-          TimerNotes = notes
-        }
       );
     }
   }

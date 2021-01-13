@@ -1,6 +1,6 @@
 ﻿namespace TimeTracker.Core.Enums
 {
-  public enum TimerEndReason
+  public enum TimerState
   {
     Unknown = 0,
     Completed = 1,

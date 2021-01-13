@@ -12,7 +12,7 @@ namespace TimeTracker.Core.Database.Entities
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
-    public TimerEndReason EndReason { get; set; }
+    public TimerState EntryState { get; set; }
     public int TotalSeconds { get; set; }
     public DateTime StartTimeUtc { get; set; }
     public DateTime? EndTimeUtc { get; set; }
@@ -33,7 +33,7 @@ namespace TimeTracker.Core.Database.Entities
       UserId = 0;
       Deleted = false;
       Running = true;
-      EndReason = TimerEndReason.Unknown;
+      EntryState = TimerState.Unknown;
       TotalSeconds = 0;
       StartTimeUtc = DateTime.UtcNow;
       Notes = string.Empty;

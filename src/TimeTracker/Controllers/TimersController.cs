@@ -29,7 +29,7 @@ namespace TimeTracker.Controllers
       _timerService = timerService;
     }
 
-    
+
     // Timer methods (GLOBAL)
     [HttpPost, Route("timer/start-new"), Authorize]
     public async Task<ActionResult<bool>> StartNew(
@@ -46,7 +46,7 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    
+
     // Timer methods (entryId)
     [HttpPost, Route("timer/{entryId}/update-duration"), Authorize]
     public async Task<ActionResult<bool>> UpdateTimerDuration(
@@ -122,7 +122,7 @@ namespace TimeTracker.Controllers
         response.WithResponse(await _timerService.Pause(
           request.UserId,
           entryId,
-          TimerEndReason.UserPaused,
+          TimerState.UserPaused,
           "user-paused"
         ));
 

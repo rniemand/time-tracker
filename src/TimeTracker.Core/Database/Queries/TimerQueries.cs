@@ -4,16 +4,16 @@
   {
     string GetRunningTimer();
     string AddTimer();
-    string StartNew(); // review
-    string GetRunningExisting(); // review
+    string CompleteTimer();
     string GetActiveTimers();
     string PauseTimer();
-    string Complete(); // review
     string GetTimerById();
-    string Stop(); // review
-    string GetProjectEntries(); // review
-    string UpdateDuration(); // review
-    string GetRunning(); // review
+    string StopTimer();
+    string GetProjectTimers();
+    string UpdateTimerDuration();
+    string GetRunningTimers();
+    string GetUsersWithRunningTimers();
+    string GetLongRunningTimers();
   }
 
   public class TimerQueries : ITimerQueries
@@ -40,25 +40,17 @@
 	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState)";
     }
 
-    public string StartNew()
+    public string CompleteTimer()
     {
-      return @"INSERT INTO `TrackedTime`
-	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`)
-      VALUES
-	      (@ClientId, @ProductId, @ProjectId, @UserId)";
-    }
-
-    public string GetRunningExisting()
-    {
-      return @"SELECT *
-      FROM `TrackedTime`
+      return @"UPDATE `Timers`
+      SET
+         `Running` = 0,
+         `EntryState` = @EntryState,
+         `EndTimeUtc` = CURRENT_TIMESTAMP(),
+         `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
+         `Notes` = @Notes
       WHERE
-	      `ClientId` = @ClientId AND
-	      `ProductId` = @ProductId AND
-	      `ProjectId` = @ProjectId AND
-	      `UserId` = @UserId AND
-	      `Deleted` = 0 AND
-	      `Running` = 1";
+         `EntryId` = @EntryId";
     }
 
     public string GetActiveTimers()
@@ -81,7 +73,7 @@
 
     public string PauseTimer()
     {
-      return @"UPDATE `TrackedTime`
+      return @"UPDATE `Timers`
       SET
          `Running` = 0,
          `EntryState` = @EntryState,
@@ -92,9 +84,16 @@
          `EntryId` = @EntryId";
     }
 
-    public string Complete()
+    public string GetTimerById()
     {
-      return @"UPDATE `TrackedTime`
+      return @"SELECT *
+      FROM `Timers`
+      WHERE `EntryId` = @EntryId";
+    }
+
+    public string StopTimer()
+    {
+      return @"UPDATE `Timers`
       SET
 	      `Running` = 0,
 	      `EntryState` = @EntryState,
@@ -105,45 +104,26 @@
 	      `EntryId` = @EntryId";
     }
 
-    public string GetTimerById()
-    {
-      return @"SELECT *
-      FROM `Timers`
-      WHERE `EntryId` = @EntryId";
-    }
-
-    public string Stop()
-    {
-      return @"UPDATE `TrackedTime`
-      SET
-	      `Running` = 0,
-	      `EntryState` = @EntryState,
-	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
-	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`))
-      WHERE
-	      `EntryId` = @EntryId";
-    }
-
-    public string GetProjectEntries()
+    public string GetProjectTimers()
     {
       return @"SELECT
-	      tt.*,
+	      t.*,
 	      prod.`ProductName`,
 	      proj.`ProjectName`,
 	      cli.`ClientName`
-      FROM `TrackedTime` tt
-	      INNER JOIN `Products` prod ON prod.`ProductId` = tt.`ProductId`
-	      INNER JOIN `Projects` proj ON proj.`ProjectId` = tt.`ProjectId`
-	      INNER JOIN `Clients` cli ON cli.`ClientId` = tt.`ClientId`
+      FROM `Timers` t
+	      INNER JOIN `Products` prod ON prod.`ProductId` = t.`ProductId`
+	      INNER JOIN `Projects` proj ON proj.`ProjectId` = t.`ProjectId`
+	      INNER JOIN `Clients` cli ON cli.`ClientId` = t.`ClientId`
       WHERE
-	      tt.`ProjectId` = @ProjectId AND
-	      tt.`Deleted` = 0
-      ORDER BY `EntryId` DESC";
+	      t.`ProjectId` = @ProjectId AND
+	      t.`Deleted` = 0
+      ORDER BY t.`EntryId` DESC";
     }
 
-    public string UpdateDuration()
+    public string UpdateTimerDuration()
     {
-      return @"UPDATE `TrackedTime`
+      return @"UPDATE `Timers`
       SET
 	      `StartTimeUtc` = @StartTimeUtc,
 	      `TotalSeconds` = @TotalSeconds,
@@ -153,22 +133,45 @@
 	      `EntryId` = @EntryId";
     }
 
-    public string GetRunning()
+    public string GetRunningTimers()
     {
       return @"SELECT
-	      tt.*,
+	      t.*,
 	      prod.`ProductName`,
 	      proj.`ProjectName`,
 	      cli.`ClientName`
-      FROM `TrackedTime` tt
-	      INNER JOIN `Products` prod ON tt.`ProductId` = prod.`ProductId`
-	      INNER JOIN `Projects` proj ON tt.`ProjectId` = proj.`ProjectId`
-	      INNER JOIN `Clients` cli ON tt.`ClientId` = cli.`ClientId`
+      FROM `Timers` t
+	      INNER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+	      INNER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+	      INNER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
       WHERE
-	      tt.`UserId` = @UserId AND
-	      tt.`Deleted` = 0 AND
-	      tt.`Running` = 1
-      ORDER BY `EntryId` ASC";
+	      t.`UserId` = @UserId AND
+	      t.`Deleted` = 0 AND
+	      t.`Running` = 1
+      ORDER BY t.`EntryId` ASC";
+    }
+
+    public string GetUsersWithRunningTimers()
+    {
+      return @"SELECT
+	      t.`UserId` AS 'Key',
+	      u.`Username` AS 'Value'
+      FROM `Timers` t
+	      INNER JOIN `Users` u ON u.`UserId` = t.`UserId`
+      WHERE
+	      t.`Deleted` = 0 AND
+	      t.`Running` = 1";
+    }
+
+    public string GetLongRunningTimers()
+    {
+      return @"SELECT *
+      FROM `Timers`
+      WHERE
+	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `Running` = 1 AND
+	      `StartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -@ThresholdSec SECOND)";
     }
   }
 }

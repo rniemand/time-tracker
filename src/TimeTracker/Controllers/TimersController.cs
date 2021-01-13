@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
-using TimeTracker.Core.Enums;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
@@ -51,15 +50,15 @@ namespace TimeTracker.Controllers
     [HttpPost, Route("timer/{entryId}/update-duration"), Authorize]
     public async Task<ActionResult<bool>> UpdateTimerDuration(
       [FromRoute] long entryId,
-      [FromBody] TimerDto timer,
+      [FromBody] TimerDto timerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.UpdateTimerDuration) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(TrackedTimeDtoValidator.UpdateDuration(timer));
+        .WithValidation(TrackedTimeDtoValidator.UpdateDuration(timerDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.UpdateDuration(request.UserId, timer));
+        response.WithResponse(await _timerService.UpdateTimerDuration(request.UserId, timerDto));
 
       return ProcessResponse(response);
     }
@@ -74,7 +73,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.ResumeSingle(request.UserId, entryId));
+        response.WithResponse(await _timerService.ResumeSingleTimer(request.UserId, entryId));
 
       return ProcessResponse(response);
     }
@@ -89,7 +88,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.Stop(request.UserId, entryId));
+        response.WithResponse(await _timerService.StopTimer(request.UserId, entryId));
 
       return ProcessResponse(response);
     }
@@ -104,7 +103,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.Resume(request.UserId, entryId));
+        response.WithResponse(await _timerService.ResumeTimer(request.UserId, entryId));
 
       return ProcessResponse(response);
     }
@@ -147,7 +146,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(projectId), projectId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.GetProjectEntries(request.UserId, projectId));
+        response.WithResponse(await _timerService.GetProjectTimers(request.UserId, projectId));
 
       return ProcessResponse(response);
     }

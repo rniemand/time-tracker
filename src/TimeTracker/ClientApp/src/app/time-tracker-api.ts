@@ -932,14 +932,14 @@ export class ProjectsClient implements IProjectsClient {
 }
 
 export interface ITimersClient {
-    startNew(timer: TrackedTimeDto): Observable<boolean>;
-    updateTimerDuration(entryId: number, timer: TrackedTimeDto): Observable<boolean>;
+    startNew(timerDto: TimerDto): Observable<boolean>;
+    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean>;
     resumeSingleTimer(entryId: number): Observable<boolean>;
     stopTimer(entryId: number): Observable<boolean>;
     resumeTimer(entryId: number): Observable<boolean>;
     pauseTimer(entryId: number): Observable<boolean>;
-    getProjectEntries(projectId: number): Observable<TrackedTimeDto[]>;
-    getActiveTimers(): Observable<TrackedTimeDto[]>;
+    getActiveTimers(): Observable<TimerDto[]>;
+    getProjectEntries(projectId: number): Observable<TimerDto[]>;
 }
 
 @Injectable()
@@ -953,11 +953,11 @@ export class TimersClient implements ITimersClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    startNew(timer: TrackedTimeDto): Observable<boolean> {
+    startNew(timerDto: TimerDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Timers/timer/start-new";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(timer);
+        const content_ = JSON.stringify(timerDto);
 
         let options_ : any = {
             body: content_,
@@ -1005,14 +1005,14 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    updateTimerDuration(entryId: number, timer: TrackedTimeDto): Observable<boolean> {
+    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean> {
         let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/update-duration";
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(timer);
+        const content_ = JSON.stringify(timerDto);
 
         let options_ : any = {
             body: content_,
@@ -1264,7 +1264,59 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    getProjectEntries(projectId: number): Observable<TrackedTimeDto[]> {
+    getActiveTimers(): Observable<TimerDto[]> {
+        let url_ = this.baseUrl + "/api/Timers/timers/active";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActiveTimers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActiveTimers(<any>response_);
+                } catch (e) {
+                    return <Observable<TimerDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<TimerDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetActiveTimers(response: HttpResponseBase): Observable<TimerDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TimerDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<TimerDto[]>(<any>null);
+    }
+
+    getProjectEntries(projectId: number): Observable<TimerDto[]> {
         let url_ = this.baseUrl + "/api/Timers/timers/project/{projectId}";
         if (projectId === undefined || projectId === null)
             throw new Error("The parameter 'projectId' must be defined.");
@@ -1286,14 +1338,14 @@ export class TimersClient implements ITimersClient {
                 try {
                     return this.processGetProjectEntries(<any>response_);
                 } catch (e) {
-                    return <Observable<TrackedTimeDto[]>><any>_observableThrow(e);
+                    return <Observable<TimerDto[]>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<TrackedTimeDto[]>><any>_observableThrow(response_);
+                return <Observable<TimerDto[]>><any>_observableThrow(response_);
         }));
     }
 
-    protected processGetProjectEntries(response: HttpResponseBase): Observable<TrackedTimeDto[]> {
+    protected processGetProjectEntries(response: HttpResponseBase): Observable<TimerDto[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1307,7 +1359,7 @@ export class TimersClient implements ITimersClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(TrackedTimeDto.fromJS(item));
+                    result200!.push(TimerDto.fromJS(item));
             }
             return _observableOf(result200);
             }));
@@ -1316,59 +1368,7 @@ export class TimersClient implements ITimersClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<TrackedTimeDto[]>(<any>null);
-    }
-
-    getActiveTimers(): Observable<TrackedTimeDto[]> {
-        let url_ = this.baseUrl + "/api/Timers/timers/active";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetActiveTimers(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetActiveTimers(<any>response_);
-                } catch (e) {
-                    return <Observable<TrackedTimeDto[]>><any>_observableThrow(e);
-                }
-            } else
-                return <Observable<TrackedTimeDto[]>><any>_observableThrow(response_);
-        }));
-    }
-
-    protected processGetActiveTimers(response: HttpResponseBase): Observable<TrackedTimeDto[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(TrackedTimeDto.fromJS(item));
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<TrackedTimeDto[]>(<any>null);
+        return _observableOf<TimerDto[]>(<any>null);
     }
 }
 
@@ -1688,7 +1688,7 @@ export interface IProjectDto {
     projectName?: string | undefined;
 }
 
-export class TrackedTimeDto implements ITrackedTimeDto {
+export class TimerDto implements ITimerDto {
     entryId?: number;
     clientId?: number;
     productId?: number;
@@ -1696,7 +1696,8 @@ export class TrackedTimeDto implements ITrackedTimeDto {
     userId?: number;
     deleted?: boolean;
     running?: boolean;
-    endReason?: TimerEndReason;
+    entryState?: TimerState;
+    entryType?: TimerType;
     totalSeconds?: number;
     startTimeUtc?: Date;
     endTimeUtc?: Date | undefined;
@@ -1705,7 +1706,7 @@ export class TrackedTimeDto implements ITrackedTimeDto {
     projectName?: string | undefined;
     clientName?: string | undefined;
 
-    constructor(data?: ITrackedTimeDto) {
+    constructor(data?: ITimerDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1723,7 +1724,8 @@ export class TrackedTimeDto implements ITrackedTimeDto {
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
             this.running = _data["running"];
-            this.endReason = _data["endReason"];
+            this.entryState = _data["entryState"];
+            this.entryType = _data["entryType"];
             this.totalSeconds = _data["totalSeconds"];
             this.startTimeUtc = _data["startTimeUtc"] ? new Date(_data["startTimeUtc"].toString()) : <any>undefined;
             this.endTimeUtc = _data["endTimeUtc"] ? new Date(_data["endTimeUtc"].toString()) : <any>undefined;
@@ -1734,9 +1736,9 @@ export class TrackedTimeDto implements ITrackedTimeDto {
         }
     }
 
-    static fromJS(data: any): TrackedTimeDto {
+    static fromJS(data: any): TimerDto {
         data = typeof data === 'object' ? data : {};
-        let result = new TrackedTimeDto();
+        let result = new TimerDto();
         result.init(data);
         return result;
     }
@@ -1750,7 +1752,8 @@ export class TrackedTimeDto implements ITrackedTimeDto {
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
         data["running"] = this.running;
-        data["endReason"] = this.endReason;
+        data["entryState"] = this.entryState;
+        data["entryType"] = this.entryType;
         data["totalSeconds"] = this.totalSeconds;
         data["startTimeUtc"] = this.startTimeUtc ? this.startTimeUtc.toISOString() : <any>undefined;
         data["endTimeUtc"] = this.endTimeUtc ? this.endTimeUtc.toISOString() : <any>undefined;
@@ -1762,7 +1765,7 @@ export class TrackedTimeDto implements ITrackedTimeDto {
     }
 }
 
-export interface ITrackedTimeDto {
+export interface ITimerDto {
     entryId?: number;
     clientId?: number;
     productId?: number;
@@ -1770,7 +1773,8 @@ export interface ITrackedTimeDto {
     userId?: number;
     deleted?: boolean;
     running?: boolean;
-    endReason?: TimerEndReason;
+    entryState?: TimerState;
+    entryType?: TimerType;
     totalSeconds?: number;
     startTimeUtc?: Date;
     endTimeUtc?: Date | undefined;
@@ -1780,13 +1784,20 @@ export interface ITrackedTimeDto {
     clientName?: string | undefined;
 }
 
-export enum TimerEndReason {
+export enum TimerState {
     Unknown = 0,
     Completed = 1,
-    UserPaused = 2,
-    UserStopped = 3,
-    ServicePaused = 4,
-    CronPaused = 5,
+    Paused = 2,
+    Stopped = 3,
+    UserPaused = 9,
+    UserStopped = 10,
+    ServicePaused = 11,
+    CronPaused = 12,
+}
+
+export enum TimerType {
+    Unspecified = 0,
+    ProjectWork = 1,
 }
 
 export class SwaggerException extends Error {

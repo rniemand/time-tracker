@@ -14,84 +14,35 @@ namespace TimeTracker.Core.Services
 {
   public interface ITimerService
   {
-    Task<bool> StartTimer(int userId, TimerDto timerDto);
     Task<List<TimerDto>> GetActiveTimers(int userId);
+    Task<List<TimerDto>> GetProjectTimers(int userId, int projectId);
+
+    Task<bool> StartTimer(int userId, TimerDto timerDto);
     Task<bool> PauseTimer(int userId, long entryId, string notes = null);
-    Task<bool> Resume(int userId, long entryId); // review
-    Task<bool> Stop(int userId, long entryId); // review
-    Task<List<TimerDto>> GetProjectEntries(int userId, int projectId); // review
-    Task<bool> UpdateDuration(int userId, TimerDto entry); // review
-    Task<bool> ResumeSingle(int userId, long entryId); // review
+    Task<bool> ResumeTimer(int userId, long entryId);
+    Task<bool> StopTimer(int userId, long entryId, string notes = null);
+    Task<bool> UpdateTimerDuration(int userId, TimerDto entry);
+    Task<bool> ResumeSingleTimer(int userId, long entryId);
   }
 
   public class TimerService : ITimerService
   {
     private readonly ILoggerAdapter<TimerService> _logger;
     private readonly IMetricService _metrics;
-    private readonly ITimerRepo _timeRepo;
+    private readonly ITimerRepo _timerRepo;
 
     public TimerService(
       ILoggerAdapter<TimerService> logger,
       IMetricService metrics,
-      ITimerRepo timeRepo)
+      ITimerRepo timerRepo)
     {
       _logger = logger;
       _metrics = metrics;
-      _timeRepo = timeRepo;
+      _timerRepo = timerRepo;
     }
 
-    public async Task<bool> StartTimer(int userId, TimerDto timerDto)
-    {
-      // TODO: [TESTS] (TimerService.StartTimer) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(StartTimer))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Add)
-        .WithUserId(userId);
 
-      try
-      {
-        using (builder.WithTiming())
-        {
-          var timerEntity = timerDto.AsEntity(userId);
-          AppendTimerInfo(builder, timerEntity);
-
-          // If there is a running timer matching our criteria there is no need to start a new one
-          using (builder.WithCustomTiming1())
-          {
-            builder.IncrementQueryCount();
-            if (await _timeRepo.GetRunningTimer(timerEntity) != null)
-            {
-              builder.IncrementResultsCount();
-              return true;
-            }
-          }
-
-          // Create a new timer
-          using (builder.WithCustomTiming2())
-          {
-            builder.IncrementQueryCount();
-            if (await _timeRepo.AddTimer(timerEntity) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogUnexpectedException(ex);
-        builder.WithException(ex);
-        return false;
-      }
-      finally
-      {
-        await _metrics.SubmitPointAsync(builder.Build());
-      }
-    }
-
+    // Multiple timer methods
     public async Task<List<TimerDto>> GetActiveTimers(int userId)
     {
       // TODO: [TESTS] (TimerService.GetActiveTimers) Add tests
@@ -107,7 +58,7 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            activeTimers = await _timeRepo.GetActiveTimers(userId);
+            activeTimers = await _timerRepo.GetActiveTimers(userId);
             builder.WithResultsCount(activeTimers.Count);
           }
 
@@ -128,220 +79,10 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> PauseTimer(int userId, long entryId, string notes = null)
+    public async Task<List<TimerDto>> GetProjectTimers(int userId, int projectId)
     {
-      // TODO: [TESTS] (TimerService.PauseTimer) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(PauseTimer))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithCustomTag1(TimerState.Paused.ToString("G"), true)
-        .WithUserId(userId);
-
-      try
-      {
-        using (builder.WithTiming())
-        {
-          TimerEntity dbEntry;
-          notes = string.IsNullOrWhiteSpace(notes) ? "user-paused" : notes;
-
-          // Check to see if this is a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            builder.IncrementQueryCount();
-            dbEntry = await _timeRepo.GetTimerById(entryId);
-
-            if (dbEntry == null)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            AppendTimerInfo(builder, dbEntry);
-          }
-
-          // Check to see that the provided user owns this timer
-          if (dbEntry.UserId != userId)
-          {
-            // TODO: [HANDLE] (TimerService.PauseTimer) Handle this
-            return false;
-          }
-
-          // Pause the timer
-          using (builder.WithCustomTiming2())
-          {
-            builder.IncrementQueryCount();
-
-            if (await _timeRepo.PauseTimer(entryId, TimerState.Paused, notes) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogUnexpectedException(ex);
-        builder.WithException(ex);
-        return false;
-      }
-      finally
-      {
-        await _metrics.SubmitPointAsync(builder.Build());
-      }
-    }
-
-    public async Task<bool> Resume(int userId, long entryId)
-    {
-      // TODO: [TESTS] (TimerService.Resume) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(Resume))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithUserId(userId);
-
-      try
-      {
-        using (builder.WithTiming())
-        {
-          TimerEntity parentTimer;
-
-          // Ensure that we have a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            parentTimer = await _timeRepo.GetTimerById(entryId);
-            builder.IncrementQueryCount().CountResult(parentTimer);
-
-            if (parentTimer == null)
-            {
-              builder.MarkFailed().WithResultsCount(0);
-              return false;
-            }
-
-            AppendTimerInfo(builder, parentTimer);
-          }
-
-          // Ensure the provided user owns the timer
-          if (parentTimer.UserId != userId)
-          {
-            // TODO: [HANDLE] (TimerService.ResumeTimer) Handle this
-            return false;
-          }
-
-          // If the timer is already running, we are done
-          if (parentTimer.Running)
-            return true;
-
-          // End the current timer so we can start a new one
-          using (builder.WithCustomTiming2())
-          {
-            builder.IncrementQueryCount();
-
-            if (await _timeRepo.Stop(parentTimer.EntryId, TimerState.Completed) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-          }
-
-          // Create a new timer
-          using (builder.WithCustomTiming3())
-          {
-            builder.IncrementQueryCount();
-
-            if (await _timeRepo.StartNew(parentTimer) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogUnexpectedException(ex);
-        builder.WithException(ex);
-        return false;
-      }
-      finally
-      {
-        await _metrics.SubmitPointAsync(builder.Build());
-      }
-    }
-
-    public async Task<bool> Stop(int userId, long entryId)
-    {
-      // TODO: [TESTS] (TimerService.Stop) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(Stop))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithUserId(userId);
-
-      try
-      {
-        using (builder.WithTiming())
-        {
-          TimerEntity dbTimer;
-
-          // Ensure that we are working with a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            dbTimer = await _timeRepo.GetTimerById(entryId);
-            builder.IncrementQueryCount().CountResult(dbTimer);
-
-            if (dbTimer == null)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            AppendTimerInfo(builder, dbTimer);
-          }
-
-          // Ensure the provided user owns this timer
-          if (dbTimer.UserId != userId)
-          {
-            // TODO: [HANDLE] (TimerService.StopTimer) Handle this
-            return false;
-          }
-
-          // Stop the timer with "UserStopped"
-          using (builder.WithCustomTiming2())
-          {
-            builder.IncrementQueryCount();
-
-            if (await _timeRepo.Stop(entryId, TimerState.UserStopped) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.LogUnexpectedException(ex);
-        builder.WithException(ex);
-        return false;
-      }
-      finally
-      {
-        await _metrics.SubmitPointAsync(builder.Build());
-      }
-    }
-
-    public async Task<List<TimerDto>> GetProjectEntries(int userId, int projectId)
-    {
-      // TODO: [TESTS] (TimerService.GetProjectEntries) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(GetProjectEntries))
+      // TODO: [TESTS] (TimerService.GetProjectTimers) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(GetProjectTimers))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
         .WithUserId(userId);
 
@@ -354,13 +95,14 @@ namespace TimeTracker.Core.Services
           // Ensure that we have some entries to work with
           using (builder.WithCustomTiming1())
           {
-            dbEntries = await _timeRepo.GetProjectEntries(projectId);
+            dbEntries = await _timerRepo.GetProjectTimers(projectId);
             builder.IncrementQueryCount();
 
             if ((dbEntries?.Count ?? 0) == 0)
               return new List<TimerDto>();
 
             AppendTimerInfo(builder, dbEntries.First());
+            builder.WithResultsCount(dbEntries.Count);
           }
 
           // Ensure that the current user owns these entries
@@ -371,7 +113,6 @@ namespace TimeTracker.Core.Services
           }
 
           // Cast and return the results
-          builder.WithResultsCount(dbEntries.Count);
           return dbEntries.AsQueryable()
             .Select(TimerDto.Projection)
             .ToList();
@@ -389,47 +130,86 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> UpdateDuration(int userId, TimerDto entry)
+
+    // Single timer methods
+    public async Task<bool> StartTimer(int userId, TimerDto timerDto)
     {
-      // TODO: [TESTS] (TimerService.UpdateDuration) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(UpdateDuration))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+      // TODO: [TESTS] (TimerService.StartTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(StartTimer))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Add)
         .WithUserId(userId);
 
       try
       {
         using (builder.WithTiming())
         {
-          TimerEntity dbTimer;
+          var timerEntity = timerDto.AsEntity(userId);
+          AppendTimerInfo(builder, timerEntity);
 
-          // Ensure that we have a valid entry to work with
+          // Check if there is already a running timer
           using (builder.WithCustomTiming1())
           {
-            dbTimer = await _timeRepo.GetTimerById(entry.EntryId);
-            builder.IncrementQueryCount().CountResult(dbTimer);
-
-            if (dbTimer == null)
+            builder.IncrementQueryCount();
+            if (await _timerRepo.GetRunningTimer(timerEntity) != null)
             {
-              builder.MarkFailed();
-              return false;
+              builder.IncrementResultsCount();
+              return true;
             }
-
-            AppendTimerInfo(builder, dbTimer);
           }
 
-          // Ensure that the current user owns this entry
-          if (dbTimer.UserId != userId)
+          // Create a new timer
+          using (builder.WithCustomTiming2())
+            return await AddTimer(builder, timerEntity);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return false;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<bool> PauseTimer(int userId, long entryId, string notes = null)
+    {
+      // TODO: [TESTS] (TimerService.PauseTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(PauseTimer))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+        .WithCustomTag1(TimerState.Paused.ToString("G"), true)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          TimerEntity timerEntity;
+          notes = string.IsNullOrWhiteSpace(notes) ? "user-paused" : notes;
+
+          // Check to see if this is a valid timer
+          using (builder.WithCustomTiming1())
           {
-            // TODO: [HANDLE] (TimerService.UpdateTimerDuration) Handle this
+            timerEntity = await GetTimerById(builder, entryId);
+            if (timerEntity == null)
+              return false;
+          }
+
+          // Check to see that the provided user owns this timer
+          if (timerEntity.UserId != userId)
+          {
+            // TODO: [HANDLE] (TimerService.PauseTimer) Handle this
             return false;
           }
 
-          // Update the timer entry
+          // Pause the timer
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
 
-            if (await _timeRepo.UpdateDuration(entry.AsEntity()) == 0)
+            if (await _timerRepo.PauseTimer(entryId, TimerState.Paused, notes) == 0)
             {
               builder.MarkFailed();
               return false;
@@ -452,10 +232,186 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> ResumeSingle(int userId, long entryId)
+    public async Task<bool> ResumeTimer(int userId, long entryId)
     {
-      // TODO: [TESTS] (TimerService.ResumeSingle) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ResumeSingle))
+      // TODO: [TESTS] (TimerService.ResumeTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ResumeTimer))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          TimerEntity timerEntity;
+
+          // Ensure that we have a valid timer
+          using (builder.WithCustomTiming1())
+          {
+            timerEntity = await GetTimerById(builder, entryId);
+            if (timerEntity == null)
+              return false;
+          }
+
+          // Ensure the provided user owns the timer
+          if (timerEntity.UserId != userId)
+          {
+            // TODO: [HANDLE] (TimerService.ResumeTimer) Handle this
+            return false;
+          }
+
+          // If the timer is already running, we are done
+          if (timerEntity.Running)
+            return true;
+
+          // End the current timer so we can start a new one
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+
+            if (await _timerRepo.CompleteTimer(timerEntity.EntryId, "completed") == 0)
+            {
+              builder.MarkFailed();
+              return false;
+            }
+
+            builder.IncrementResultsCount();
+          }
+
+          // Create a new timer
+          using (builder.WithCustomTiming3())
+            return await AddTimer(builder, timerEntity);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return false;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<bool> StopTimer(int userId, long entryId, string notes = null)
+    {
+      // TODO: [TESTS] (TimerService.StopTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(StopTimer))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          TimerEntity dbTimer;
+
+          // Ensure that we are working with a valid timer
+          using (builder.WithCustomTiming1())
+          {
+            dbTimer = await GetTimerById(builder, entryId);
+            if (dbTimer == null)
+              return false;
+          }
+
+          // Ensure the provided user owns this timer
+          if (dbTimer.UserId != userId)
+          {
+            // TODO: [HANDLE] (TimerService.StopTimer) Handle this
+            return false;
+          }
+
+          // Stop the timer with "UserStopped"
+          using (builder.WithCustomTiming2())
+          {
+            notes = string.IsNullOrWhiteSpace(notes) ? "user-stopped" : notes;
+            builder.IncrementQueryCount();
+
+            if (await _timerRepo.StopTimer(entryId, notes) == 0)
+            {
+              builder.MarkFailed();
+              return false;
+            }
+
+            builder.IncrementResultsCount();
+            return true;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return false;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<bool> UpdateTimerDuration(int userId, TimerDto entry)
+    {
+      // TODO: [TESTS] (TimerService.UpdateTimerDuration) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(UpdateTimerDuration))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          TimerEntity dbTimer;
+
+          // Ensure that we have a valid entry to work with
+          using (builder.WithCustomTiming1())
+          {
+            dbTimer = await GetTimerById(builder, entry.EntryId);
+            if (dbTimer == null)
+              return false;
+          }
+
+          // Ensure that the current user owns this entry
+          if (dbTimer.UserId != userId)
+          {
+            // TODO: [HANDLE] (TimerService.UpdateTimerDuration) Handle this
+            return false;
+          }
+
+          // Update the timer entry
+          using (builder.WithCustomTiming2())
+          {
+            builder.IncrementQueryCount();
+
+            if (await _timerRepo.UpdateTimerDuration(entry.AsEntity()) == 0)
+            {
+              builder.MarkFailed();
+              return false;
+            }
+
+            builder.IncrementResultsCount();
+            return true;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return false;
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<bool> ResumeSingleTimer(int userId, long entryId)
+    {
+      // TODO: [TESTS] (TimerService.ResumeSingleTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ResumeSingleTimer))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -468,16 +424,9 @@ namespace TimeTracker.Core.Services
           // Ensure that we have a valid timer to work with
           using (builder.WithCustomTiming1())
           {
-            parentTimer = await _timeRepo.GetTimerById(entryId);
-            builder.IncrementQueryCount().CountResult(parentTimer);
-
+            parentTimer = await GetTimerById(builder, entryId);
             if (parentTimer == null)
-            {
-              builder.MarkFailed();
               return false;
-            }
-
-            AppendTimerInfo(builder, parentTimer);
           }
 
           // Ensure that the provided user owns this timer
@@ -491,17 +440,15 @@ namespace TimeTracker.Core.Services
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            var runningTimers = await _timeRepo.GetRunning(userId);
-
+            var runningTimers = await _timerRepo.GetRunningTimers(userId);
             if (runningTimers.Count > 0)
             {
-              const TimerState endReason = TimerState.Completed;
-              const string endReasonString = "auto-completed";
+              const string endReason = "auto-completed";
 
               foreach (var timer in runningTimers)
               {
                 builder.IncrementQueryCount();
-                if (await _timeRepo.Complete(timer.EntryId, endReason, endReasonString) > 0)
+                if (await _timerRepo.CompleteTimer(timer.EntryId, endReason) > 0)
                   builder.IncrementResultsCount();
               }
             }
@@ -509,18 +456,7 @@ namespace TimeTracker.Core.Services
 
           // Resume the given timer
           using (builder.WithCustomTiming3())
-          {
-            builder.IncrementQueryCount();
-
-            if (await _timeRepo.StartNew(parentTimer) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
-          }
+            return await AddTimer(builder, parentTimer);
         }
       }
       catch (Exception ex)
@@ -545,6 +481,38 @@ namespace TimeTracker.Core.Services
         .WithCustomInt1(entity.ClientId)
         .WithCustomInt2(entity.ProductId)
         .WithCustomInt3(entity.ProjectId);
+    }
+
+    private async Task<TimerEntity> GetTimerById(ServiceMetricBuilder builder, long entryId)
+    {
+      // TODO: [TESTS] (TimerService.GetTimerById) Add tests
+      builder.IncrementQueryCount();
+      var dbTimer = await _timerRepo.GetTimerById(entryId);
+
+      if (dbTimer == null)
+      {
+        builder.MarkFailed();
+        return null;
+      }
+
+      builder.IncrementResultsCount();
+      AppendTimerInfo(builder, dbTimer);
+      return dbTimer;
+    }
+
+    private async Task<bool> AddTimer(ServiceMetricBuilder builder, TimerEntity timerEntity)
+    {
+      // TODO: [TESTS] (TimerService.AddTimer) Add tests
+      builder.IncrementQueryCount();
+
+      if (await _timerRepo.AddTimer(timerEntity) == 0)
+      {
+        builder.MarkFailed();
+        return false;
+      }
+
+      builder.IncrementResultsCount();
+      return true;
     }
   }
 }

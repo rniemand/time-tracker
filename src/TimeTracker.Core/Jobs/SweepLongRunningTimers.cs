@@ -92,14 +92,10 @@ namespace TimeTracker.Core.Jobs
             timers = await _timerRepo.GetLongRunningTimers(userId, maxRunTimeSec);
           }
 
-          const TimerState endReason = TimerState.CronPaused;
-          const string endString = "cron-paused";
-
           foreach (var timer in timers)
           {
             builder.IncrementQueryCount();
-
-            if (await _timerService.PauseTimer(userId, timer.EntryId, endReason, endString))
+            if (await _timerService.PauseTimer(userId, timer.EntryId, "cron-paused"))
               builder.IncrementResultsCount();
           }
         }

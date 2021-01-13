@@ -33,15 +33,15 @@ namespace TimeTracker.Controllers
     // Timer methods (GLOBAL)
     [HttpPost, Route("timer/start-new"), Authorize]
     public async Task<ActionResult<bool>> StartNew(
-      [FromBody] TimerDto timer,
+      [FromBody] TimerDto timerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
       // TODO: [TESTS] (TimersController.StartNew) Add tests
       var response = new BaseResponse<bool>()
-        .WithValidation(TrackedTimeDtoValidator.StartNew(timer));
+        .WithValidation(TrackedTimeDtoValidator.StartNew(timerDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.StartNew(request.UserId, timer));
+        response.WithResponse(await _timerService.StartTimer(request.UserId, timerDto));
 
       return ProcessResponse(response);
     }
@@ -119,18 +119,24 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.Pause(
-          request.UserId,
-          entryId,
-          TimerState.UserPaused,
-          "user-paused"
-        ));
+        response.WithResponse(await _timerService.PauseTimer(request.UserId, entryId));
 
       return ProcessResponse(response);
     }
 
 
     // Timer(s) methods
+    [HttpGet, Route("timers/active"), Authorize]
+    public async Task<ActionResult<List<TimerDto>>> GetActiveTimers(
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
+      var response = new BaseResponse<List<TimerDto>>()
+        .WithResponse(await _timerService.GetActiveTimers(request.UserId));
+
+      return ProcessResponse(response);
+    }
+
     [HttpGet, Route("timers/project/{projectId}"), Authorize]
     public async Task<ActionResult<List<TimerDto>>> GetProjectEntries(
       [FromRoute] int projectId,
@@ -142,17 +148,6 @@ namespace TimeTracker.Controllers
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.GetProjectEntries(request.UserId, projectId));
-
-      return ProcessResponse(response);
-    }
-
-    [HttpGet, Route("timers/active"), Authorize]
-    public async Task<ActionResult<List<TimerDto>>> GetActiveTimers(
-      [OpenApiIgnore] CoreApiRequest request)
-    {
-      // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
-      var response = new BaseResponse<List<TimerDto>>()
-        .WithResponse(await _timerService.GetActive(request.UserId));
 
       return ProcessResponse(response);
     }

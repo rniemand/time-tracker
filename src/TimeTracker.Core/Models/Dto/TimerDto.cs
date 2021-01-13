@@ -115,9 +115,20 @@ namespace TimeTracker.Core.Models.Dto
     {
       RuleSet("StartNew", () =>
       {
-        RuleFor(x => x.ClientId).GreaterThan(0);
-        RuleFor(x => x.ProductId).GreaterThan(0);
-        RuleFor(x => x.ProjectId).GreaterThan(0);
+        // Project work validation
+        RuleFor(x => x.ClientId)
+          .GreaterThan(0)
+          .When(x => x.EntryType == TimerType.ProjectWork);
+
+        RuleFor(x => x.ProductId)
+          .GreaterThan(0)
+          .When(x => x.EntryType == TimerType.ProjectWork);
+
+        RuleFor(x => x.ProjectId)
+          .GreaterThan(0)
+          .When(x => x.EntryType == TimerType.ProjectWork);
+
+        // General validation
         RuleFor(x => x.UserId).GreaterThan(0);
         RuleFor(x => x.Running).Equal(true);
       });

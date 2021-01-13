@@ -2,20 +2,44 @@
 {
   public interface ITimerQueries
   {
-    string StartNew();
-    string GetRunningExisting();
-    string GetActive();
-    string Pause();
-    string Complete();
-    string GetByEntryId();
-    string Stop();
-    string GetProjectEntries();
-    string UpdateDuration();
-    string GetRunning();
+    string GetRunningTimer();
+    string AddTimer();
+    string StartNew(); // review
+    string GetRunningExisting(); // review
+    string GetActiveTimers();
+    string PauseTimer();
+    string Complete(); // review
+    string GetTimerById();
+    string Stop(); // review
+    string GetProjectEntries(); // review
+    string UpdateDuration(); // review
+    string GetRunning(); // review
   }
 
   public class TimerQueries : ITimerQueries
   {
+    public string GetRunningTimer()
+    {
+      return @"SELECT *
+      FROM `Timers`
+      WHERE
+	      `ClientId` = @ClientId AND
+	      `ProductId` = @ProductId AND
+	      `ProjectId` = @ProjectId AND
+	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `Running` = 1 AND
+	      `EntryType` = @EntryType";
+    }
+
+    public string AddTimer()
+    {
+      return @"INSERT INTO `Timers`
+	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryType`, `EntryState`)
+      VALUES
+	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState)";
+    }
+
     public string StartNew()
     {
       return @"INSERT INTO `TrackedTime`
@@ -37,35 +61,35 @@
 	      `Running` = 1";
     }
 
-    public string GetActive()
+    public string GetActiveTimers()
     {
       return @"SELECT
-	      tt.*,
-	      prod.`ProductName`,
-	      proj.`ProjectName`,
-	      cli.`ClientName`
-      FROM `TrackedTime` tt
-	      INNER JOIN `Products` prod ON tt.`ProductId` = prod.`ProductId`
-	      INNER JOIN `Projects` proj ON tt.`ProjectId` = proj.`ProjectId`
-	      INNER JOIN `Clients` cli ON tt.`ClientId` = cli.`ClientId`
+         t.*,
+         prod.`ProductName`,
+         proj.`ProjectName`,
+         cli.`ClientName`
+      FROM `Timers` t
+         INNER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+         INNER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+         INNER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
       WHERE
-	      tt.`UserId` = @UserId AND
-	      tt.`Deleted` = 0 AND
-	      tt.`EntryState` != 1
+         t.`UserId` = @UserId AND
+         t.`Deleted` = 0 AND
+         t.`EntryState` != 1
       ORDER BY `EntryState`, `StartTimeUtc` ASC";
     }
 
-    public string Pause()
+    public string PauseTimer()
     {
       return @"UPDATE `TrackedTime`
       SET
-	      `Running` = 0,
-	      `EntryState` = @EntryState,
-	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
-	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
-	      `Notes` = @Notes
+         `Running` = 0,
+         `EntryState` = @EntryState,
+         `EndTimeUtc` = CURRENT_TIMESTAMP(),
+         `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
+         `Notes` = @Notes
       WHERE
-	      `EntryId` = @EntryId";
+         `EntryId` = @EntryId";
     }
 
     public string Complete()
@@ -81,10 +105,10 @@
 	      `EntryId` = @EntryId";
     }
 
-    public string GetByEntryId()
+    public string GetTimerById()
     {
       return @"SELECT *
-      FROM `TrackedTime`
+      FROM `Timers`
       WHERE `EntryId` = @EntryId";
     }
 

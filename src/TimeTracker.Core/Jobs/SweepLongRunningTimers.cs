@@ -99,7 +99,7 @@ namespace TimeTracker.Core.Jobs
           {
             builder.IncrementQueryCount();
 
-            if (await _timerService.Pause(userId, timer.EntryId, endReason, endString))
+            if (await _timerService.PauseTimer(userId, timer.EntryId, endReason, endString))
               builder.IncrementResultsCount();
           }
         }

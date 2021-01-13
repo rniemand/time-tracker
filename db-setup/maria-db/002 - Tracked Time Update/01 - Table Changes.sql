@@ -48,3 +48,8 @@ ALTER TABLE `TrackedTime`
 	
 RENAME TABLE `TrackedTime` TO `Timers`;
 
+ALTER TABLE `Timers`
+	ADD INDEX `Running` (`Running`),
+	ADD INDEX `EntryType` (`EntryType`),
+	ADD INDEX `EntryState` (`EntryState`);
+	

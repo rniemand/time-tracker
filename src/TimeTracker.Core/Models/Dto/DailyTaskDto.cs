@@ -50,12 +50,12 @@ namespace TimeTracker.Core.Models.Dto
       return entity == null ? null : DailyTaskDto.Projection.Compile()(entity);
     }
 
-    public DailyTaskEntity AsEntity()
+    public DailyTaskEntity AsEntity(int userIdOverride = 0)
     {
       // TODO: [TESTS] (DailyTaskDto.AsEntity) Add tests
       return new DailyTaskEntity
       {
-        UserId = UserId,
+        UserId = userIdOverride > 0 ? userIdOverride : UserId,
         ClientId = ClientId,
         Deleted = Deleted,
         DateCreatedUtc = DateCreatedUtc,

@@ -96,7 +96,7 @@ namespace TimeTracker.Core.Jobs
           foreach (var timer in timers)
           {
             builder.IncrementQueryCount();
-            await _timerService.PauseTimer(
+            await _timerService.Pause(
               userId,
               timer.EntryId,
               EntryRunningState.CronJobPaused,

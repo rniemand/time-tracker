@@ -70,7 +70,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.PauseTimer(
+        response.WithResponse(await _timerService.Pause(
           request.UserId,
           rawTimerId,
           EntryRunningState.Paused,
@@ -92,7 +92,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.ResumeTimer(
+        response.WithResponse(await _timerService.Resume(
           request.UserId,
           rawTimerId
         ));
@@ -112,7 +112,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.StopTimer(
+        response.WithResponse(await _timerService.Stop(
           request.UserId,
           rawTimerId
         ));
@@ -132,7 +132,7 @@ namespace TimeTracker.Controllers
         );
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.GetTimerSeries(
+        response.WithResponse(await _timerService.GetProjectEntries(
           request.UserId,
           rootTimerId
         ));
@@ -174,7 +174,7 @@ namespace TimeTracker.Controllers
         .WithValidation(TrackedTimeDtoValidator.UpdateTimerDuration(trackedTimeDto));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.UpdateTimerDuration(
+        response.WithResponse(await _timerService.UpdateDuration(
           request.UserId,
           trackedTimeDto
         ));
@@ -192,7 +192,7 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(rawTimerId), rawTimerId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.ResumeSingleTimer(
+        response.WithResponse(await _timerService.ResumeSingle(
           request.UserId,
           rawTimerId
         ));

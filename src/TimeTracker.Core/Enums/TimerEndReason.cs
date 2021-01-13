@@ -6,6 +6,7 @@
     Completed = 1,
     UserPaused = 2,
     UserStopped = 3,
-    ServicePaused = 4
+    ServicePaused = 4,
+    CronPaused = 5
   }
 }

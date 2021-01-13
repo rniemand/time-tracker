@@ -71,7 +71,7 @@ namespace TimeTracker.Core.Jobs
       // TODO: [TESTS] (SweepLongRunningTimers.ProcessUserTimers) Add tests
       var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(ProcessUserTimers))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithCustomInt1(userId);
+        .WithUserId(userId);
 
       try
       {
@@ -90,18 +90,17 @@ namespace TimeTracker.Core.Jobs
           {
             builder.IncrementQueryCount();
             timers = await _trackedTimeRepo.GetLongRunningTimers(userId, maxRunTimeSec);
-            builder.WithResultsCount(timers.Count);
           }
+
+          const TimerEndReason endReason = TimerEndReason.CronPaused;
+          const string endString = "cron-paused";
 
           foreach (var timer in timers)
           {
             builder.IncrementQueryCount();
-            await _timerService.Pause(
-              userId,
-              timer.EntryId,
-              EntryRunningState.CronJobPaused,
-              "auto-paused"
-            );
+
+            if (await _timerService.Pause(userId, timer.EntryId, endReason, endString))
+              builder.IncrementResultsCount();
           }
         }
       }

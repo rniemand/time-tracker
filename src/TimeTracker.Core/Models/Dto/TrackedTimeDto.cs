@@ -113,7 +113,7 @@ namespace TimeTracker.Core.Models.Dto
         RuleFor(x => x.Running).Equal(true);
       });
 
-      RuleSet("UpdateTimerDuration", () =>
+      RuleSet("UpdateDuration", () =>
       {
         RuleFor(x => x.StartTimeUtc).NotNull();
         RuleFor(x => x.TotalSeconds).GreaterThan(0);
@@ -129,10 +129,10 @@ namespace TimeTracker.Core.Models.Dto
       );
     }
 
-    public static ValidationResult UpdateTimerDuration(TrackedTimeDto timer)
+    public static ValidationResult UpdateDuration(TrackedTimeDto timer)
     {
       return new TrackedTimeDtoValidator().Validate(timer,
-        options => options.IncludeRuleSets("UpdateTimerDuration")
+        options => options.IncludeRuleSets("UpdateDuration")
       );
     }
   }

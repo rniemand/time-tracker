@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UiService } from 'src/app/services/ui.service';
-import { TrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
+import { TimerDto, TimersClient, TimerType } from 'src/app/time-tracker-api';
 import { TimeLoggerEvent } from '../time-logger.component';
 
 const KEY_VIEW_STATE = 'tt.start_timer.state';
@@ -45,14 +45,14 @@ export class StartTimerComponent implements OnInit, AfterViewInit {
   }
 
   startTimer = () => {
-    let newEntry = new TrackedTimeDto({
+    let newEntry = new TimerDto({
       'clientId': this.clientId,
       'productId': this.productId,
       'projectId': this.projectId,
-      'userId': this.authService.currentUser?.id ?? 0
+      'userId': this.authService.currentUser?.id ?? 0,
+      'entryType': TimerType.ProjectWork
     });
     
-    this.uiService.showLoader(true);
     this.timersClient.startNew(newEntry).toPromise().then(
       (success: boolean) => {
         if(!success)

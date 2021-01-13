@@ -131,6 +131,7 @@ namespace TimeTracker.Core.Models.Dto
         // General validation
         RuleFor(x => x.UserId).GreaterThan(0);
         RuleFor(x => x.Running).Equal(true);
+        RuleFor(x => x.EntryType).NotEqual(TimerType.Unspecified);
       });
 
       RuleSet("UpdateDuration", () =>

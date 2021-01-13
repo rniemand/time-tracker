@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { TrackedTimeDto } from 'src/app/time-tracker-api';
+import { TimerDto } from 'src/app/time-tracker-api';
 import { TimeLoggerEvent } from './../../components/ui/time-logger/time-logger.component';
 
 @Component({
@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
-  timer?: TrackedTimeDto;
+  timer?: TimerDto;
 
   private subscriptions: Subscription[] = [];
 

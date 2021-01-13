@@ -5,6 +5,7 @@ import { AuthService } from "../services/auth.service";
 import { LoggerService } from "../services/logger.service";
 import { StorageService } from "../services/storage.service";
 import { UiService } from "../services/ui.service";
+import { UtilsService } from "../services/utils.service";
 
 import { API_BASE_URL, AuthClient, ClientsClient, ProductsClient, ProjectsClient, TimersClient } from "../time-tracker-api";
 
@@ -38,6 +39,7 @@ export function getBaseUrl(locationStrategy: LocationStrategy, document: any): s
     StorageService,
     UiService,
     LoggerService,
+    UtilsService,
     
     // Clients
     AuthClient,

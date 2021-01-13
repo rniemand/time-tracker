@@ -17,11 +17,10 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<TimerEntity>> GetLongRunningTimers(int userId, int thresholdSec);
 
     Task<int> AddTimer(TimerEntity timerEntity);
-    Task<int> PauseTimer(long entryId, TimerState state, string notes);
-    Task<int> StopTimer(long entryId, string notes);
+    Task<int> PauseTimer(long entryId, string notes);
     Task<int> CompleteTimer(long entryId, string notes);
     Task<TimerEntity> GetTimerById(long entryId);
-    Task<TimerEntity> GetRunningTimer(TimerEntity timerEntity);
+    Task<TimerEntity> GetActiveTimer(TimerEntity timerEntity);
     Task<int> UpdateTimerDuration(TimerEntity entity);
 
     Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers();
@@ -103,7 +102,7 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<int> PauseTimer(long entryId, TimerState state, string notes)
+    public async Task<int> PauseTimer(long entryId, string notes)
     {
       // TODO: [TESTS] (TimerRepo.PauseTimer) Add tests
       return await ExecuteAsync(
@@ -112,23 +111,8 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           EntryId = entryId,
-          EntryState = state,
+          EntryState = TimerState.Paused,
           Notes = notes
-        }
-      );
-    }
-
-    public async Task<int> StopTimer(long entryId, string notes)
-    {
-      // TODO: [TESTS] (TimerRepo.StopTimer) Add tests
-      return await ExecuteAsync(
-        nameof(StopTimer),
-        _queries.StopTimer(),
-        new
-        {
-          EntryState = TimerState.Stopped,
-          Notes = notes,
-          EntryId = entryId
         }
       );
     }
@@ -158,12 +142,12 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<TimerEntity> GetRunningTimer(TimerEntity timerEntity)
+    public async Task<TimerEntity> GetActiveTimer(TimerEntity timerEntity)
     {
-      // TODO: [TESTS] (TimerRepo.GetRunningTimer) Add tests
+      // TODO: [TESTS] (TimerRepo.GetActiveTimer) Add tests
       return await GetSingle<TimerEntity>(
-        nameof(GetRunningTimer),
-        _queries.GetRunningTimer(),
+        nameof(GetActiveTimer),
+        _queries.GetActiveTimer(),
         timerEntity
       );
     }

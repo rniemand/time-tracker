@@ -78,17 +78,17 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpPost, Route("timer/{entryId}/stop"), Authorize]
-    public async Task<ActionResult<bool>> StopTimer(
+    [HttpPost, Route("timer/{entryId}/complete"), Authorize]
+    public async Task<ActionResult<bool>> CompleteTimer(
       [FromRoute] long entryId,
       [OpenApiIgnore] CoreApiRequest request)
     {
-      // TODO: [TESTS] (TimersController.StopTimer) Add tests
+      // TODO: [TESTS] (TimersController.CompleteTimer) Add tests
       var response = new BaseResponse<bool>()
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
-        response.WithResponse(await _timerService.StopTimer(request.UserId, entryId));
+        response.WithResponse(await _timerService.CompleteTimer(request.UserId, entryId));
 
       return ProcessResponse(response);
     }

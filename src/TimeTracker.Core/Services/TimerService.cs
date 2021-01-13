@@ -20,7 +20,7 @@ namespace TimeTracker.Core.Services
     Task<bool> StartTimer(int userId, TimerDto timerDto);
     Task<bool> PauseTimer(int userId, long entryId, string notes = null);
     Task<bool> ResumeTimer(int userId, long entryId);
-    Task<bool> StopTimer(int userId, long entryId, string notes = null);
+    Task<bool> CompleteTimer(int userId, long entryId, string notes = null);
     Task<bool> UpdateTimerDuration(int userId, TimerDto entry);
     Task<bool> ResumeSingleTimer(int userId, long entryId);
   }
@@ -146,14 +146,29 @@ namespace TimeTracker.Core.Services
           var timerEntity = timerDto.AsEntity(userId);
           AppendTimerInfo(builder, timerEntity);
 
-          // Check if there is already a running timer
+          // Look for any non-completed timer matching the provided criteria
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            if (await _timerRepo.GetRunningTimer(timerEntity) != null)
+            var activeTimer = await _timerRepo.GetActiveTimer(timerEntity);
+            builder.CountResult(activeTimer);
+
+            if (activeTimer != null)
             {
+              // Already running, we are done
+              if (activeTimer.Running)
+                return true;
+
+              // We will need to complete this timer before starting a new one
+              builder.IncrementQueryCount();
+              if (await _timerRepo.CompleteTimer(activeTimer.EntryId, "user-completed") == 0)
+              {
+                // TODO: [HANDLE] (TimerService.StartTimer) Handle this
+                builder.MarkFailed();
+                return false;
+              }
+
               builder.IncrementResultsCount();
-              return true;
             }
           }
 
@@ -209,7 +224,7 @@ namespace TimeTracker.Core.Services
           {
             builder.IncrementQueryCount();
 
-            if (await _timerRepo.PauseTimer(entryId, TimerState.Paused, notes) == 0)
+            if (await _timerRepo.PauseTimer(entryId, notes) == 0)
             {
               builder.MarkFailed();
               return false;
@@ -295,10 +310,10 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> StopTimer(int userId, long entryId, string notes = null)
+    public async Task<bool> CompleteTimer(int userId, long entryId, string notes = null)
     {
-      // TODO: [TESTS] (TimerService.StopTimer) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(StopTimer))
+      // TODO: [TESTS] (TimerService.CompleteTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(CompleteTimer))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -323,13 +338,13 @@ namespace TimeTracker.Core.Services
             return false;
           }
 
-          // Stop the timer with "UserStopped"
+          // Stop the timer with "user stopped"
           using (builder.WithCustomTiming2())
           {
             notes = string.IsNullOrWhiteSpace(notes) ? "user-stopped" : notes;
             builder.IncrementQueryCount();
 
-            if (await _timerRepo.StopTimer(entryId, notes) == 0)
+            if (await _timerRepo.CompleteTimer(entryId, notes) == 0)
             {
               builder.MarkFailed();
               return false;
@@ -443,19 +458,31 @@ namespace TimeTracker.Core.Services
             var runningTimers = await _timerRepo.GetRunningTimers(userId);
             if (runningTimers.Count > 0)
             {
-              const string endReason = "auto-completed";
-
               foreach (var timer in runningTimers)
               {
                 builder.IncrementQueryCount();
-                if (await _timerRepo.CompleteTimer(timer.EntryId, endReason) > 0)
+                if (await _timerRepo.PauseTimer(timer.EntryId, "auto-paused") > 0)
                   builder.IncrementResultsCount();
               }
             }
           }
 
-          // Resume the given timer
+          // Ensure that the parent timer is completed (so we can spawn a new one)
           using (builder.WithCustomTiming3())
+          {
+            builder.IncrementQueryCount();
+
+            if (await _timerRepo.CompleteTimer(parentTimer.EntryId, "auto-completed") == 0)
+            {
+              builder.MarkFailed();
+              return false;
+            }
+
+            builder.IncrementResultsCount();
+          }
+
+          // Resume the given timer
+          using (builder.WithCustomTiming4())
             return await AddTimer(builder, parentTimer);
         }
       }

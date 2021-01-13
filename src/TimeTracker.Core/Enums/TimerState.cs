@@ -3,13 +3,8 @@
   public enum TimerState
   {
     Unknown = 0,
-    Completed = 1, // maybe rename to ENDED
+    Completed = 1,
     Paused = 2,
-    Stopped = 3,
-
-    UserPaused = 9,
-    UserStopped = 10,
-    ServicePaused = 11,
-    CronPaused = 12
+    Stopped = 3
   }
 }

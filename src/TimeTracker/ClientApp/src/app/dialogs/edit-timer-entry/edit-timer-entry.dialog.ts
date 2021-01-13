@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UiService } from 'src/app/services/ui.service';
-import { TrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
+import { TimerDto, TimersClient } from 'src/app/time-tracker-api';
 import { DateTimeEditorEvent } from './../../components/ui/edit-timer-entry/edit-timer-entry.component';
 import { TimerSeriesDialog } from '../timer-series/timer-series.dialog';
 
 export interface EditTimerEntryDialogData {
-  timer: TrackedTimeDto;
+  timer: TimerDto;
 }
 
 @Component({
@@ -15,7 +15,7 @@ export interface EditTimerEntryDialogData {
   styleUrls: ['./edit-timer-entry.dialog.css']
 })
 export class EditTimerEntryDialog implements OnInit {
-  timer?: TrackedTimeDto;
+  timer?: TimerDto;
   startDate?: Date;
   durationSeconds: number = 0;
   notes?: string;
@@ -52,7 +52,7 @@ export class EditTimerEntryDialog implements OnInit {
     let entryId = this.timer?.entryId ?? 0;
     if(entryId === 0) return;
 
-    let updatedTimer = new TrackedTimeDto({
+    let updatedTimer = new TimerDto({
       ...this.timer,
       'startTimeUtc': this.startDate,
       'totalSeconds': this.durationSeconds,

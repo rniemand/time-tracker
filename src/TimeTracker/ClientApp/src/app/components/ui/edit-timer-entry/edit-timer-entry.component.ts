@@ -2,7 +2,7 @@ import { EventEmitter } from '@angular/core';
 import { Component, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
-import { TrackedTimeDto } from 'src/app/time-tracker-api';
+import { TimerDto } from 'src/app/time-tracker-api';
 
 interface TimeDuration {
   hours: number;
@@ -12,7 +12,7 @@ interface TimeDuration {
 
 export interface DateTimeEditorEvent {
   type: string;
-  timer?: TrackedTimeDto;
+  timer?: TimerDto;
   startDate?: Date;
   durationSec?: number;
   notes?: string;
@@ -40,7 +40,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
   endDate?: Date = undefined;
   
   private _onChangeFn = (_: any) => { };
-  private _timer?: TrackedTimeDto = undefined;
+  private _timer?: TimerDto = undefined;
 
   constructor() {
     this.editForm =  new FormGroup({
@@ -64,7 +64,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
     if(!obj) return;
 
     if(typeof(obj) === 'object') {
-      if(obj instanceof TrackedTimeDto) {
+      if(obj instanceof TimerDto) {
         this.setRawTimer(obj);
       }
       else {
@@ -142,7 +142,7 @@ export class EditTimerEntryComponent implements OnInit, ControlValueAccessor {
 
 
   // Internal methods
-  private setRawTimer = (timer: TrackedTimeDto) => {
+  private setRawTimer = (timer: TimerDto) => {
     if(!(timer?.startTimeUtc instanceof Date))
       return;
 

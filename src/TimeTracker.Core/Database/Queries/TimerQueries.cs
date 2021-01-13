@@ -2,13 +2,12 @@
 {
   public interface ITimerQueries
   {
-    string GetRunningTimer();
+    string GetActiveTimer();
     string AddTimer();
     string CompleteTimer();
     string GetActiveTimers();
     string PauseTimer();
     string GetTimerById();
-    string StopTimer();
     string GetProjectTimers();
     string UpdateTimerDuration();
     string GetRunningTimers();
@@ -18,7 +17,7 @@
 
   public class TimerQueries : ITimerQueries
   {
-    public string GetRunningTimer()
+    public string GetActiveTimer()
     {
       return @"SELECT *
       FROM `Timers`
@@ -28,8 +27,8 @@
 	      `ProjectId` = @ProjectId AND
 	      `UserId` = @UserId AND
 	      `Deleted` = 0 AND
-	      `Running` = 1 AND
-	      `EntryType` = @EntryType";
+	      `EntryType` = @EntryType AND
+	      `EntryState` != 1";
     }
 
     public string AddTimer()
@@ -68,7 +67,7 @@
          t.`UserId` = @UserId AND
          t.`Deleted` = 0 AND
          t.`EntryState` != 1
-      ORDER BY `EntryState`, `StartTimeUtc` ASC";
+      ORDER BY t.`Running` DESC";
     }
 
     public string PauseTimer()
@@ -89,19 +88,6 @@
       return @"SELECT *
       FROM `Timers`
       WHERE `EntryId` = @EntryId";
-    }
-
-    public string StopTimer()
-    {
-      return @"UPDATE `Timers`
-      SET
-	      `Running` = 0,
-	      `EntryState` = @EntryState,
-	      `EndTimeUtc` = CURRENT_TIMESTAMP(),
-	      `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
-	      `Notes` = @Notes
-      WHERE
-	      `EntryId` = @EntryId";
     }
 
     public string GetProjectTimers()

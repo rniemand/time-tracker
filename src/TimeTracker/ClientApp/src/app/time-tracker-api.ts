@@ -935,7 +935,7 @@ export interface ITimersClient {
     startNew(timerDto: TimerDto): Observable<boolean>;
     updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean>;
     resumeSingleTimer(entryId: number): Observable<boolean>;
-    stopTimer(entryId: number): Observable<boolean>;
+    completeTimer(entryId: number): Observable<boolean>;
     resumeTimer(entryId: number): Observable<boolean>;
     pauseTimer(entryId: number): Observable<boolean>;
     getActiveTimers(): Observable<TimerDto[]>;
@@ -1111,8 +1111,8 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    stopTimer(entryId: number): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/stop";
+    completeTimer(entryId: number): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/complete";
         if (entryId === undefined || entryId === null)
             throw new Error("The parameter 'entryId' must be defined.");
         url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
@@ -1127,11 +1127,11 @@ export class TimersClient implements ITimersClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processStopTimer(response_);
+            return this.processCompleteTimer(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processStopTimer(<any>response_);
+                    return this.processCompleteTimer(<any>response_);
                 } catch (e) {
                     return <Observable<boolean>><any>_observableThrow(e);
                 }
@@ -1140,7 +1140,7 @@ export class TimersClient implements ITimersClient {
         }));
     }
 
-    protected processStopTimer(response: HttpResponseBase): Observable<boolean> {
+    protected processCompleteTimer(response: HttpResponseBase): Observable<boolean> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1789,10 +1789,6 @@ export enum TimerState {
     Completed = 1,
     Paused = 2,
     Stopped = 3,
-    UserPaused = 9,
-    UserStopped = 10,
-    ServicePaused = 11,
-    CronPaused = 12,
 }
 
 export enum TimerType {

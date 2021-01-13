@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { UiService } from 'src/app/services/ui.service';
-import { TrackedTimeDto, TimersClient } from 'src/app/time-tracker-api';
+import { TimerDto, TimersClient } from 'src/app/time-tracker-api';
 import { EditTimerEntryDialog, EditTimerEntryDialogData } from '../edit-timer-entry/edit-timer-entry.dialog';
 
 export interface TimerSeriesDialogData {
@@ -19,8 +19,8 @@ export interface TimerSeriesDialogData {
 })
 export class TimerSeriesDialog implements OnInit {
   displayedColumns: string[] = ['startTime', 'endTime', 'state', 'length', 'notes', 'controls'];
-  dataSource = new MatTableDataSource<TrackedTimeDto>();
-  firstEntry?: TrackedTimeDto = undefined;
+  dataSource = new MatTableDataSource<TimerDto>();
+  firstEntry?: TimerDto = undefined;
   pageSize: number = 5;
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -43,7 +43,7 @@ export class TimerSeriesDialog implements OnInit {
     this.dialogRef.close();
   }
 
-  editEntry = (timer: TrackedTimeDto) => {
+  editEntry = (timer: TimerDto) => {
     let dialogData: EditTimerEntryDialogData = { timer: timer };
 
     let dialogRef = this.dialog.open(EditTimerEntryDialog, {
@@ -61,7 +61,7 @@ export class TimerSeriesDialog implements OnInit {
   // Internal methods
   private refreshTable = () => {
     this.timersClient.getProjectEntries(this.data.projectId).toPromise().then(
-      (entries: TrackedTimeDto[]) => {
+      (entries: TimerDto[]) => {
         this.dataSource = new MatTableDataSource(entries);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
@@ -71,7 +71,7 @@ export class TimerSeriesDialog implements OnInit {
     );
   }
 
-  private setTitle = (entries: TrackedTimeDto[]) => {
+  private setTitle = (entries: TimerDto[]) => {
     this.firstEntry = undefined;
     
     if(entries.length == 0)

@@ -9,6 +9,7 @@ namespace TimeTracker.Core.Database.Entities
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
+    public int TaskId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
@@ -31,6 +32,7 @@ namespace TimeTracker.Core.Database.Entities
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
+      TaskId = 0;
       UserId = 0;
       Deleted = false;
       Running = true;

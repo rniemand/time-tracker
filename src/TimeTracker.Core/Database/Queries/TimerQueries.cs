@@ -34,9 +34,9 @@
     public string AddTimer()
     {
       return @"INSERT INTO `Timers`
-	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryType`, `EntryState`)
+	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryType`, `EntryState`, `TaskId`)
       VALUES
-	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState)";
+	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState, @TaskId)";
     }
 
     public string CompleteTimer()
@@ -103,6 +103,7 @@
 	      INNER JOIN `Clients` cli ON cli.`ClientId` = t.`ClientId`
       WHERE
 	      t.`ProjectId` = @ProjectId AND
+	      t.`EntryType` = 1 AND
 	      t.`Deleted` = 0
       ORDER BY t.`EntryId` DESC";
     }

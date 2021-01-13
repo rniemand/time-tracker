@@ -1693,6 +1693,7 @@ export class TimerDto implements ITimerDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
+    taskId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
@@ -1721,6 +1722,7 @@ export class TimerDto implements ITimerDto {
             this.clientId = _data["clientId"];
             this.productId = _data["productId"];
             this.projectId = _data["projectId"];
+            this.taskId = _data["taskId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
             this.running = _data["running"];
@@ -1749,6 +1751,7 @@ export class TimerDto implements ITimerDto {
         data["clientId"] = this.clientId;
         data["productId"] = this.productId;
         data["projectId"] = this.projectId;
+        data["taskId"] = this.taskId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
         data["running"] = this.running;
@@ -1770,6 +1773,7 @@ export interface ITimerDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
+    taskId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
@@ -1794,6 +1798,7 @@ export enum TimerState {
 export enum TimerType {
     Unspecified = 0,
     ProjectWork = 1,
+    DailyTask = 2,
 }
 
 export class SwaggerException extends Error {

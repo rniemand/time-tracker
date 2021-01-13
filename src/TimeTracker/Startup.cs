@@ -165,7 +165,8 @@ namespace TimeTracker
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
-        .AddSingleton<IOptionsService, OptionsService>();
+        .AddSingleton<IOptionsService, OptionsService>()
+        .AddSingleton<IDailyTasksService, DailyTasksService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)
@@ -195,7 +196,9 @@ namespace TimeTracker
         .AddSingleton<ITimerRepo, TimerRepo>()
         .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
-        .AddSingleton<IOptionQueries, OptionQueries>();
+        .AddSingleton<IOptionQueries, OptionQueries>()
+        .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
     }
 
     private static void ConfigureServices_Metrics(IServiceCollection services)

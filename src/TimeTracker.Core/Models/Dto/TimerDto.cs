@@ -7,7 +7,7 @@ using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Models.Dto
 {
-  public class TrackedTimeDto
+  public class TimerDto
   {
     public long EntryId { get; set; }
     public int ClientId { get; set; }
@@ -17,6 +17,7 @@ namespace TimeTracker.Core.Models.Dto
     public bool Deleted { get; set; }
     public bool Running { get; set; }
     public TimerState EntryState { get; set; }
+    public TimerType EntryType { get; set; }
     public int TotalSeconds { get; set; }
     public DateTime StartTimeUtc { get; set; }
     public DateTime? EndTimeUtc { get; set; }
@@ -27,11 +28,35 @@ namespace TimeTracker.Core.Models.Dto
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
 
-    public static Expression<Func<TrackedTimeEntity, TrackedTimeDto>> Projection
+    // Constructor
+    public TimerDto()
+    {
+      // TODO: [TESTS] (TimerDto) Add tests
+      EntryId = 0;
+      ClientId = 0;
+      ProductId = 0;
+      ProjectId = 0;
+      UserId = 0;
+      Deleted = false;
+      Running = true;
+      EntryState = TimerState.Unknown;
+      EntryType = TimerType.Unspecified;
+      TotalSeconds = 0;
+      StartTimeUtc = DateTime.UtcNow;
+      Notes = string.Empty;
+      EndTimeUtc = null;
+      ProductName = string.Empty;
+      ProjectName = string.Empty;
+      ClientName = string.Empty;
+    }
+
+
+    // Helpers
+    public static Expression<Func<TimerEntity, TimerDto>> Projection
     {
       get
       {
-        return entity => new TrackedTimeDto
+        return entity => new TimerDto
         {
           UserId = entity.UserId,
           ClientId = entity.ClientId,
@@ -47,41 +72,22 @@ namespace TimeTracker.Core.Models.Dto
           ProjectName = entity.ProjectName,
           ClientName = entity.ClientName,
           Notes = entity.Notes,
-          EntryState = entity.EntryState
+          EntryState = entity.EntryState,
+          EntryType = entity.EntryType
         };
       }
     }
 
-    public static TrackedTimeDto FromEntity(TrackedTimeEntity entity)
+    public static TimerDto FromEntity(TimerEntity entity)
     {
-      // TODO: [TESTS] (TrackedTimeDto.FromEntity) Add tests
+      // TODO: [TESTS] (TimerDto.FromEntity) Add tests
       return entity == null ? null : Projection.Compile()(entity);
     }
 
-    public TrackedTimeDto()
+    public TimerEntity AsEntity(int userIdOverride = 0)
     {
-      // TODO: [TESTS] (TrackedTimeDto) Add tests
-      EntryId = 0;
-      ClientId = 0;
-      ProductId = 0;
-      ProjectId = 0;
-      UserId = 0;
-      Deleted = false;
-      Running = true;
-      EntryState = TimerState.Unknown;
-      TotalSeconds = 0;
-      StartTimeUtc = DateTime.UtcNow;
-      Notes = string.Empty;
-      EndTimeUtc = null;
-      ProductName = string.Empty;
-      ProjectName = string.Empty;
-      ClientName = string.Empty;
-    }
-
-    public TrackedTimeEntity AsEntity(int userIdOverride = 0)
-    {
-      // TODO: [TESTS] (TrackedTimeDto.AsEntity) Add tests
-      return new TrackedTimeEntity
+      // TODO: [TESTS] (TimerDto.AsEntity) Add tests
+      return new TimerEntity
       {
         UserId = userIdOverride > 0 ? userIdOverride : UserId,
         ClientId = ClientId,
@@ -97,12 +103,13 @@ namespace TimeTracker.Core.Models.Dto
         ProjectName = ProjectName,
         ClientName = ClientName,
         Notes = Notes,
-        EntryState = EntryState
+        EntryState = EntryState,
+        EntryType = EntryType
       };
     }
   }
 
-  public class TrackedTimeDtoValidator : AbstractValidator<TrackedTimeDto>
+  public class TrackedTimeDtoValidator : AbstractValidator<TimerDto>
   {
     public TrackedTimeDtoValidator()
     {
@@ -124,14 +131,14 @@ namespace TimeTracker.Core.Models.Dto
       });
     }
 
-    public static ValidationResult StartNew(TrackedTimeDto timer)
+    public static ValidationResult StartNew(TimerDto timer)
     {
       return new TrackedTimeDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("StartNew")
       );
     }
 
-    public static ValidationResult UpdateDuration(TrackedTimeDto timer)
+    public static ValidationResult UpdateDuration(TimerDto timer)
     {
       return new TrackedTimeDtoValidator().Validate(timer,
         options => options.IncludeRuleSets("UpdateDuration")

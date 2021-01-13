@@ -1,6 +1,6 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface ITrackedTimeQueries
+  public interface ITimerQueries
   {
     string StartNew();
     string GetRunningExisting();
@@ -14,7 +14,7 @@
     string GetRunning();
   }
 
-  public class TrackedTimeQueries : ITrackedTimeQueries
+  public class TimerQueries : ITimerQueries
   {
     public string StartNew()
     {

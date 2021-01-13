@@ -43,3 +43,8 @@ ALTER TABLE `TrackedTime`
 ALTER TABLE `TrackedTime`
 	CHANGE COLUMN `EndReason` `EntryState` TINYINT(4) NOT NULL DEFAULT '0' AFTER `Running`;
 	
+ALTER TABLE `TrackedTime`
+	ADD COLUMN `EntryType` TINYINT NOT NULL DEFAULT 1 AFTER `Running`;
+	
+RENAME TABLE `TrackedTime` TO `Timers`;
+

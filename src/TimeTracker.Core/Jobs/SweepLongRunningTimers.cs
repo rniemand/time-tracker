@@ -16,17 +16,17 @@ namespace TimeTracker.Core.Jobs
   public class SweepLongRunningTimers
   {
     private readonly ILoggerAdapter<SweepLongRunningTimers> _logger;
-    private readonly ITrackedTimeRepo _trackedTimeRepo;
+    private readonly ITimerRepo _timerRepo;
     private readonly IOptionsService _optionService;
-    private readonly ITrackedTimeService _timerService;
+    private readonly ITimerService _timerService;
     private readonly IMetricService _metrics;
 
     public SweepLongRunningTimers(IServiceProvider services)
     {
       _logger = services.GetRequiredService<ILoggerAdapter<SweepLongRunningTimers>>();
-      _trackedTimeRepo = services.GetRequiredService<ITrackedTimeRepo>();
+      _timerRepo = services.GetRequiredService<ITimerRepo>();
       _optionService = services.GetRequiredService<IOptionsService>();
-      _timerService = services.GetRequiredService<ITrackedTimeService>();
+      _timerService = services.GetRequiredService<ITimerService>();
       _metrics = services.GetRequiredService<IMetricService>();
     }
 
@@ -44,7 +44,7 @@ namespace TimeTracker.Core.Jobs
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            users = await _trackedTimeRepo.GetUsersWithRunningTimers();
+            users = await _timerRepo.GetUsersWithRunningTimers();
             builder.WithResultsCount(users.Count);
           }
 
@@ -85,11 +85,11 @@ namespace TimeTracker.Core.Jobs
           }
 
           var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
-          List<TrackedTimeEntity> timers;
+          List<TimerEntity> timers;
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            timers = await _trackedTimeRepo.GetLongRunningTimers(userId, maxRunTimeSec);
+            timers = await _timerRepo.GetLongRunningTimers(userId, maxRunTimeSec);
           }
 
           const TimerState endReason = TimerState.CronPaused;

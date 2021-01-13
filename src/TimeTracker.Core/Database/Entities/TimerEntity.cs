@@ -3,7 +3,7 @@ using TimeTracker.Core.Enums;
 
 namespace TimeTracker.Core.Database.Entities
 {
-  public class TrackedTimeEntity
+  public class TimerEntity
   {
     public long EntryId { get; set; }
     public int ClientId { get; set; }
@@ -13,6 +13,7 @@ namespace TimeTracker.Core.Database.Entities
     public bool Deleted { get; set; }
     public bool Running { get; set; }
     public TimerState EntryState { get; set; }
+    public TimerType EntryType { get; set; }
     public int TotalSeconds { get; set; }
     public DateTime StartTimeUtc { get; set; }
     public DateTime? EndTimeUtc { get; set; }
@@ -23,9 +24,9 @@ namespace TimeTracker.Core.Database.Entities
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
 
-    public TrackedTimeEntity()
+    public TimerEntity()
     {
-      // TODO: [TESTS] (TrackedTimeEntity) Add tests
+      // TODO: [TESTS] (TimerEntity) Add tests
       EntryId = 0;
       ClientId = 0;
       ProductId = 0;
@@ -34,6 +35,7 @@ namespace TimeTracker.Core.Database.Entities
       Deleted = false;
       Running = true;
       EntryState = TimerState.Unknown;
+      EntryType = TimerType.Unspecified;
       TotalSeconds = 0;
       StartTimeUtc = DateTime.UtcNow;
       Notes = string.Empty;

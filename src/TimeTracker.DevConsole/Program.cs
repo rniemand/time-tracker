@@ -115,8 +115,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductQueries, ProductQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectQueries, ProjectQueries>()
-        .AddSingleton<ITrackedTimeRepo, TrackedTimeRepo>()
-        .AddSingleton<ITrackedTimeQueries, TrackedTimeQueries>()
+        .AddSingleton<ITimerRepo, TimerRepo>()
+        .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>();
     }
@@ -128,7 +128,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<ITrackedTimeService, TrackedTimeService>()
+        .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>();
     }
 

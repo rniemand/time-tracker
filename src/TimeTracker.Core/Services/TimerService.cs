@@ -12,38 +12,38 @@ using TimeTracker.Core.Models.Dto;
 
 namespace TimeTracker.Core.Services
 {
-  public interface ITrackedTimeService
+  public interface ITimerService
   {
-    Task<bool> StartNew(int userId, TrackedTimeDto entry);
-    Task<List<TrackedTimeDto>> GetActive(int userId);
+    Task<bool> StartNew(int userId, TimerDto entry);
+    Task<List<TimerDto>> GetActive(int userId);
     Task<bool> Pause(int userId, long entryId, TimerState state, string notes);
     Task<bool> Resume(int userId, long entryId);
     Task<bool> Stop(int userId, long entryId);
-    Task<List<TrackedTimeDto>> GetProjectEntries(int userId, int projectId);
-    Task<bool> UpdateDuration(int userId, TrackedTimeDto entry);
+    Task<List<TimerDto>> GetProjectEntries(int userId, int projectId);
+    Task<bool> UpdateDuration(int userId, TimerDto entry);
     Task<bool> ResumeSingle(int userId, long entryId);
   }
 
-  public class TrackedTimeService : ITrackedTimeService
+  public class TimerService : ITimerService
   {
-    private readonly ILoggerAdapter<TrackedTimeService> _logger;
+    private readonly ILoggerAdapter<TimerService> _logger;
     private readonly IMetricService _metrics;
-    private readonly ITrackedTimeRepo _timeRepo;
+    private readonly ITimerRepo _timeRepo;
 
-    public TrackedTimeService(
-      ILoggerAdapter<TrackedTimeService> logger,
+    public TimerService(
+      ILoggerAdapter<TimerService> logger,
       IMetricService metrics,
-      ITrackedTimeRepo timeRepo)
+      ITimerRepo timeRepo)
     {
       _logger = logger;
       _metrics = metrics;
       _timeRepo = timeRepo;
     }
 
-    public async Task<bool> StartNew(int userId, TrackedTimeDto entry)
+    public async Task<bool> StartNew(int userId, TimerDto entry)
     {
-      // TODO: [TESTS] (TrackedTimeService.StartNew) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(StartNew))
+      // TODO: [TESTS] (TimerService.StartNew) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(StartNew))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Add)
         .WithUserId(userId);
 
@@ -87,10 +87,10 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<List<TrackedTimeDto>> GetActive(int userId)
+    public async Task<List<TimerDto>> GetActive(int userId)
     {
-      // TODO: [TESTS] (TrackedTimeService.GetActiveTimers) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(GetActive))
+      // TODO: [TESTS] (TimerService.GetActiveTimers) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(GetActive))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetFiltered)
         .WithUserId(userId);
 
@@ -98,7 +98,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<TrackedTimeEntity> entries;
+          List<TimerEntity> entries;
           using (builder.WithCustomTiming1())
           {
             entries = await _timeRepo.GetActive(userId);
@@ -106,7 +106,7 @@ namespace TimeTracker.Core.Services
           }
 
           return entries.AsQueryable()
-            .Select(TrackedTimeDto.Projection)
+            .Select(TimerDto.Projection)
             .ToList();
         }
       }
@@ -114,7 +114,7 @@ namespace TimeTracker.Core.Services
       {
         _logger.LogUnexpectedException(ex);
         builder.WithException(ex);
-        return new List<TrackedTimeDto>();
+        return new List<TimerDto>();
       }
       finally
       {
@@ -124,8 +124,8 @@ namespace TimeTracker.Core.Services
 
     public async Task<bool> Pause(int userId, long entryId, TimerState state, string notes)
     {
-      // TODO: [TESTS] (TrackedTimeService.PauseTimer) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(Pause))
+      // TODO: [TESTS] (TimerService.PauseTimer) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(Pause))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithCustomTag1(state.ToString("G"), true)
         .WithUserId(userId);
@@ -134,7 +134,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TrackedTimeEntity dbEntry;
+          TimerEntity dbEntry;
           using (builder.WithCustomTiming1())
           {
             dbEntry = await _timeRepo.GetByEntryId(entryId);
@@ -151,7 +151,7 @@ namespace TimeTracker.Core.Services
 
           if (dbEntry.UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.PauseTimer) Handle this
+            // TODO: [HANDLE] (TimerService.PauseTimer) Handle this
             return false;
           }
 
@@ -183,8 +183,8 @@ namespace TimeTracker.Core.Services
 
     public async Task<bool> Resume(int userId, long entryId)
     {
-      // TODO: [TESTS] (TrackedTimeService.Resume) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(Resume))
+      // TODO: [TESTS] (TimerService.Resume) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(Resume))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -192,7 +192,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TrackedTimeEntity parentTimer;
+          TimerEntity parentTimer;
 
           // Ensure that we have a valid timer
           using (builder.WithCustomTiming1())
@@ -212,7 +212,7 @@ namespace TimeTracker.Core.Services
           // Ensure the provided user owns the timer
           if (parentTimer.UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.ResumeTimer) Handle this
+            // TODO: [HANDLE] (TimerService.ResumeTimer) Handle this
             return false;
           }
 
@@ -264,8 +264,8 @@ namespace TimeTracker.Core.Services
 
     public async Task<bool> Stop(int userId, long entryId)
     {
-      // TODO: [TESTS] (TrackedTimeService.Stop) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(Stop))
+      // TODO: [TESTS] (TimerService.Stop) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(Stop))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -273,7 +273,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TrackedTimeEntity dbTimer;
+          TimerEntity dbTimer;
 
           // Ensure that we are working with a valid timer
           using (builder.WithCustomTiming1())
@@ -293,7 +293,7 @@ namespace TimeTracker.Core.Services
           // Ensure the provided user owns this timer
           if (dbTimer.UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.StopTimer) Handle this
+            // TODO: [HANDLE] (TimerService.StopTimer) Handle this
             return false;
           }
 
@@ -325,10 +325,10 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<List<TrackedTimeDto>> GetProjectEntries(int userId, int projectId)
+    public async Task<List<TimerDto>> GetProjectEntries(int userId, int projectId)
     {
-      // TODO: [TESTS] (TrackedTimeService.GetProjectEntries) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(GetProjectEntries))
+      // TODO: [TESTS] (TimerService.GetProjectEntries) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(GetProjectEntries))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
         .WithUserId(userId);
 
@@ -336,7 +336,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<TrackedTimeEntity> dbEntries;
+          List<TimerEntity> dbEntries;
 
           // Ensure that we have some entries to work with
           using (builder.WithCustomTiming1())
@@ -345,7 +345,7 @@ namespace TimeTracker.Core.Services
             builder.IncrementQueryCount();
 
             if ((dbEntries?.Count ?? 0) == 0)
-              return new List<TrackedTimeDto>();
+              return new List<TimerDto>();
 
             AppendEntityInfo(builder, dbEntries.First());
           }
@@ -353,14 +353,14 @@ namespace TimeTracker.Core.Services
           // Ensure that the current user owns these entries
           if (dbEntries.First().UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.GetTimerSeries) Handle this
-            return new List<TrackedTimeDto>();
+            // TODO: [HANDLE] (TimerService.GetTimerSeries) Handle this
+            return new List<TimerDto>();
           }
 
           // Cast and return the results
           builder.WithResultsCount(dbEntries.Count);
           return dbEntries.AsQueryable()
-            .Select(TrackedTimeDto.Projection)
+            .Select(TimerDto.Projection)
             .ToList();
         }
       }
@@ -368,7 +368,7 @@ namespace TimeTracker.Core.Services
       {
         _logger.LogUnexpectedException(ex);
         builder.WithException(ex);
-        return new List<TrackedTimeDto>();
+        return new List<TimerDto>();
       }
       finally
       {
@@ -376,10 +376,10 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<bool> UpdateDuration(int userId, TrackedTimeDto entry)
+    public async Task<bool> UpdateDuration(int userId, TimerDto entry)
     {
-      // TODO: [TESTS] (TrackedTimeService.UpdateDuration) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(UpdateDuration))
+      // TODO: [TESTS] (TimerService.UpdateDuration) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(UpdateDuration))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -387,7 +387,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TrackedTimeEntity dbTimer;
+          TimerEntity dbTimer;
 
           // Ensure that we have a valid entry to work with
           using (builder.WithCustomTiming1())
@@ -407,7 +407,7 @@ namespace TimeTracker.Core.Services
           // Ensure that the current user owns this entry
           if (dbTimer.UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.UpdateTimerDuration) Handle this
+            // TODO: [HANDLE] (TimerService.UpdateTimerDuration) Handle this
             return false;
           }
 
@@ -441,8 +441,8 @@ namespace TimeTracker.Core.Services
 
     public async Task<bool> ResumeSingle(int userId, long entryId)
     {
-      // TODO: [TESTS] (TrackedTimeService.ResumeSingle) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(ResumeSingle))
+      // TODO: [TESTS] (TimerService.ResumeSingle) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ResumeSingle))
         .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
         .WithUserId(userId);
 
@@ -450,7 +450,7 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TrackedTimeEntity parentTimer;
+          TimerEntity parentTimer;
 
           // Ensure that we have a valid timer to work with
           using (builder.WithCustomTiming1())
@@ -470,7 +470,7 @@ namespace TimeTracker.Core.Services
           // Ensure that the provided user owns this timer
           if (parentTimer.UserId != userId)
           {
-            // TODO: [HANDLE] (TrackedTimeService.ResumeSingleTimer) Handle this
+            // TODO: [HANDLE] (TimerService.ResumeSingleTimer) Handle this
             return false;
           }
 
@@ -524,9 +524,9 @@ namespace TimeTracker.Core.Services
 
 
     // Internal methods
-    private static void AppendEntityInfo(ServiceMetricBuilder builder, TrackedTimeEntity entity)
+    private static void AppendEntityInfo(ServiceMetricBuilder builder, TimerEntity entity)
     {
-      // TODO: [TESTS] (TrackedTimeService.AppendEntityInfo) Add tests
+      // TODO: [TESTS] (TimerService.AppendEntityInfo) Add tests
       builder
         .WithUserId(entity.UserId)
         .WithCustomInt1(entity.ClientId)

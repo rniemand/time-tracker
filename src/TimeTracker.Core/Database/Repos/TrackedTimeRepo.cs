@@ -12,11 +12,12 @@ namespace TimeTracker.Core.Database.Repos
   public interface ITrackedTimeRepo
   {
     Task<int> StartNew(TrackedTimeEntity timerEntity);
-    Task<TrackedTimeEntity> GetExistingTimer(TrackedTimeEntity timerEntity);
+    Task<TrackedTimeEntity> GetExisting(TrackedTimeEntity timerEntity);
+    Task<List<TrackedTimeEntity>> GetActive(int userId);
+
 
 
     Task<TrackedTimeEntity> GetCurrentEntry(TrackedTimeEntity timerEntity); // revise
-    Task<List<TrackedTimeEntity>> GetActiveTimers(int userId); // revise
     Task<int> PauseTimer(long rawTimerId, EntryRunningState state, string notes); // revise
     Task<TrackedTimeEntity> GetByRawTimerId(long rawTimerId); // revise
     Task<int> FlagAsResumed(long rawTimerId); // revise
@@ -56,13 +57,23 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<TrackedTimeEntity> GetExistingTimer(TrackedTimeEntity timerEntity)
+    public async Task<TrackedTimeEntity> GetExisting(TrackedTimeEntity timerEntity)
     {
-      // TODO: [TESTS] (TrackedTimeRepo.GetExistingTimer) Add tests
+      // TODO: [TESTS] (TrackedTimeRepo.GetExisting) Add tests
       return await GetSingle<TrackedTimeEntity>(
-        nameof(GetExistingTimer),
-        _queries.GetExistingTimer(),
+        nameof(GetExisting),
+        _queries.GetExisting(),
         timerEntity
+      );
+    }
+
+    public async Task<List<TrackedTimeEntity>> GetActive(int userId)
+    {
+      // TODO: [TESTS] (TrackedTimeRepo.GetRunningTimers) Add tests
+      return await GetList<TrackedTimeEntity>(
+        nameof(GetActive),
+        _queries.GetActive(),
+        new { UserId = userId }
       );
     }
 
@@ -77,19 +88,6 @@ namespace TimeTracker.Core.Database.Repos
         nameof(GetCurrentEntry),
         _queries.GetCurrentEntry(),
         timerEntity
-      );
-    }
-
-    public async Task<List<TrackedTimeEntity>> GetActiveTimers(int userId)
-    {
-      // TODO: [TESTS] (TrackedTimeRepo.GetRunningTimers) Add tests
-      return await GetList<TrackedTimeEntity>(
-        nameof(GetActiveTimers),
-        _queries.GetActiveTimers(),
-        new
-        {
-          UserId = userId
-        }
       );
     }
 
@@ -245,8 +243,8 @@ namespace TimeTracker.Core.Database.Repos
     {
       // TODO: [TESTS] (TrackedTimeRepo.GetRunningTimers) Add tests
       return await GetList<TrackedTimeEntity>(
-        nameof(GetActiveTimers),
-        _queries.GetActiveTimers(),
+        nameof(GetActive),
+        _queries.GetActive(),
         new
         {
           UserId = userId

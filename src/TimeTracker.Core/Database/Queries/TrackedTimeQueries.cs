@@ -3,11 +3,11 @@
   public interface ITrackedTimeQueries
   {
     string StartNew();
-    string GetExistingTimer();
+    string GetExisting();
+    string GetActive();
 
 
     string GetCurrentEntry();
-    string GetActiveTimers();
     string PauseTimer();
     string GetByRawTimerId();
     string SpawnResumedTimer();
@@ -33,7 +33,7 @@
 	      (@ClientId, @ProductId, @ProjectId, @UserId)";
     }
 
-    public string GetExistingTimer()
+    public string GetExisting()
     {
       return @"SELECT *
       FROM `TrackedTime`
@@ -44,6 +44,24 @@
 	      `UserId` = @UserId AND
 	      `Deleted` = 0 AND
 	      `Running` = 1";
+    }
+
+    public string GetActive()
+    {
+      return @"SELECT
+	      tt.*,
+	      prod.`ProductName`,
+	      proj.`ProjectName`,
+	      cli.`ClientName`
+      FROM `TrackedTime` tt
+	      INNER JOIN `Products` prod ON tt.`ProductId` = prod.`ProductId`
+	      INNER JOIN `Projects` proj ON tt.`ProjectId` = proj.`ProjectId`
+	      INNER JOIN `Clients` cli ON tt.`ClientId` = cli.`ClientId`
+      WHERE
+	      tt.`UserId` = @UserId AND
+	      tt.`Deleted` = 0 AND
+	      tt.`EndReason` != 1
+      ORDER BY `EndReason`, `StartTimeUtc` ASC";
     }
 
 
@@ -63,25 +81,6 @@
 	      `Deleted` = 0 AND
 	      `EntryState` = @EntryState
       LIMIT 1";
-    }
-
-    public string GetActiveTimers()
-    {
-      return @"SELECT
-	      rtt.*,
-	      prod.`ProductName`,
-	      proj.`ProjectName`,
-	      cli.`ClientName`
-      FROM `RawTimers` rtt
-	      INNER JOIN `Products` prod ON rtt.`ProductId` = prod.`ProductId`
-	      INNER JOIN `Projects` proj ON rtt.`ProjectId` = proj.`ProjectId`
-	      INNER JOIN `Clients` cli ON prod.`ClientId` = cli.`ClientId`
-      WHERE
-	      rtt.`Deleted` = 0 AND
-	      rtt.`UserId` = @UserId AND
-	      rtt.`Completed` = 0 AND
-        rtt.`Running` = 1
-      ORDER BY `EntryState`, `RootEntryId`, `StartTimeUtc` ASC";
     }
 
     public string PauseTimer()

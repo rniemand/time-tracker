@@ -35,7 +35,7 @@ namespace TimeTracker.Controllers
     {
       // TODO: [TESTS] (TimersController.GetActiveTimers) Add tests
       var response = new BaseResponse<List<TrackedTimeDto>>()
-        .WithResponse(await _timerService.GetActiveTimers(request.UserId));
+        .WithResponse(await _timerService.GetActive(request.UserId));
 
       return ProcessResponse(response);
     }

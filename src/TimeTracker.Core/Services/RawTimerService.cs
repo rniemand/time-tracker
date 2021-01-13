@@ -15,7 +15,7 @@ namespace TimeTracker.Core.Services
   public interface ITrackedTimeService
   {
     Task<bool> StartNew(int userId, TrackedTimeDto timerDto);
-    Task<List<TrackedTimeDto>> GetActiveTimers(int userId);
+    Task<List<TrackedTimeDto>> GetActive(int userId);
     Task<bool> PauseTimer(int userId, long rawTimerId, EntryRunningState state, string notes);
     Task<bool> ResumeTimer(int userId, long rawTimerId);
     Task<bool> StopTimer(int userId, long rawTimerId);
@@ -60,7 +60,7 @@ namespace TimeTracker.Core.Services
           // Handle the case of an existing timer
           using (builder.WithCustomTiming1())
           {
-            var existingTimer = await _timeRepo.GetExistingTimer(timerEntity);
+            var existingTimer = await _timeRepo.GetExisting(timerEntity);
             builder.IncrementQueryCount().CountResult(existingTimer);
             if (existingTimer != null)
               return true;
@@ -90,26 +90,27 @@ namespace TimeTracker.Core.Services
       }
     }
 
-    public async Task<List<TrackedTimeDto>> GetActiveTimers(int userId)
+    public async Task<List<TrackedTimeDto>> GetActive(int userId)
     {
       // TODO: [TESTS] (TrackedTimeService.GetActiveTimers) Add tests
-      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(GetActiveTimers))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
-        .WithCustomInt1(userId);
+      var builder = new ServiceMetricBuilder(nameof(TrackedTimeService), nameof(GetActive))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetFiltered)
+        .WithUserId(userId);
 
       try
       {
         using (builder.WithTiming())
         {
-          List<TrackedTimeEntity> dbEntries;
+          List<TrackedTimeEntity> entries;
           using (builder.WithCustomTiming1())
           {
-            builder.IncrementQueryCount();
-            dbEntries = await _timeRepo.GetActiveTimers(userId);
-            builder.WithResultsCount(dbEntries.Count);
+            entries = await _timeRepo.GetActive(userId);
+            builder.IncrementQueryCount().WithResultsCount(entries.Count);
           }
 
-          return dbEntries.AsQueryable().Select(TrackedTimeDto.Projection).ToList();
+          return entries.AsQueryable()
+            .Select(TrackedTimeDto.Projection)
+            .ToList();
         }
       }
       catch (Exception ex)

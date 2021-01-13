@@ -2,6 +2,7 @@
 {
   public enum TimerEndReason
   {
-    Unknown = 0
+    Unknown = 0,
+    Completed = 1
   }
 }

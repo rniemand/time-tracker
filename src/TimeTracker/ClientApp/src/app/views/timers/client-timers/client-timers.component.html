@@ -1,0 +1,17 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation">
+      <mat-icon routerLink="/">home</mat-icon> / 
+      <a [routerLink]="['/timers']">Timers</a> /
+      Client
+    </h1>
+  </div>
+
+  <div>
+    <ul>
+      <li><a [routerLink]="['/timers', 'product', 1]">Product 1</a></li>
+      <li><a [routerLink]="['/timers', 'product', 2]">Product 2</a></li>
+      <li><a [routerLink]="['/timers', 'product', 3]">Product 3</a></li>
+    </ul>
+  </div>
+</div>

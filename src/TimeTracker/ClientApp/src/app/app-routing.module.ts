@@ -12,6 +12,10 @@ import { AddProjectComponent } from './views/projects/add-project/add-project.co
 import { EditProjectComponent } from './views/projects/edit-project/edit-project.component';
 import { ProjectsComponent } from './views/projects/projects.component';
 import { AuthGuard } from './providers/append-token.interceptor';
+import { TimersComponent } from './views/timers/timers.component';
+import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
+import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
+import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -44,6 +48,16 @@ const routes: Routes = [
       { path: 'edit/:projectId', component: EditProjectComponent },
       { path: ':clientId/:productId', component: ProjectsComponent },
       { path: 'add/:clientId/:productId', component: AddProjectComponent }
+    ]
+  },
+  {
+    path: 'timers',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: TimersComponent },
+      { path: 'client/:clientId', component: ClientTimersComponent },
+      { path: 'product/:productId', component: ProductTimersComponent },
+      { path: 'project/:projectId', component: ProjectTimersComponent }
     ]
   }
 ];

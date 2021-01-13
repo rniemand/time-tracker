@@ -1,6 +1,6 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface IProjectRepoQueries
+  public interface IProjectQueries
   {
     string GetAllForProduct();
     string GetById();
@@ -9,7 +9,7 @@
     string Update();
   }
 
-  public class ProjectRepoQueries : IProjectRepoQueries
+  public class ProjectQueries : IProjectQueries
   {
     public string GetAllForProduct()
     {

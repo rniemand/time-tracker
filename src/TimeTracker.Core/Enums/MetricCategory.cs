@@ -6,7 +6,7 @@
     public const string Option = "Option";
     public const string Product = "Product";
     public const string Project = "Project";
-    public const string RawTimer = "RawTimer";
+    public const string TrackedTime = "TrackedTime";
     public const string User = "User";
   }
 }

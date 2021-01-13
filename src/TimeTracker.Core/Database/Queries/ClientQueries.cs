@@ -1,6 +1,6 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface IClientRepoQueries
+  public interface IClientQueries
   {
     string GetAll();
     string GetByName();
@@ -9,7 +9,7 @@
     string GetById();
   }
 
-  public class ClientRepoQueries : IClientRepoQueries
+  public class ClientQueries : IClientQueries
   {
     public string GetAll()
     {

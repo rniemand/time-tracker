@@ -4,11 +4,7 @@
     <p>Please <a routerLink="/login">login</a>.</p>
   </div>
 
-  <div class="content-row" *ngIf="loggedIn">
-    <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon></h1>
-  </div>
-
-  <div class="content-row" *ngIf="loggedIn" fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="8px">
+  <div class="content-row quick-links" *ngIf="loggedIn" fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="8px">
     <app-home-card title="Clients" icon="group">
       <button mat-stroked-button class="last-btn" [routerLink]="['/clients']" fxFlex>Manage</button>
     </app-home-card>
@@ -19,6 +15,10 @@
 
     <app-home-card title="Projects" icon="work_outline">
       <button mat-stroked-button class="last-btn" [routerLink]="['/projects', this.clientId, this.productId]" fxFlex>Manage</button>
+    </app-home-card>
+
+    <app-home-card title="Timers" icon="alarm">
+      <button mat-stroked-button class="last-btn" [routerLink]="['/timers']" fxFlex>View</button>
     </app-home-card>
   </div>
 

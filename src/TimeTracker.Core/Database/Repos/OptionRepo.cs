@@ -16,13 +16,13 @@ namespace TimeTracker.Core.Database.Repos
 
   public class OptionRepo : BaseRepo<OptionRepo>, IOptionRepo
   {
-    private readonly IOptionRepoQueries _queries;
+    private readonly IOptionQueries _queries;
 
     public OptionRepo(
       ILoggerAdapter<OptionRepo> logger,
       IDbHelper dbHelper,
       IMetricService metricService,
-      IOptionRepoQueries queries)
+      IOptionQueries queries)
         : base(logger, dbHelper, metricService, nameof(OptionRepo), TargetDB.TimeTracker)
     {
       _queries = queries;

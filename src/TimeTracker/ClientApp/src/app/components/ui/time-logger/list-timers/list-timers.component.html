@@ -13,12 +13,13 @@
         <span class="product">{{ timer.productName }}</span>
         <span class="project">{{ timer.projectName }}</span>
       </span>
-      <span class="time">{{ timer | runningTimer:flipFlop }}</span>
+      <span class="time" *ngIf="timer.running">{{ timer | runningTimer:flipFlop }}</span>
+      <span class="time" *ngIf="!timer.running">{{ timer | pausedTimer }}</span>
     </span>
-    <mat-icon class="pause" (click)="pause(timer)" *ngIf="timer.entryState === 1">pause</mat-icon>
-    <mat-icon class="resume" (click)="resume(timer)" *ngIf="timer.entryState !== 1">play_arrow</mat-icon>
-    <mat-icon class="resume" (click)="resumeSingleTimer(timer)" *ngIf="timer.entryState !== 1 && runningTimers">skip_next</mat-icon>
-    <mat-icon class="stop" (click)="stop(timer)">stop</mat-icon>
-    <mat-icon class="history" (click)="timerHistory(timer)">history</mat-icon>
+    <mat-icon class="pause" (click)="pauseTimer(timer)" *ngIf="timer.running">pause</mat-icon>
+    <mat-icon class="resume" (click)="resumeTimer(timer)" *ngIf="!timer.running">play_arrow</mat-icon>
+    <mat-icon class="resume" (click)="resumeSingleTimer(timer)" *ngIf="!timer.running && runningTimers">skip_next</mat-icon>
+    <mat-icon class="stop" (click)="completeTimer(timer)">stop</mat-icon>
+    <mat-icon class="history" [routerLink]="['/timers', 'project', timer.projectId]">history</mat-icon>
   </mat-list-item>
 </mat-list>

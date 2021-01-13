@@ -16,17 +16,17 @@ namespace TimeTracker.Core.Jobs
   public class SweepLongRunningTimers
   {
     private readonly ILoggerAdapter<SweepLongRunningTimers> _logger;
-    private readonly IRawTimersRepo _rawTimersRepo;
+    private readonly ITimerRepo _timerRepo;
     private readonly IOptionsService _optionService;
-    private readonly IRawTimerService _timerService;
+    private readonly ITimerService _timerService;
     private readonly IMetricService _metrics;
 
     public SweepLongRunningTimers(IServiceProvider services)
     {
       _logger = services.GetRequiredService<ILoggerAdapter<SweepLongRunningTimers>>();
-      _rawTimersRepo = services.GetRequiredService<IRawTimersRepo>();
+      _timerRepo = services.GetRequiredService<ITimerRepo>();
       _optionService = services.GetRequiredService<IOptionsService>();
-      _timerService = services.GetRequiredService<IRawTimerService>();
+      _timerService = services.GetRequiredService<ITimerService>();
       _metrics = services.GetRequiredService<IMetricService>();
     }
 
@@ -34,7 +34,7 @@ namespace TimeTracker.Core.Jobs
     {
       // TODO: [TESTS] (SweepLongRunningTimers.Run) Add tests
       var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(Run))
-        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update);
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update);
 
       try
       {
@@ -44,7 +44,7 @@ namespace TimeTracker.Core.Jobs
           using (builder.WithCustomTiming1())
           {
             builder.IncrementQueryCount();
-            users = await _rawTimersRepo.GetUsersWithRunningTimers();
+            users = await _timerRepo.GetUsersWithRunningTimers();
             builder.WithResultsCount(users.Count);
           }
 
@@ -70,8 +70,8 @@ namespace TimeTracker.Core.Jobs
     {
       // TODO: [TESTS] (SweepLongRunningTimers.ProcessUserTimers) Add tests
       var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(ProcessUserTimers))
-        .WithCategory(MetricCategory.RawTimer, MetricSubCategory.Update)
-        .WithCustomInt1(userId);
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
+        .WithUserId(userId);
 
       try
       {
@@ -85,23 +85,18 @@ namespace TimeTracker.Core.Jobs
           }
 
           var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
-          List<RawTimerEntity> timers;
+          List<TimerEntity> timers;
           using (builder.WithCustomTiming2())
           {
             builder.IncrementQueryCount();
-            timers = await _rawTimersRepo.GetLongRunningTimers(userId, maxRunTimeSec);
-            builder.WithResultsCount(timers.Count);
+            timers = await _timerRepo.GetLongRunningTimers(userId, maxRunTimeSec);
           }
 
           foreach (var timer in timers)
           {
             builder.IncrementQueryCount();
-            await _timerService.PauseTimer(
-              userId,
-              timer.RawTimerId,
-              EntryRunningState.CronJobPaused,
-              "auto-paused"
-            );
+            if (await _timerService.PauseTimer(userId, timer.EntryId, "cron-paused"))
+              builder.IncrementResultsCount();
           }
         }
       }

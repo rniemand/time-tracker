@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="MySql.Data" Version="8.0.22" />
     <PackageReference Include="NSwag.Annotations" Version="13.9.4" />
-    <PackageReference Include="Rn.NetCore.Common" Version="3.0.0.113" />
+    <PackageReference Include="Rn.NetCore.Common" Version="3.0.0.114" />
     <PackageReference Include="Rn.NetCore.DbCommon" Version="1.0.0.104" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>

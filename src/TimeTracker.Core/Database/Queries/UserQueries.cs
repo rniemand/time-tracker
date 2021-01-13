@@ -1,13 +1,13 @@
 ﻿namespace TimeTracker.Core.Database.Queries
 {
-  public interface IUserRepoQueries
+  public interface IUserQueries
   {
     string GetUsingCredentials();
     string UpdateLastLoginDate();
     string GetUserById();
   }
 
-  public class UserRepoQueries : IUserRepoQueries
+  public class UserQueries : IUserQueries
   {
     public string GetUsingCredentials()
     {

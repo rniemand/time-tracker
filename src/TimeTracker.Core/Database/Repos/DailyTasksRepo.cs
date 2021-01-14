@@ -14,6 +14,8 @@ namespace TimeTracker.Core.Database.Repos
 
     Task<int> AddTask(DailyTaskEntity taskEntity);
     Task<DailyTaskEntity> SearchByName(DailyTaskEntity taskEntity);
+    Task<DailyTaskEntity> GetTaskById(int taskId);
+    Task<int> UpdateTask(DailyTaskEntity taskEntity);
   }
 
   public class DailyTasksRepo : BaseRepo<DailyTasksRepo>, IDailyTasksRepo
@@ -59,6 +61,29 @@ namespace TimeTracker.Core.Database.Repos
       return await GetSingle<DailyTaskEntity>(
         nameof(SearchByName),
         _queries.SearchByName(),
+        taskEntity
+      );
+    }
+
+    public async Task<DailyTaskEntity> GetTaskById(int taskId)
+    {
+      // TODO: [TESTS] (DailyTasksRepo.GetTaskById) Add tests
+      return await GetSingle<DailyTaskEntity>(
+        nameof(GetTaskById),
+        _queries.GetTaskById(),
+        new
+        {
+          TaskId = taskId
+        }
+      );
+    }
+
+    public async Task<int> UpdateTask(DailyTaskEntity taskEntity)
+    {
+      // TODO: [TESTS] (DailyTasksRepo.UpdateTask) Add tests
+      return await ExecuteAsync(
+        nameof(UpdateTask),
+        _queries.UpdateTask(),
         taskEntity
       );
     }

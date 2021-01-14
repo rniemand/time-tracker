@@ -78,12 +78,26 @@ namespace TimeTracker.Core.Models.Dto
         RuleFor(x => x.ClientId).GreaterThan(0);
         RuleFor(x => x.TaskName).NotNull().MinimumLength(3).MaximumLength(128);
       });
+
+      RuleSet("Update", () =>
+      {
+        RuleFor(x => x.UserId).GreaterThan(0);
+        RuleFor(x => x.ClientId).GreaterThan(0);
+        RuleFor(x => x.TaskName).NotNull().MinimumLength(3).MaximumLength(128);
+      });
     }
 
     public static ValidationResult Add(DailyTaskDto taskDto)
     {
       return new DailyTaskDtoValidator().Validate(taskDto,
         options => options.IncludeRuleSets("Add")
+      );
+    }
+
+    public static ValidationResult Update(DailyTaskDto taskDto)
+    {
+      return new DailyTaskDtoValidator().Validate(taskDto,
+        options => options.IncludeRuleSets("Update")
       );
     }
   }

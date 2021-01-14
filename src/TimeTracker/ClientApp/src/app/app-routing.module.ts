@@ -18,6 +18,7 @@ import { ProductTimersComponent } from './views/timers/product-timers/product-ti
 import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
 import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
 import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
+import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -68,7 +69,8 @@ const routes: Routes = [
     children: [
       { path: '', component: DailyTasksComponent },
       { path: ':clientId', component: DailyTasksComponent },
-      { path: 'add/:clientId', component: AddDailyTaskComponent }
+      { path: 'add/:clientId', component: AddDailyTaskComponent },
+      { path: 'edit/:taskId', component: EditDailyTaskComponent }
     ]
   }
 ];

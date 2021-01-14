@@ -15,6 +15,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<TimerEntity>> GetProjectTimers(int projectId);
     Task<List<TimerEntity>> GetRunningTimers(int userId);
     Task<List<TimerEntity>> GetLongRunningTimers(int userId, int thresholdSec);
+    Task<List<TimerEntity>> GetDailyTaskTimers(int taskId);
 
     Task<int> AddTimer(TimerEntity timerEntity);
     Task<int> PauseTimer(long entryId, string notes);
@@ -87,6 +88,19 @@ namespace TimeTracker.Core.Database.Repos
         {
           UserId = userId,
           ThresholdSec = thresholdSec
+        }
+      );
+    }
+
+    public async Task<List<TimerEntity>> GetDailyTaskTimers(int taskId)
+    {
+      // TODO: [TESTS] (TimerRepo.GetDailyTaskTimers) Add tests
+      return await GetList<TimerEntity>(
+        nameof(GetDailyTaskTimers),
+        _queries.GetDailyTaskTimers(),
+        new
+        {
+          TaskId = taskId
         }
       );
     }

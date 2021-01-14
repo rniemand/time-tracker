@@ -1,18 +1,37 @@
-.data-table table {
-  width: 100%;
+.data-table {
+  border: 1px solid #717171;
 }
-
-.data-table a {
-  color: #f2d2ff;
-  text-decoration: none;
-}
-  .data-table a:hover {
-    cursor: pointer;
-    color: #d778fd;
-    text-decoration: underline;
+  .data-table table {
+    width: 100%;
   }
+  .data-table a {
+    color: #f2d2ff;
+    text-decoration: none;
+  }
+    .data-table a:hover {
+      cursor: pointer;
+      color: #d778fd;
+      text-decoration: underline;
+    }
+    .data-table table tr td.controls {
+      width: 80px;
+      text-align: center;
+    }
 
-.data-table table tr td.controls {
-  width: 80px;
-  text-align: center;
+.mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
 }
+
+.mat-expansion-panel-header.mat-expanded {
+  background-color: #5c3d69 !important;
+  margin-bottom: 16px;
+}
+
+.task-actions mat-icon {
+  cursor: pointer;
+  margin-right: 5px;
+}
+  .task-actions mat-icon:hover {
+    color: rgb(137, 188, 223);
+  }

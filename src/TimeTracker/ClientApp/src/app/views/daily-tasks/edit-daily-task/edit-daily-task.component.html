@@ -1,0 +1,25 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation">
+      <mat-icon routerLink="/">home</mat-icon> / 
+      <a [routerLink]="['/daily-tasks', clientId]">Daily Tasks</a> /
+      Edit
+    </h1>
+  </div>
+
+  <div class="content-row">
+    <form class="row" [formGroup]="editForm" (ngSubmit)="onSubmit()">
+      <app-client-selector formControlName="clientId" class="full-width"></app-client-selector>
+
+      <mat-form-field class="full-width" appearance="outline">
+        <mat-icon matSuffix>create</mat-icon>
+        <input matInput placeholder="Task Name" formControlName="taskName" type="text">
+      </mat-form-field>
+  
+      <div fxLayout fxLayoutGap="10px">
+        <button fxFlex mat-raised-button color="warn" type="button" [routerLink]="['/daily-tasks', clientId]">Cancel</button>
+        <button fxFlex mat-raised-button color="primary" type="submit" [disabled]="!editForm.valid">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>

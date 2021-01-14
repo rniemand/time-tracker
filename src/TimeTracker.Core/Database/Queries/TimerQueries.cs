@@ -28,15 +28,16 @@
 	      `UserId` = @UserId AND
 	      `Deleted` = 0 AND
 	      `EntryType` = @EntryType AND
+	      `TaskId` = @TaskId AND
 	      `EntryState` != 1";
     }
 
     public string AddTimer()
     {
       return @"INSERT INTO `Timers`
-	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryType`, `EntryState`)
+	      (`ClientId`, `ProductId`, `ProjectId`, `UserId`, `EntryType`, `EntryState`, `TaskId`)
       VALUES
-	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState)";
+	      (@ClientId, @ProductId, @ProjectId, @UserId, @EntryType, @EntryState, @TaskId)";
     }
 
     public string CompleteTimer()
@@ -58,11 +59,13 @@
          t.*,
          prod.`ProductName`,
          proj.`ProjectName`,
-         cli.`ClientName`
+         cli.`ClientName`,
+         dt.`TaskName`
       FROM `Timers` t
-         INNER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
-         INNER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
-         INNER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
+         LEFT OUTER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+         LEFT OUTER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+         LEFT OUTER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
+         LEFT OUTER JOIN `DailyTasks` dt ON t.`TaskId` = dt.`TaskId`
       WHERE
          t.`UserId` = @UserId AND
          t.`Deleted` = 0 AND
@@ -103,6 +106,7 @@
 	      INNER JOIN `Clients` cli ON cli.`ClientId` = t.`ClientId`
       WHERE
 	      t.`ProjectId` = @ProjectId AND
+	      t.`EntryType` = 1 AND
 	      t.`Deleted` = 0
       ORDER BY t.`EntryId` DESC";
     }
@@ -122,18 +126,20 @@
     public string GetRunningTimers()
     {
       return @"SELECT
-	      t.*,
-	      prod.`ProductName`,
-	      proj.`ProjectName`,
-	      cli.`ClientName`
+         t.*,
+         prod.`ProductName`,
+         proj.`ProjectName`,
+         cli.`ClientName`,
+         dt.`TaskName`
       FROM `Timers` t
-	      INNER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
-	      INNER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
-	      INNER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
+         LEFT OUTER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+         LEFT OUTER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+         LEFT OUTER JOIN `Clients` cli ON t.`ClientId` = cli.`ClientId`
+         LEFT OUTER JOIN `DailyTasks` dt ON dt.`TaskId` = t.`TaskId`
       WHERE
-	      t.`UserId` = @UserId AND
-	      t.`Deleted` = 0 AND
-	      t.`Running` = 1
+         t.`UserId` = @UserId AND
+         t.`Deleted` = 0 AND
+         t.`Running` = 1
       ORDER BY t.`EntryId` ASC";
     }
 

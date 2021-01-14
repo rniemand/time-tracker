@@ -361,6 +361,291 @@ export class ClientsClient implements IClientsClient {
     }
 }
 
+export interface IDailyTasksClient {
+    getClientTasks(clientId: number): Observable<DailyTaskDto[]>;
+    getClientTasksList(clientId: number): Observable<IntListItem[]>;
+    addDailyTask(taskDto: DailyTaskDto): Observable<boolean>;
+    getTaskById(taskId: number): Observable<DailyTaskDto>;
+    updateTask(taskDto: DailyTaskDto): Observable<boolean>;
+}
+
+@Injectable()
+export class DailyTasksClient implements IDailyTasksClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getClientTasks(clientId: number): Observable<DailyTaskDto[]> {
+        let url_ = this.baseUrl + "/api/DailyTasks/client/{clientId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetClientTasks(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetClientTasks(<any>response_);
+                } catch (e) {
+                    return <Observable<DailyTaskDto[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<DailyTaskDto[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetClientTasks(response: HttpResponseBase): Observable<DailyTaskDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DailyTaskDto.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<DailyTaskDto[]>(<any>null);
+    }
+
+    getClientTasksList(clientId: number): Observable<IntListItem[]> {
+        let url_ = this.baseUrl + "/api/DailyTasks/client/{clientId}/list";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetClientTasksList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetClientTasksList(<any>response_);
+                } catch (e) {
+                    return <Observable<IntListItem[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<IntListItem[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetClientTasksList(response: HttpResponseBase): Observable<IntListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(IntListItem.fromJS(item));
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<IntListItem[]>(<any>null);
+    }
+
+    addDailyTask(taskDto: DailyTaskDto): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/DailyTasks/task/add";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(taskDto);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddDailyTask(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddDailyTask(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddDailyTask(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+
+    getTaskById(taskId: number): Observable<DailyTaskDto> {
+        let url_ = this.baseUrl + "/api/DailyTasks/task/{taskId}";
+        if (taskId === undefined || taskId === null)
+            throw new Error("The parameter 'taskId' must be defined.");
+        url_ = url_.replace("{taskId}", encodeURIComponent("" + taskId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTaskById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTaskById(<any>response_);
+                } catch (e) {
+                    return <Observable<DailyTaskDto>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<DailyTaskDto>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetTaskById(response: HttpResponseBase): Observable<DailyTaskDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DailyTaskDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<DailyTaskDto>(<any>null);
+    }
+
+    updateTask(taskDto: DailyTaskDto): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/DailyTasks/task/update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(taskDto);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateTask(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateTask(<any>response_);
+                } catch (e) {
+                    return <Observable<boolean>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<boolean>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateTask(response: HttpResponseBase): Observable<boolean> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<boolean>(<any>null);
+    }
+}
+
 export interface IProductsClient {
     getAllProducts(clientId: number): Observable<ProductDto[]>;
     listClientProducts(clientId: number): Observable<IntListItem[]>;
@@ -1564,6 +1849,66 @@ export interface IIntListItem {
     name?: string | undefined;
 }
 
+export class DailyTaskDto implements IDailyTaskDto {
+    taskId?: number;
+    userId?: number;
+    clientId?: number;
+    deleted?: boolean;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    taskName?: string | undefined;
+
+    constructor(data?: IDailyTaskDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.taskId = _data["taskId"];
+            this.userId = _data["userId"];
+            this.clientId = _data["clientId"];
+            this.deleted = _data["deleted"];
+            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
+            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.taskName = _data["taskName"];
+        }
+    }
+
+    static fromJS(data: any): DailyTaskDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DailyTaskDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["taskId"] = this.taskId;
+        data["userId"] = this.userId;
+        data["clientId"] = this.clientId;
+        data["deleted"] = this.deleted;
+        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
+        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["taskName"] = this.taskName;
+        return data; 
+    }
+}
+
+export interface IDailyTaskDto {
+    taskId?: number;
+    userId?: number;
+    clientId?: number;
+    deleted?: boolean;
+    dateCreatedUtc?: Date;
+    dateModifiedUtc?: Date | undefined;
+    taskName?: string | undefined;
+}
+
 export class ProductDto implements IProductDto {
     productId?: number;
     clientId?: number;
@@ -1693,6 +2038,7 @@ export class TimerDto implements ITimerDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
+    taskId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
@@ -1705,6 +2051,7 @@ export class TimerDto implements ITimerDto {
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
+    taskName?: string | undefined;
 
     constructor(data?: ITimerDto) {
         if (data) {
@@ -1721,6 +2068,7 @@ export class TimerDto implements ITimerDto {
             this.clientId = _data["clientId"];
             this.productId = _data["productId"];
             this.projectId = _data["projectId"];
+            this.taskId = _data["taskId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
             this.running = _data["running"];
@@ -1733,6 +2081,7 @@ export class TimerDto implements ITimerDto {
             this.productName = _data["productName"];
             this.projectName = _data["projectName"];
             this.clientName = _data["clientName"];
+            this.taskName = _data["taskName"];
         }
     }
 
@@ -1749,6 +2098,7 @@ export class TimerDto implements ITimerDto {
         data["clientId"] = this.clientId;
         data["productId"] = this.productId;
         data["projectId"] = this.projectId;
+        data["taskId"] = this.taskId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
         data["running"] = this.running;
@@ -1761,6 +2111,7 @@ export class TimerDto implements ITimerDto {
         data["productName"] = this.productName;
         data["projectName"] = this.projectName;
         data["clientName"] = this.clientName;
+        data["taskName"] = this.taskName;
         return data; 
     }
 }
@@ -1770,6 +2121,7 @@ export interface ITimerDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
+    taskId?: number;
     userId?: number;
     deleted?: boolean;
     running?: boolean;
@@ -1782,6 +2134,7 @@ export interface ITimerDto {
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
+    taskName?: string | undefined;
 }
 
 export enum TimerState {
@@ -1794,6 +2147,7 @@ export enum TimerState {
 export enum TimerType {
     Unspecified = 0,
     ProjectWork = 1,
+    DailyTask = 2,
 }
 
 export class SwaggerException extends Error {

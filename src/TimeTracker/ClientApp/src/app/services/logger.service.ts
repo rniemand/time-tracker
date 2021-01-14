@@ -21,4 +21,11 @@ export class LoggerService {
 
     console.log(`[TRACE] ${message}`);
   }
+
+  warn = (message: string) => {
+    if(!this.enabled)
+      return;
+    
+    console.warn(message);
+  }
 }

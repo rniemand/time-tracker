@@ -41,6 +41,11 @@ import { ClientTimersComponent } from './views/timers/client-timers/client-timer
 import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
 import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
 import { TimerStatePipe } from './pipes/timer-state.pipe';
+import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
+import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
+import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
+import { StartDailyTaskComponent } from './components/ui/time-logger/start-daily-task/start-daily-task.component';
+import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/daily-task-selector.component';
 
 @NgModule({
   declarations: [
@@ -76,7 +81,12 @@ import { TimerStatePipe } from './pipes/timer-state.pipe';
     ClientTimersComponent,
     ProductTimersComponent,
     ProjectTimersComponent,
-    TimerStatePipe
+    TimerStatePipe,
+    DailyTasksComponent,
+    AddDailyTaskComponent,
+    EditDailyTaskComponent,
+    StartDailyTaskComponent,
+    DailyTaskSelectorComponent
   ],
   imports: [
     BrowserModule,

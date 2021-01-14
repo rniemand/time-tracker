@@ -20,6 +20,10 @@
     <app-home-card title="Timers" icon="alarm">
       <button mat-stroked-button class="last-btn" [routerLink]="['/timers']" fxFlex>View</button>
     </app-home-card>
+
+    <app-home-card title="Daily Tasks" icon="done_all">
+      <button mat-stroked-button class="last-btn" [routerLink]="['/daily-tasks']" fxFlex>Manage</button>
+    </app-home-card>
   </div>
 
   <div class="content-row" *ngIf="loggedIn">

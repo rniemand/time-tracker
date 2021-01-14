@@ -13,6 +13,7 @@ namespace TimeTracker.Core.Models.Dto
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
+    public int TaskId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
@@ -27,6 +28,7 @@ namespace TimeTracker.Core.Models.Dto
     public string ProductName { get; set; }
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
+    public string TaskName { get; set; }
 
     // Constructor
     public TimerDto()
@@ -36,6 +38,7 @@ namespace TimeTracker.Core.Models.Dto
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
+      TaskId = 0;
       UserId = 0;
       Deleted = false;
       Running = true;
@@ -48,6 +51,7 @@ namespace TimeTracker.Core.Models.Dto
       ProductName = string.Empty;
       ProjectName = string.Empty;
       ClientName = string.Empty;
+      TaskName = string.Empty;
     }
 
 
@@ -73,7 +77,9 @@ namespace TimeTracker.Core.Models.Dto
           ClientName = entity.ClientName,
           Notes = entity.Notes,
           EntryState = entity.EntryState,
-          EntryType = entity.EntryType
+          EntryType = entity.EntryType,
+          TaskId = entity.TaskId,
+          TaskName = entity.TaskName
         };
       }
     }
@@ -104,7 +110,9 @@ namespace TimeTracker.Core.Models.Dto
         ClientName = ClientName,
         Notes = Notes,
         EntryState = EntryState,
-        EntryType = EntryType
+        EntryType = EntryType,
+        TaskId = TaskId,
+        TaskName = TaskName
       };
     }
   }
@@ -115,7 +123,7 @@ namespace TimeTracker.Core.Models.Dto
     {
       RuleSet("StartNew", () =>
       {
-        // Project work validation
+        // ProjectWork validation
         RuleFor(x => x.ClientId)
           .GreaterThan(0)
           .When(x => x.EntryType == TimerType.ProjectWork);
@@ -127,6 +135,11 @@ namespace TimeTracker.Core.Models.Dto
         RuleFor(x => x.ProjectId)
           .GreaterThan(0)
           .When(x => x.EntryType == TimerType.ProjectWork);
+
+        // DailyTask validation
+        RuleFor(x => x.TaskId)
+          .GreaterThan(0)
+          .When(x => x.EntryType == TimerType.DailyTask);
 
         // General validation
         RuleFor(x => x.UserId).GreaterThan(0);

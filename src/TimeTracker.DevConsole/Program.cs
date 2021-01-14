@@ -118,7 +118,9 @@ namespace TimeTracker.DevConsole
         .AddSingleton<ITimerRepo, TimerRepo>()
         .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
-        .AddSingleton<IOptionQueries, OptionQueries>();
+        .AddSingleton<IOptionQueries, OptionQueries>()
+        .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -129,7 +131,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
-        .AddSingleton<IOptionsService, OptionsService>();
+        .AddSingleton<IOptionsService, OptionsService>()
+        .AddSingleton<IDailyTasksService, DailyTasksService>();
     }
 
     private static void ConfigureDI_Configuration(IServiceCollection services, IConfiguration config)

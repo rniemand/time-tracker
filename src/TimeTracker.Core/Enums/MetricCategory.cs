@@ -8,5 +8,6 @@
     public const string Project = "Project";
     public const string TrackedTime = "TrackedTime";
     public const string User = "User";
+    public const string DailyTasks = "DailyTasks";
   }
 }

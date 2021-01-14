@@ -9,6 +9,7 @@ namespace TimeTracker.Core.Database.Entities
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
+    public int TaskId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public bool Running { get; set; }
@@ -23,6 +24,7 @@ namespace TimeTracker.Core.Database.Entities
     public string ProductName { get; set; }
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
+    public string TaskName { get; set; }
 
     public TimerEntity()
     {
@@ -31,6 +33,7 @@ namespace TimeTracker.Core.Database.Entities
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
+      TaskId = 0;
       UserId = 0;
       Deleted = false;
       Running = true;
@@ -43,6 +46,7 @@ namespace TimeTracker.Core.Database.Entities
       ProductName = string.Empty;
       ProjectName = string.Empty;
       ClientName = string.Empty;
+      TaskName = string.Empty;
     }
   }
 }

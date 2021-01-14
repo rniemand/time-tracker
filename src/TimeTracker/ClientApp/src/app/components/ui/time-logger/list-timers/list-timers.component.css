@@ -60,8 +60,11 @@
   .details .product {
     color: #72da7f;
   }
-  .details .project {
+  .details .project, .details .task {
     color: #e8f582;
+  }
+  .details .client {
+    color: #729cda;
   }
 
 .details-tooltip {

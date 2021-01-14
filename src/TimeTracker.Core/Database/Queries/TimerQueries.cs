@@ -13,6 +13,7 @@
     string GetRunningTimers();
     string GetUsersWithRunningTimers();
     string GetLongRunningTimers();
+    string GetDailyTaskTimers();
   }
 
   public class TimerQueries : ITimerQueries
@@ -164,6 +165,19 @@
 	      `Deleted` = 0 AND
 	      `Running` = 1 AND
 	      `StartTimeUtc` <= DATE_ADD(CURRENT_TIMESTAMP(), INTERVAL -@ThresholdSec SECOND)";
+    }
+
+    public string GetDailyTaskTimers()
+    {
+      return @"SELECT
+	      t.*,
+	      dt.`TaskName`
+      FROM `Timers` t
+	      INNER JOIN `DailyTasks` dt ON t.`TaskId` = dt.`TaskId`
+      WHERE
+	      t.`TaskId` = @TaskId AND
+	      t.`Deleted` = 0
+      ORDER BY t.`EntryId` DESC";
     }
   }
 }

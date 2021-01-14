@@ -150,5 +150,20 @@ namespace TimeTracker.Controllers
 
       return ProcessResponse(response);
     }
+
+    [HttpGet, Route("timers/daily-task/{taskId}"), Authorize]
+    public async Task<ActionResult<List<TimerDto>>> GetDailyTaskEntries(
+      [FromRoute] int taskId,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.GetDailyTaskEntries) Add tests
+      var response = new BaseResponse<List<TimerDto>>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(taskId), taskId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _timerService.GetDailyTaskTimers(request.UserId, taskId));
+
+      return ProcessResponse(response);
+    }
   }
 }

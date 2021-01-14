@@ -15,6 +15,7 @@ namespace TimeTracker.Core.Services
   public interface IDailyTasksService
   {
     Task<List<DailyTaskDto>> ListClientTasks(int userId, int clientId);
+    Task<List<IntListItem>> GetClientTasksList(int clientId);
 
     Task<bool> AddDailyTask(int userId, DailyTaskDto taskDto);
     Task<DailyTaskDto> GetTaskById(int userId, int taskId);
@@ -67,6 +68,42 @@ namespace TimeTracker.Core.Services
         _logger.LogUnexpectedException(ex);
         builder.WithException(ex);
         return new List<DailyTaskDto>();
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<List<IntListItem>> GetClientTasksList(int clientId)
+    {
+      // TODO: [TESTS] (DailyTasksService.GetClientTasksList) Add tests
+      var builder = new ServiceMetricBuilder(nameof(DailyTasksService), nameof(GetClientTasksList))
+        .WithCategory(MetricCategory.DailyTasks, MetricSubCategory.GetList)
+        .WithCustomInt1(clientId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          List<IntListItem> tasks;
+
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            tasks = await _tasksRepo.GetClientTasksList(clientId);
+            if (tasks.Count == 0)
+              return new List<IntListItem>();
+          }
+
+          return tasks;
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return new List<IntListItem>();
       }
       finally
       {

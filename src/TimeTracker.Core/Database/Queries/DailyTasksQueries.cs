@@ -7,6 +7,7 @@
     string ListClientTasks();
     string GetTaskById();
     string UpdateTask();
+    string GetClientTasksList();
   }
 
   public class DailyTasksQueries : IDailyTasksQueries
@@ -56,6 +57,18 @@
 	      `TaskName` = @TaskName
       WHERE
 	      `TaskId` = @TaskId";
+    }
+
+    public string GetClientTasksList()
+    {
+      return @"SELECT
+	      t.`TaskId` AS 'Value',
+	      t.`TaskName` AS 'Name'
+      FROM `DailyTasks` t
+      WHERE
+	      t.`Deleted` = 0 AND
+	      t.`ClientId` = @ClientId
+      ORDER BY t.`TaskName` ASC";
     }
   }
 }

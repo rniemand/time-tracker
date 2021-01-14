@@ -40,6 +40,20 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
+    [HttpGet, Route("client/{clientId}/list"), Authorize]
+    public async Task<ActionResult<List<IntListItem>>> GetClientTasksList(
+      [FromRoute] int clientId)
+    {
+      // TODO: [TESTS] (DailyTasksController.GetClientTasksList) Add tests
+      var response = new BaseResponse<List<IntListItem>>()
+        .WithValidation(new AdHockValidator().GreaterThanZero(nameof(clientId), clientId));
+
+      if (response.PassedValidation)
+        response.WithResponse(await _tasksService.GetClientTasksList(clientId));
+
+      return ProcessResponse(response);
+    }
+
 
     [HttpPost, Route("task/add"), Authorize]
     public async Task<ActionResult<bool>> AddDailyTask(

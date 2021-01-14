@@ -1,6 +1,7 @@
 <div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
   <div class="content-row time-logger-wrapper">
     <mat-tab-group class="tabs" mat-align-tabs="end" dynamicHeight class="mat-elevation-z8" [(selectedIndex)]="selectedTab">
+      <!-- Running Timers -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon class="example-tab-icon">schedule</mat-icon>
@@ -10,6 +11,8 @@
           <app-list-timers #runningTimers></app-list-timers>
         </div>
       </mat-tab>
+
+      <!-- Start New Timer -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon class="example-tab-icon">alarm_add</mat-icon>
@@ -17,6 +20,17 @@
         <div class="content">
           <h2>Create a new Timer</h2>
           <app-start-timer (onEvent)="handleEvent($event)"></app-start-timer>
+        </div>
+      </mat-tab>
+
+      <!-- Start Daily Task -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon">done_all</mat-icon>
+        </ng-template>
+        <div class="content">
+          <h2>Start Daily Task</h2>
+          <app-start-daily-task></app-start-daily-task>
         </div>
       </mat-tab>
     </mat-tab-group>

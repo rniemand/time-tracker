@@ -48,6 +48,7 @@ export class DailyTasksComponent implements OnInit {
 
   private loadClientInfo = () => {
     return new Promise<void>((resolve) => {
+      if(this.clientId === 0) { resolve(); return; }
       this.clientClient.getClientById(this.clientId).toPromise().then(
         (client: ClientDto) => {
           this.client = client;
@@ -60,6 +61,7 @@ export class DailyTasksComponent implements OnInit {
 
   private loadClientTasks = () => {
     return new Promise<void>((resolve) => {
+      if(this.clientId === 0) { resolve(); return; }
       this.tasksClient.getClientTasks(this.clientId).toPromise().then(
         (tasks: DailyTaskDto[]) => {
           this.dataSource = new MatTableDataSource(tasks);
@@ -70,5 +72,4 @@ export class DailyTasksComponent implements OnInit {
       );
     });
   }
-
 }

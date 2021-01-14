@@ -2051,6 +2051,7 @@ export class TimerDto implements ITimerDto {
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
+    taskName?: string | undefined;
 
     constructor(data?: ITimerDto) {
         if (data) {
@@ -2080,6 +2081,7 @@ export class TimerDto implements ITimerDto {
             this.productName = _data["productName"];
             this.projectName = _data["projectName"];
             this.clientName = _data["clientName"];
+            this.taskName = _data["taskName"];
         }
     }
 
@@ -2109,6 +2111,7 @@ export class TimerDto implements ITimerDto {
         data["productName"] = this.productName;
         data["projectName"] = this.projectName;
         data["clientName"] = this.clientName;
+        data["taskName"] = this.taskName;
         return data; 
     }
 }
@@ -2131,6 +2134,7 @@ export interface ITimerDto {
     productName?: string | undefined;
     projectName?: string | undefined;
     clientName?: string | undefined;
+    taskName?: string | undefined;
 }
 
 export enum TimerState {

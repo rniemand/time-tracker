@@ -5,3 +5,7 @@
 <div>
   <app-daily-task-selector [(ngModel)]="taskId" [clientId]="clientId" (changed)="taskChanged()" class="stretched"></app-daily-task-selector>
 </div>
+
+<div>
+  <button mat-stroked-button fxFlex (click)="startTask()" [disabled]="!isValid">Start Task</button>
+</div>

@@ -30,7 +30,7 @@
         </ng-template>
         <div class="content">
           <h2>Start Daily Task</h2>
-          <app-start-daily-task></app-start-daily-task>
+          <app-start-daily-task (onEvent)="handleEvent($event)"></app-start-daily-task>
         </div>
       </mat-tab>
     </mat-tab-group>

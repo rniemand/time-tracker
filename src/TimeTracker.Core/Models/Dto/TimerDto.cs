@@ -28,6 +28,7 @@ namespace TimeTracker.Core.Models.Dto
     public string ProductName { get; set; }
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
+    public string TaskName { get; set; }
 
     // Constructor
     public TimerDto()
@@ -50,6 +51,7 @@ namespace TimeTracker.Core.Models.Dto
       ProductName = string.Empty;
       ProjectName = string.Empty;
       ClientName = string.Empty;
+      TaskName = string.Empty;
     }
 
 
@@ -76,7 +78,8 @@ namespace TimeTracker.Core.Models.Dto
           Notes = entity.Notes,
           EntryState = entity.EntryState,
           EntryType = entity.EntryType,
-          TaskId = entity.TaskId
+          TaskId = entity.TaskId,
+          TaskName = entity.TaskName
         };
       }
     }
@@ -108,7 +111,8 @@ namespace TimeTracker.Core.Models.Dto
         Notes = Notes,
         EntryState = EntryState,
         EntryType = EntryType,
-        TaskId = TaskId
+        TaskId = TaskId,
+        TaskName = TaskName
       };
     }
   }

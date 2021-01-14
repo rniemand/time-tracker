@@ -1,7 +1,8 @@
 import { Component, EventEmitter, forwardRef, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldAppearance } from '@angular/material/form-field';
-import { DailyTaskDto, DailyTasksClient, IntListItem } from 'src/app/time-tracker-api';
+import { LoggerService } from 'src/app/services/logger.service';
+import { DailyTasksClient, IntListItem } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-daily-task-selector',
@@ -29,32 +30,39 @@ export class DailyTaskSelectorComponent implements OnInit, ControlValueAccessor,
   private _onChangeFn = (_: any) => { };
 
   constructor(
-    private taskClient: DailyTasksClient
+    private taskClient: DailyTasksClient,
+    private logger: LoggerService
   ) { }
-  
-  
 
   ngOnInit(): void {
   }
 
   valueChanged = () => {
+    if (this._onChangeFn) {
+      this._onChangeFn(this.taskId);
+    }
 
+    this.onChange.emit(this.taskId);
   }
 
   // ControlValueAccessor & OnChanges methods
   writeValue(obj: any): void {
-    if(!obj) return;
+    if(!obj)
+      return;
 
     if(typeof(obj) === 'string') {
       let intValue = parseInt(obj);
-      if(isNaN(intValue)) return;
-      this.taskId = intValue;
-      return;
-    }
 
-    if(typeof(obj) === 'number') {
+      if(isNaN(intValue))
+        return;
+      
+      this.setTaskId(intValue);
+    }
+    else if(typeof(obj) === 'number') {
       this.taskId = obj;
-      return;
+    }
+    else {
+      this.logger.warn(`Unsupported type: ${typeof(obj)}`);
     }
   }
 
@@ -66,7 +74,8 @@ export class DailyTaskSelectorComponent implements OnInit, ControlValueAccessor,
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes.hasOwnProperty('clientId')) {
-      console.log('client id has changed', this.clientId);
+      this.logger.trace(`ngOnChanges > clientId > ${this.clientId}`);
+      this.taskId = 0;
       this.refreshTasks();
     }
   }
@@ -86,7 +95,7 @@ export class DailyTaskSelectorComponent implements OnInit, ControlValueAccessor,
         this.entries = tasks;
 
         if(this.taskId <= 0 && tasks.length > 0) {
-          this.taskId = tasks[0]?.value ?? 0;
+          this.setTaskId(tasks[0]?.value ?? 0);
         }
 
         this.loading = false;
@@ -95,6 +104,11 @@ export class DailyTaskSelectorComponent implements OnInit, ControlValueAccessor,
         this.loading = false;
       }
     );
+  }
+
+  private setTaskId = (taskId: number) => {
+    this.taskId = taskId;
+    this.valueChanged();
   }
 
 }

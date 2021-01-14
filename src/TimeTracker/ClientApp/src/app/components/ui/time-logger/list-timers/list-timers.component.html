@@ -9,9 +9,13 @@
 <mat-list role="list">
   <mat-list-item role="listitem" [class]="getClass(timer)" *ngFor="let timer of timers">
     <span fxFlex>
-      <span class="details" [matTooltip]="getTooltip(timer)" matTooltipPosition="right" matTooltipClass="details-tooltip">
+      <span class="details" *ngIf="timer.entryType === 1" [matTooltip]="getTooltip(timer)" matTooltipPosition="right" matTooltipClass="details-tooltip">
         <span class="product">{{ timer.productName }}</span>
         <span class="project">{{ timer.projectName }}</span>
+      </span>
+      <span class="details" *ngIf="timer.entryType === 2" [matTooltip]="getTooltip(timer)" matTooltipPosition="right" matTooltipClass="details-tooltip">
+        <span class="client">{{ timer.clientName }}</span>
+        <span class="task">{{ timer.taskName }}</span>
       </span>
       <span class="time" *ngIf="timer.running">{{ timer | runningTimer:flipFlop }}</span>
       <span class="time" *ngIf="!timer.running">{{ timer | pausedTimer }}</span>

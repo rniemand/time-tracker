@@ -24,6 +24,7 @@ namespace TimeTracker.Core.Database.Entities
     public string ProductName { get; set; }
     public string ProjectName { get; set; }
     public string ClientName { get; set; }
+    public string TaskName { get; set; }
 
     public TimerEntity()
     {
@@ -45,6 +46,7 @@ namespace TimeTracker.Core.Database.Entities
       ProductName = string.Empty;
       ProjectName = string.Empty;
       ClientName = string.Empty;
+      TaskName = string.Empty;
     }
   }
 }

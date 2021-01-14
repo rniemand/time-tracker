@@ -23,7 +23,7 @@ export class ClientTimersComponent implements OnInit {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  private _activePanel: number = 1;
+  private _activePanel: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +35,10 @@ export class ClientTimersComponent implements OnInit {
 
   ngOnInit(): void {
     this.clientId = this.route.snapshot.params?.clientId ?? 0;
+
+    let tab = (this.route.snapshot.queryParams?.tab as string ?? '' ).toLowerCase().trim();
+    if(tab === 'dt') this._activePanel = 1;
+
     this.refreshView();
   }
 

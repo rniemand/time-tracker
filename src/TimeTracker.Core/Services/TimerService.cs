@@ -16,6 +16,7 @@ namespace TimeTracker.Core.Services
   {
     Task<List<TimerDto>> GetActiveTimers(int userId);
     Task<List<TimerDto>> GetProjectTimers(int userId, int projectId);
+    Task<List<TimerDto>> GetDailyTaskTimers(int userId, int taskId);
 
     Task<bool> StartTimer(int userId, TimerDto timerDto);
     Task<bool> PauseTimer(int userId, long entryId, string notes = null);
@@ -114,6 +115,59 @@ namespace TimeTracker.Core.Services
 
           // Cast and return the results
           return dbEntries.AsQueryable()
+            .Select(TimerDto.Projection)
+            .ToList();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return new List<TimerDto>();
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<List<TimerDto>> GetDailyTaskTimers(int userId, int taskId)
+    {
+      // TODO: [TESTS] (TimerService.GetDailyTaskTimers) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(GetDailyTaskTimers))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
+        .WithUserId(userId)
+        .WithCustomInt1(taskId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          List<TimerEntity> timers;
+
+          // Fetch related timer entries for the given taskId
+          using (builder.WithCustomTiming1())
+          {
+            builder.IncrementQueryCount();
+            timers = await _timerRepo.GetDailyTaskTimers(taskId);
+            
+            if (timers.Count == 0)
+              return new List<TimerDto>();
+
+            builder.WithResultsCount(timers.Count);
+          }
+
+          // Ensure that the provided user owns these entries
+          // ReSharper disable once InvertIf
+          if (timers.First().UserId != userId)
+          {
+            // TODO: [HANDLE] (TimerService.GetDailyTaskTimers) Handle this
+            builder.MarkFailed();
+            return new List<TimerDto>();
+          }
+
+          // Cast and return the entries
+          return timers.AsQueryable()
             .Select(TimerDto.Projection)
             .ToList();
         }

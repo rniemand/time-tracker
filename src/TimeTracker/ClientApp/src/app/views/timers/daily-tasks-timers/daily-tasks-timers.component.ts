@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
+import { DIALOG_DEFAULTS } from 'src/app/constants';
+import { EditTimerEntryDialog, EditTimerEntryDialogData } from 'src/app/dialogs/edit-timer-entry/edit-timer-entry.dialog';
 import { UiService } from 'src/app/services/ui.service';
-import { ClientDto, ClientsClient, DailyTaskDto, DailyTasksClient } from 'src/app/time-tracker-api';
+import { ClientDto, ClientsClient, DailyTaskDto, DailyTasksClient, TimerDto, TimersClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-daily-tasks-timers',
@@ -9,6 +15,8 @@ import { ClientDto, ClientsClient, DailyTaskDto, DailyTasksClient } from 'src/ap
   styleUrls: ['./daily-tasks-timers.component.css']
 })
 export class DailyTasksTimersComponent implements OnInit {
+  displayedColumns: string[] = ['state', 'startTime', 'endTime', 'length', 'notes', 'controls'];
+  dataSource = new MatTableDataSource<TimerDto>();
   clientId: number = 0;
   taskId: number = 0;
   clientName: string = 'Client';
@@ -16,17 +24,41 @@ export class DailyTasksTimersComponent implements OnInit {
   task?: DailyTaskDto = undefined;
   client?: ClientDto = undefined;
 
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   constructor(
     private route: ActivatedRoute,
     private uiService: UiService,
     private taskClient: DailyTasksClient,
-    private clientClient: ClientsClient
+    private clientClient: ClientsClient,
+    private timerClient: TimersClient,
+    public dialog: MatDialog
   ) { }
+
 
   ngOnInit(): void {
     this.taskId = this.route.snapshot.params?.taskId ?? 0;
     this.refreshView();
   }
+
+  editEntry = (timer: TimerDto) => {
+    let dialogData: EditTimerEntryDialogData = {
+      timer: timer
+    };
+
+    let dialogRef = this.dialog.open(EditTimerEntryDialog, {
+      ...DIALOG_DEFAULTS,
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result?.outcome == 'updated') {
+        this.refreshTimers();
+      }
+    });
+  }
+  
 
   // Internal methods
   private refreshView = () => {
@@ -76,9 +108,26 @@ export class DailyTasksTimersComponent implements OnInit {
 
   private loadTaskEntries = () => {
     return new Promise<void>((resolve) => {
+      if(this.taskId === 0) {
+        resolve();
+        return;
+      }
 
-      resolve();
+      this.timerClient.getDailyTaskEntries(this.taskId).toPromise().then(
+        (timers: TimerDto[]) => {
+          this.dataSource = new MatTableDataSource(timers);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator;
+
+          resolve();
+        }
+      );
     });
+  }
+
+  private refreshTimers = () => {
+    this.uiService.showLoader(true);
+    this.loadTaskEntries().finally(() => { this.uiService.hideLoader(); });
   }
 
 }

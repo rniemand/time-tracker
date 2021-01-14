@@ -16,6 +16,8 @@ import { TimersComponent } from './views/timers/timers.component';
 import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
 import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
 import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
+import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
+import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -58,6 +60,15 @@ const routes: Routes = [
       { path: 'client/:clientId', component: ClientTimersComponent },
       { path: 'product/:productId', component: ProductTimersComponent },
       { path: 'project/:projectId', component: ProjectTimersComponent }
+    ]
+  },
+  {
+    path: 'daily-tasks',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: DailyTasksComponent },
+      { path: ':clientId', component: DailyTasksComponent },
+      { path: 'add/:clientId', component: AddDailyTaskComponent }
     ]
   }
 ];

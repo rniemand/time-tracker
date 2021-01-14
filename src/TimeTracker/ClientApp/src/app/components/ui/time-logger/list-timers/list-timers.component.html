@@ -24,6 +24,6 @@
     <mat-icon class="resume" (click)="resumeTimer(timer)" *ngIf="!timer.running">play_arrow</mat-icon>
     <mat-icon class="resume" (click)="resumeSingleTimer(timer)" *ngIf="!timer.running && runningTimers">skip_next</mat-icon>
     <mat-icon class="stop" (click)="completeTimer(timer)">stop</mat-icon>
-    <mat-icon class="history" [routerLink]="['/timers', 'project', timer.projectId]">history</mat-icon>
+    <mat-icon class="history" *ngIf="timer.entryType === 1" [routerLink]="['/timers', 'project', timer.projectId]">history</mat-icon>
   </mat-list-item>
 </mat-list>

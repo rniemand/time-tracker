@@ -46,6 +46,7 @@ import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-da
 import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
 import { StartDailyTaskComponent } from './components/ui/time-logger/start-daily-task/start-daily-task.component';
 import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/daily-task-selector.component';
+import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
 
 @NgModule({
   declarations: [
@@ -86,7 +87,8 @@ import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/
     AddDailyTaskComponent,
     EditDailyTaskComponent,
     StartDailyTaskComponent,
-    DailyTaskSelectorComponent
+    DailyTaskSelectorComponent,
+    DailyTasksTimersComponent
   ],
   imports: [
     BrowserModule,

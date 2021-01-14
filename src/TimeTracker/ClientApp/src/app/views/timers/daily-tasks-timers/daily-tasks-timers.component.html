@@ -1,0 +1,10 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation">
+      <mat-icon routerLink="/">home</mat-icon> / 
+      <a [routerLink]="['/timers']">Timers</a> /
+      <a [routerLink]="['/timers', 'client', clientId]">{{ clientName }}</a> /
+      {{ taskName }}
+    </h1>
+  </div>
+</div>

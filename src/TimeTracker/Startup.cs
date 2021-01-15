@@ -41,10 +41,10 @@ namespace TimeTracker
     {
       services.AddControllersWithViews(options =>
       {
-        options.Filters.Add<MetricActionFilter>();
-        options.Filters.Add<MetricExceptionFilter>();
-        options.Filters.Add<MetricResultFilter>();
-        options.Filters.Add<MetricResourceFilter>();
+        options.Filters.Add<ApiMetricActionFilter>();
+        options.Filters.Add<ApiMetricExceptionFilter>();
+        options.Filters.Add<ApiMetricResultFilter>();
+        options.Filters.Add<ApiMetricResourceFilter>();
       });
 
       ConfigureServices_Configuration(services);
@@ -85,12 +85,13 @@ namespace TimeTracker
       }
 
       app.UseRouting();
-      app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
       Configure_HangfireDashboard(app);
       Configure_HangfireJobs(serviceProvider);
 
       app.UseMiddleware<JwtMiddleware>();
+      app.UseMiddleware<ApiMetricsMiddleware>();
+
       app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>

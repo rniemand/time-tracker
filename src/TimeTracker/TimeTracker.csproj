@@ -28,7 +28,7 @@
     </PackageReference>
     <PackageReference Include="Rn.NetCore.Common" Version="3.0.0.120" />
     <PackageReference Include="Rn.NetCore.Metrics.Rabbit" Version="3.0.0.101" />
-    <PackageReference Include="Rn.NetCore.WebCommon" Version="1.0.0.102" />
+    <PackageReference Include="Rn.NetCore.WebCommon" Version="1.0.0.103" />
   </ItemGroup>
 
   <ItemGroup>

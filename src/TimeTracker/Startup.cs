@@ -16,6 +16,8 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.Common.Metrics.Interfaces;
 using Rn.NetCore.DbCommon;
 using Rn.NetCore.Metrics.Rabbit;
+using Rn.NetCore.WebCommon.Filters;
+using Rn.NetCore.WebCommon.Middleware;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
@@ -37,7 +39,13 @@ namespace TimeTracker
 
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddControllersWithViews();
+      services.AddControllersWithViews(options =>
+      {
+        options.Filters.Add<MetricActionFilter>();
+        options.Filters.Add<MetricExceptionFilter>();
+        options.Filters.Add<MetricResultFilter>();
+        options.Filters.Add<MetricResourceFilter>();
+      });
 
       ConfigureServices_Configuration(services);
       ConfigureServices_Core(services);
@@ -77,6 +85,7 @@ namespace TimeTracker
       }
 
       app.UseRouting();
+      app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
       Configure_HangfireDashboard(app);
       Configure_HangfireJobs(serviceProvider);

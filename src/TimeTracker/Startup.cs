@@ -16,6 +16,8 @@ using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.Common.Metrics.Interfaces;
 using Rn.NetCore.DbCommon;
 using Rn.NetCore.Metrics.Rabbit;
+using Rn.NetCore.WebCommon.Filters;
+using Rn.NetCore.WebCommon.Middleware;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
@@ -37,7 +39,13 @@ namespace TimeTracker
 
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddControllersWithViews();
+      services.AddControllersWithViews(options =>
+      {
+        options.Filters.Add<ApiMetricActionFilter>();
+        options.Filters.Add<ApiMetricExceptionFilter>();
+        options.Filters.Add<ApiMetricResultFilter>();
+        options.Filters.Add<ApiMetricResourceFilter>();
+      });
 
       ConfigureServices_Configuration(services);
       ConfigureServices_Core(services);
@@ -82,6 +90,8 @@ namespace TimeTracker
       Configure_HangfireJobs(serviceProvider);
 
       app.UseMiddleware<JwtMiddleware>();
+      app.UseMiddleware<ApiMetricsMiddleware>();
+
       app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>

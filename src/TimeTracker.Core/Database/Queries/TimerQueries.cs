@@ -14,6 +14,8 @@
     string GetUsersWithRunningTimers();
     string GetLongRunningTimers();
     string GetDailyTaskTimers();
+    string ListUserTimers();
+    string ListUserTimersInRange();
   }
 
   public class TimerQueries : ITimerQueries
@@ -178,6 +180,47 @@
 	      t.`TaskId` = @TaskId AND
 	      t.`Deleted` = 0
       ORDER BY t.`EntryId` DESC";
+    }
+
+    public string ListUserTimers()
+    {
+      return @"SELECT
+	      t.*,
+	      prod.`ProductName`,
+	      c.`ClientName`,
+	      proj.`ProjectName`,
+	      dt.`TaskName`
+      FROM `Timers` t
+	      LEFT OUTER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+	      LEFT OUTER JOIN `Clients` c ON t.`ClientId` = c.`ClientId`
+	      LEFT OUTER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+	      LEFT OUTER JOIN `DailyTasks` dt ON t.`TaskId` = dt.`TaskId`
+      WHERE
+	      t.`Deleted` = 0 AND
+	      t.`UserId` = @UserId AND
+	      t.`StartTimeUtc` >= @StartTimeUtc
+      ORDER BY t.`StartTimeUtc` DESC";
+    }
+
+    public string ListUserTimersInRange()
+    {
+      return @"SELECT
+	      t.*,
+	      prod.`ProductName`,
+	      c.`ClientName`,
+	      proj.`ProjectName`,
+	      dt.`TaskName`
+      FROM `Timers` t
+	      LEFT OUTER JOIN `Products` prod ON t.`ProductId` = prod.`ProductId`
+	      LEFT OUTER JOIN `Clients` c ON t.`ClientId` = c.`ClientId`
+	      LEFT OUTER JOIN `Projects` proj ON t.`ProjectId` = proj.`ProjectId`
+	      LEFT OUTER JOIN `DailyTasks` dt ON t.`TaskId` = dt.`TaskId`
+      WHERE
+	      t.`Deleted` = 0 AND
+	      t.`UserId` = @UserId AND
+	      t.`StartTimeUtc` >= @StartDate AND
+	      t.`StartTimeUtc` <= @EndDate
+      ORDER BY t.`StartTimeUtc` DESC";
     }
   }
 }

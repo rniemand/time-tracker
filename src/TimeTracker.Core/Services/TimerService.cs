@@ -17,6 +17,8 @@ namespace TimeTracker.Core.Services
     Task<List<TimerDto>> GetActiveTimers(int userId);
     Task<List<TimerDto>> GetProjectTimers(int userId, int projectId);
     Task<List<TimerDto>> GetDailyTaskTimers(int userId, int taskId);
+    Task<List<TimerDto>> ListUserTimers(int userId, DateTime fromDate);
+    Task<List<TimerDto>> ListUserTimers(int userId, DateTime startDate, DateTime endDate);
 
     Task<bool> StartTimer(int userId, TimerDto timerDto);
     Task<bool> PauseTimer(int userId, long entryId, string notes = null);
@@ -154,6 +156,76 @@ namespace TimeTracker.Core.Services
 
           // Cast and return the entries
           return timers.AsQueryable()
+            .Select(TimerDto.Projection)
+            .ToList();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return new List<TimerDto>();
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<List<TimerDto>> ListUserTimers(int userId, DateTime fromDate)
+    {
+      // TODO: [TESTS] (TimerService.ListUserTimers) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ListUserTimers))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          builder.IncrementQueryCount();
+          var dbTimers = await _timerRepo.ListUserTimers(userId, fromDate);
+          builder.WithResultsCount(dbTimers.Count);
+
+          if (dbTimers.Count == 0)
+            return new List<TimerDto>();
+
+          return dbTimers.AsQueryable()
+            .Select(TimerDto.Projection)
+            .ToList();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogUnexpectedException(ex);
+        builder.WithException(ex);
+        return new List<TimerDto>();
+      }
+      finally
+      {
+        await _metrics.SubmitPointAsync(builder.Build());
+      }
+    }
+
+    public async Task<List<TimerDto>> ListUserTimers(int userId, DateTime startDate, DateTime endDate)
+    {
+      // TODO: [TESTS] (TimerService.ListUserTimers) Add tests
+      var builder = new ServiceMetricBuilder(nameof(TimerService), nameof(ListUserTimers))
+        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.GetList)
+        .WithUserId(userId);
+
+      try
+      {
+        using (builder.WithTiming())
+        {
+          builder.IncrementQueryCount();
+          var dbTimers = await _timerRepo.ListUserTimers(userId, startDate, endDate);
+          builder.WithResultsCount(dbTimers.Count);
+
+          if (dbTimers.Count == 0)
+            return new List<TimerDto>();
+
+          return dbTimers.AsQueryable()
             .Select(TimerDto.Projection)
             .ToList();
         }

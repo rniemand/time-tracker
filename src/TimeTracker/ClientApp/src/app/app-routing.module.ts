@@ -20,6 +20,7 @@ import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
 import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
 import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
 import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
+import { DailyOverviewComponent } from './views/timers/daily-overview/daily-overview.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -62,7 +63,8 @@ const routes: Routes = [
       { path: 'client/:clientId', component: ClientTimersComponent },
       { path: 'product/:productId', component: ProductTimersComponent },
       { path: 'project/:projectId', component: ProjectTimersComponent },
-      { path: 'daily-task/:taskId', component: DailyTasksTimersComponent }
+      { path: 'daily-task/:taskId', component: DailyTasksTimersComponent },
+      { path: 'daily-overview', component: DailyOverviewComponent }
     ]
   },
   {

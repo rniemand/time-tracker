@@ -24,6 +24,10 @@
     <app-home-card title="Daily Tasks" icon="done_all">
       <button mat-stroked-button class="last-btn" [routerLink]="['/daily-tasks']" fxFlex>Manage</button>
     </app-home-card>
+
+    <app-home-card title="Overview" icon="hourglass_empty">
+      <button mat-stroked-button class="last-btn" [routerLink]="['/timers', 'daily-overview']" fxFlex>View</button>
+    </app-home-card>
   </div>
 
   <div class="content-row" *ngIf="loggedIn">

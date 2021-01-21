@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
@@ -162,6 +163,31 @@ namespace TimeTracker.Controllers
 
       if (response.PassedValidation)
         response.WithResponse(await _timerService.GetDailyTaskTimers(request.UserId, taskId));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpGet, Route("timers/from-date/{fromDate}"), Authorize]
+    public async Task<ActionResult<List<TimerDto>>> ListUserTimers(
+      [FromRoute] DateTime fromDate,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.ListUserTimers) Add tests
+      var response = new BaseResponse<List<TimerDto>>()
+        .WithResponse(await _timerService.ListUserTimers(request.UserId, fromDate));
+
+      return ProcessResponse(response);
+    }
+
+    [HttpGet, Route("timers/for-range/{startDate}/{endDate}"), Authorize]
+    public async Task<ActionResult<List<TimerDto>>> ListUserTimers(
+      [FromRoute] DateTime startDate,
+      [FromRoute] DateTime endDate,
+      [OpenApiIgnore] CoreApiRequest request)
+    {
+      // TODO: [TESTS] (TimersController.ListUserTimers) Add tests
+      var response = new BaseResponse<List<TimerDto>>()
+        .WithResponse(await _timerService.ListUserTimers(request.UserId, startDate, endDate));
 
       return ProcessResponse(response);
     }

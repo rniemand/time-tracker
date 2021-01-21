@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
@@ -17,6 +18,8 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<TimerEntity>> GetRunningTimers(int userId);
     Task<List<TimerEntity>> GetLongRunningTimers(int userId, int thresholdSec);
     Task<List<TimerEntity>> GetDailyTaskTimers(int taskId);
+    Task<List<TimerEntity>> ListUserTimers(int userId, DateTime fromDate);
+    Task<List<TimerEntity>> ListUserTimers(int userId, DateTime startDate, DateTime endDate);
 
     Task<int> AddTimer(TimerEntity timerEntity);
     Task<int> PauseTimer(long entryId, string notes);
@@ -102,6 +105,35 @@ namespace TimeTracker.Core.Database.Repos
         new
         {
           TaskId = taskId
+        }
+      );
+    }
+
+    public async Task<List<TimerEntity>> ListUserTimers(int userId, DateTime fromDate)
+    {
+      // TODO: [TESTS] (TimerRepo.ListUserTimers) Add tests
+      return await GetList<TimerEntity>(
+        nameof(ListUserTimers),
+        _queries.ListUserTimers(),
+        new
+        {
+          UserId = userId,
+          StartTimeUtc = fromDate
+        }
+      );
+    }
+
+    public async Task<List<TimerEntity>> ListUserTimers(int userId, DateTime startDate, DateTime endDate)
+    {
+      // TODO: [TESTS] (TimerRepo.ListUserTimers) Add tests
+      return await GetList<TimerEntity>(
+        nameof(ListUserTimers),
+        _queries.ListUserTimersInRange(),
+        new
+        {
+          UserId = userId,
+          StartDate = startDate,
+          EndDate = endDate
         }
       );
     }

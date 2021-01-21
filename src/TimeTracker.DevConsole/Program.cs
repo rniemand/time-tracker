@@ -13,6 +13,7 @@ using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon;
+using Rn.NetCore.DbCommon.Helpers;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
@@ -101,7 +102,7 @@ namespace TimeTracker.DevConsole
     private static void ConfigureDI_DBCore(IServiceCollection services)
     {
       services
-        .AddSingleton<IDbHelper, DbHelper>();
+        .AddSingleton<IDbHelper, MySqlHelper>();
     }
 
     private static void ConfigureDI_Repos(IServiceCollection services)

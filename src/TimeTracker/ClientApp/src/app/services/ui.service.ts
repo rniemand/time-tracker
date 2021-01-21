@@ -46,7 +46,7 @@ export class UiService {
 
     this._snackBar.open(castOptions.message, castOptions.action, {
       duration: castOptions?.duration ?? 5 * 1000,
-      horizontalPosition: castOptions?.horizontalPosition ?? 'right',
+      horizontalPosition: castOptions?.horizontalPosition ?? 'left',
       verticalPosition: castOptions?.verticalPosition ?? 'bottom'
     });
   }

@@ -14,7 +14,7 @@ using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.Common.Metrics.Interfaces;
-using Rn.NetCore.DbCommon;
+using Rn.NetCore.DbCommon.Helpers;
 using Rn.NetCore.Metrics.Rabbit;
 using Rn.NetCore.WebCommon.Filters;
 using Rn.NetCore.WebCommon.Middleware;
@@ -189,7 +189,7 @@ namespace TimeTracker
     private static void ConfigureServices_DbCore(IServiceCollection services)
     {
       services
-        .AddSingleton<IDbHelper, DbHelper>();
+        .AddSingleton<IDbHelper, MySqlHelper>();
     }
 
     private static void ConfigureServices_Repos(IServiceCollection services)

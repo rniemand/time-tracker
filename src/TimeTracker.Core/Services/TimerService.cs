@@ -55,13 +55,9 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<TimerEntity> activeTimers;
-          using (builder.WithCustomTiming1())
-          {
-            builder.IncrementQueryCount();
-            activeTimers = await _timerRepo.GetActiveTimers(userId);
-            builder.WithResultsCount(activeTimers.Count);
-          }
+          builder.IncrementQueryCount();
+          var activeTimers = await _timerRepo.GetActiveTimers(userId);
+          builder.WithResultsCount(activeTimers.Count);
 
           return activeTimers.AsQueryable()
             .Select(TimerDto.Projection)
@@ -91,20 +87,15 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<TimerEntity> dbEntries;
-
           // Ensure that we have some entries to work with
-          using (builder.WithCustomTiming1())
-          {
-            dbEntries = await _timerRepo.GetProjectTimers(projectId);
-            builder.IncrementQueryCount();
+          var dbEntries = await _timerRepo.GetProjectTimers(projectId);
+          builder.IncrementQueryCount();
 
-            if ((dbEntries?.Count ?? 0) == 0)
-              return new List<TimerDto>();
+          if ((dbEntries?.Count ?? 0) == 0)
+            return new List<TimerDto>();
 
-            AppendTimerInfo(builder, dbEntries.First());
-            builder.WithResultsCount(dbEntries.Count);
-          }
+          AppendTimerInfo(builder, dbEntries.First());
+          builder.WithResultsCount(dbEntries.Count);
 
           // Ensure that the current user owns these entries
           if (dbEntries.First().UserId != userId)
@@ -143,19 +134,14 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          List<TimerEntity> timers;
-
           // Fetch related timer entries for the given taskId
-          using (builder.WithCustomTiming1())
-          {
-            builder.IncrementQueryCount();
-            timers = await _timerRepo.GetDailyTaskTimers(taskId);
-            
-            if (timers.Count == 0)
-              return new List<TimerDto>();
+          builder.IncrementQueryCount();
+          var timers = await _timerRepo.GetDailyTaskTimers(taskId);
 
-            builder.WithResultsCount(timers.Count);
-          }
+          if (timers.Count == 0)
+            return new List<TimerDto>();
+
+          builder.WithResultsCount(timers.Count);
 
           // Ensure that the provided user owns these entries
           // ReSharper disable once InvertIf
@@ -201,29 +187,27 @@ namespace TimeTracker.Core.Services
           AppendTimerInfo(builder, timerEntity);
 
           // Look for any non-completed timer matching the provided criteria
-          using (builder.WithCustomTiming1())
+          builder.IncrementQueryCount();
+          var activeTimer = await _timerRepo.GetActiveTimer(timerEntity);
+          builder.CountResult(activeTimer);
+
+          if (activeTimer != null)
           {
+            // Already running, we are done
+            if (activeTimer.Running)
+              return true;
+
+            // We will need to complete this timer before starting a new one
             builder.IncrementQueryCount();
-            var activeTimer = await _timerRepo.GetActiveTimer(timerEntity);
-            builder.CountResult(activeTimer);
-
-            if (activeTimer != null)
+            var completedNote = TimerNote.GenerateTimerNote(activeTimer.Notes, TimerNote.UserCompleted);
+            if (await _timerRepo.CompleteTimer(activeTimer.EntryId, completedNote) == 0)
             {
-              // Already running, we are done
-              if (activeTimer.Running)
-                return true;
-
-              // We will need to complete this timer before starting a new one
-              builder.IncrementQueryCount();
-              if (await _timerRepo.CompleteTimer(activeTimer.EntryId, "user-completed") == 0)
-              {
-                // TODO: [HANDLE] (TimerService.StartTimer) Handle this
-                builder.MarkFailed();
-                return false;
-              }
-
-              builder.IncrementResultsCount();
+              // TODO: [HANDLE] (TimerService.StartTimer) Handle this
+              builder.MarkFailed();
+              return false;
             }
+
+            builder.IncrementResultsCount();
           }
 
           // Create a new timer
@@ -255,16 +239,10 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TimerEntity timerEntity;
-          notes = string.IsNullOrWhiteSpace(notes) ? "user-paused" : notes;
-
           // Check to see if this is a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            timerEntity = await GetTimerById(builder, entryId);
-            if (timerEntity == null)
-              return false;
-          }
+          var timerEntity = await GetTimerById(builder, entryId);
+          if (timerEntity == null)
+            return false;
 
           // Check to see that the provided user owns this timer
           if (timerEntity.UserId != userId)
@@ -274,19 +252,19 @@ namespace TimeTracker.Core.Services
           }
 
           // Pause the timer
-          using (builder.WithCustomTiming2())
+          builder.IncrementQueryCount();
+
+          notes = string.IsNullOrWhiteSpace(notes) ? TimerNote.UserPaused : notes;
+          var timerNote = TimerNote.GenerateTimerNote(timerEntity.Notes, notes);
+
+          if (await _timerRepo.PauseTimer(entryId, timerNote) == 0)
           {
-            builder.IncrementQueryCount();
-
-            if (await _timerRepo.PauseTimer(entryId, notes) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
+            builder.MarkFailed();
+            return false;
           }
+
+          builder.IncrementResultsCount();
+          return true;
         }
       }
       catch (Exception ex)
@@ -312,15 +290,10 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TimerEntity timerEntity;
-
           // Ensure that we have a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            timerEntity = await GetTimerById(builder, entryId);
-            if (timerEntity == null)
-              return false;
-          }
+          var timerEntity = await GetTimerById(builder, entryId);
+          if (timerEntity == null)
+            return false;
 
           // Ensure the provided user owns the timer
           if (timerEntity.UserId != userId)
@@ -334,18 +307,16 @@ namespace TimeTracker.Core.Services
             return true;
 
           // End the current timer so we can start a new one
-          using (builder.WithCustomTiming2())
+          builder.IncrementQueryCount();
+
+          var timerNote = TimerNote.GenerateTimerNote(timerEntity.Notes, TimerNote.Completed);
+          if (await _timerRepo.CompleteTimer(timerEntity.EntryId, timerNote) == 0)
           {
-            builder.IncrementQueryCount();
-
-            if (await _timerRepo.CompleteTimer(timerEntity.EntryId, "completed") == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
+            builder.MarkFailed();
+            return false;
           }
+
+          builder.IncrementResultsCount();
 
           // Create a new timer
           using (builder.WithCustomTiming3())
@@ -375,15 +346,10 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TimerEntity dbTimer;
-
           // Ensure that we are working with a valid timer
-          using (builder.WithCustomTiming1())
-          {
-            dbTimer = await GetTimerById(builder, entryId);
-            if (dbTimer == null)
-              return false;
-          }
+          var dbTimer = await GetTimerById(builder, entryId);
+          if (dbTimer == null)
+            return false;
 
           // Ensure the provided user owns this timer
           if (dbTimer.UserId != userId)
@@ -393,20 +359,18 @@ namespace TimeTracker.Core.Services
           }
 
           // Stop the timer with "user stopped"
-          using (builder.WithCustomTiming2())
+          notes = string.IsNullOrWhiteSpace(notes) ? TimerNote.UserStopped : notes;
+          var timerNote = TimerNote.GenerateTimerNote(dbTimer.Notes, notes);
+          builder.IncrementQueryCount();
+
+          if (await _timerRepo.CompleteTimer(entryId, timerNote) == 0)
           {
-            notes = string.IsNullOrWhiteSpace(notes) ? "user-stopped" : notes;
-            builder.IncrementQueryCount();
-
-            if (await _timerRepo.CompleteTimer(entryId, notes) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
+            builder.MarkFailed();
+            return false;
           }
+
+          builder.IncrementResultsCount();
+          return true;
         }
       }
       catch (Exception ex)
@@ -432,15 +396,10 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TimerEntity dbTimer;
-
           // Ensure that we have a valid entry to work with
-          using (builder.WithCustomTiming1())
-          {
-            dbTimer = await GetTimerById(builder, entry.EntryId);
-            if (dbTimer == null)
-              return false;
-          }
+          var dbTimer = await GetTimerById(builder, entry.EntryId);
+          if (dbTimer == null)
+            return false;
 
           // Ensure that the current user owns this entry
           if (dbTimer.UserId != userId)
@@ -450,19 +409,15 @@ namespace TimeTracker.Core.Services
           }
 
           // Update the timer entry
-          using (builder.WithCustomTiming2())
+          builder.IncrementQueryCount();
+          if (await _timerRepo.UpdateTimerDuration(entry.AsEntity()) == 0)
           {
-            builder.IncrementQueryCount();
-
-            if (await _timerRepo.UpdateTimerDuration(entry.AsEntity()) == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
-            return true;
+            builder.MarkFailed();
+            return false;
           }
+
+          builder.IncrementResultsCount();
+          return true;
         }
       }
       catch (Exception ex)
@@ -488,15 +443,10 @@ namespace TimeTracker.Core.Services
       {
         using (builder.WithTiming())
         {
-          TimerEntity parentTimer;
-
           // Ensure that we have a valid timer to work with
-          using (builder.WithCustomTiming1())
-          {
-            parentTimer = await GetTimerById(builder, entryId);
-            if (parentTimer == null)
-              return false;
-          }
+          var parentTimer = await GetTimerById(builder, entryId);
+          if (parentTimer == null)
+            return false;
 
           // Ensure that the provided user owns this timer
           if (parentTimer.UserId != userId)
@@ -505,35 +455,33 @@ namespace TimeTracker.Core.Services
             return false;
           }
 
+          string timerNote;
+
           // Search for, and pause all currently running user timers
-          using (builder.WithCustomTiming2())
+          builder.IncrementQueryCount();
+          var runningTimers = await _timerRepo.GetRunningTimers(userId);
+          if (runningTimers.Count > 0)
           {
-            builder.IncrementQueryCount();
-            var runningTimers = await _timerRepo.GetRunningTimers(userId);
-            if (runningTimers.Count > 0)
+            foreach (var timer in runningTimers)
             {
-              foreach (var timer in runningTimers)
-              {
-                builder.IncrementQueryCount();
-                if (await _timerRepo.PauseTimer(timer.EntryId, "auto-paused") > 0)
-                  builder.IncrementResultsCount();
-              }
+              builder.IncrementQueryCount();
+              timerNote = TimerNote.GenerateTimerNote(timer.Notes, TimerNote.AutoPaused);
+
+              if (await _timerRepo.PauseTimer(timer.EntryId, timerNote) > 0)
+                builder.IncrementResultsCount();
             }
           }
 
           // Ensure that the parent timer is completed (so we can spawn a new one)
-          using (builder.WithCustomTiming3())
+          builder.IncrementQueryCount();
+          timerNote = TimerNote.GenerateTimerNote(parentTimer.Notes, TimerNote.AutoCompleted);
+          if (await _timerRepo.CompleteTimer(parentTimer.EntryId, timerNote) == 0)
           {
-            builder.IncrementQueryCount();
-
-            if (await _timerRepo.CompleteTimer(parentTimer.EntryId, "auto-completed") == 0)
-            {
-              builder.MarkFailed();
-              return false;
-            }
-
-            builder.IncrementResultsCount();
+            builder.MarkFailed();
+            return false;
           }
+
+          builder.IncrementResultsCount();
 
           // Resume the given timer
           using (builder.WithCustomTiming4())

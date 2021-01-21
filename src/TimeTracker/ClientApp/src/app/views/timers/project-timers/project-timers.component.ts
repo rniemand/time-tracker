@@ -8,6 +8,7 @@ import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { EditTimerEntryDialog, EditTimerEntryDialogData } from 'src/app/dialogs/edit-timer-entry/edit-timer-entry.dialog';
 import { UiService } from 'src/app/services/ui.service';
 import { ClientDto, ClientsClient, ProductDto, ProductsClient, ProjectDto, ProjectsClient, TimerDto, TimersClient } from 'src/app/time-tracker-api';
+import { isToday } from 'src/app/utils/core.utils';
 
 @Component({
   selector: 'app-project-timers',
@@ -67,6 +68,16 @@ export class ProjectTimersComponent implements OnInit {
         this.refreshTimers();
       }
     });
+  }
+
+  workRowClass = (timer: TimerDto) => {
+    if(!timer?.startTimeUtc)
+      return [];
+
+    if(isToday(timer.startTimeUtc))
+      return ['today'];
+
+    return [];
   }
 
 

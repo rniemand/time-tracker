@@ -15,6 +15,9 @@
     color: #98f1a4;
     font-family: monospace;
   }
+  .data-table table tr.today {
+    background-color: #8e51a947;
+  }
 
 .data-table a {
   color: #f2d2ff;

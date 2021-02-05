@@ -141,7 +141,7 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   getTooltip = (timer: TimerDto) => {
     return `Client: ${timer?.clientName ?? 'Unknown'}`;
   }
-
+  
 
   // Internal methods
   private refreshTimers = () => {
@@ -192,9 +192,10 @@ export class ListTimersComponent implements OnInit, OnDestroy {
   }
 
   private containsRunningTimers = (timers: TimerDto[]) => {
-    if(timers.length === 0)
+    if(timers.length === 0) {
       return false;
-
+    }
+    
     for(var i = 0; i < timers.length; i++) {
       if(timers[i]?.running) {
         return true;

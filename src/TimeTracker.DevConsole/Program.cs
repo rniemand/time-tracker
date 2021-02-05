@@ -17,6 +17,7 @@ using Rn.NetCore.DbCommon.Helpers;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Services;
 using TimeTracker.DevConsole.Setup.Config;
@@ -28,6 +29,8 @@ namespace TimeTracker.DevConsole
     private static IServiceProvider _serviceProvider;
     private static ILoggerAdapter<Program> _logger;
 
+
+    // Main()
     static void Main(string[] args)
     {
       ConfigureDI();
@@ -35,9 +38,8 @@ namespace TimeTracker.DevConsole
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
 
-
-      var clientRepo = _serviceProvider.GetRequiredService<IClientRepo>();
-      var clients = clientRepo.GetAll(1)
+      new SweepLongRunningTimers(_serviceProvider)
+        .Run()
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
@@ -50,8 +52,6 @@ namespace TimeTracker.DevConsole
       var encryptionService = _serviceProvider.GetService<IEncryptionService>();
       return encryptionService.Encrypt(password);
     }
-
-
 
 
     // DI related methods

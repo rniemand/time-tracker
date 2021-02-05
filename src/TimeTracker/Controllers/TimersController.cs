@@ -41,16 +41,17 @@ namespace TimeTracker.Controllers
         .WithValidation(TrackedTimeDtoValidator.StartNew(timerDto));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.StartTimer(request.UserId, timerDto));
+      }
 
       return ProcessResponse(response);
     }
 
 
     // Timer methods (entryId)
-    [HttpPost, Route("timer/{entryId}/update-duration"), Authorize]
+    [HttpPost, Route("timer/update-duration"), Authorize]
     public async Task<ActionResult<bool>> UpdateTimerDuration(
-      [FromRoute] long entryId,
       [FromBody] TimerDto timerDto,
       [OpenApiIgnore] CoreApiRequest request)
     {
@@ -59,7 +60,9 @@ namespace TimeTracker.Controllers
         .WithValidation(TrackedTimeDtoValidator.UpdateDuration(timerDto));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.UpdateTimerDuration(request.UserId, timerDto));
+      }
 
       return ProcessResponse(response);
     }
@@ -74,7 +77,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.ResumeSingleTimer(request.UserId, entryId));
+      }
 
       return ProcessResponse(response);
     }
@@ -89,7 +94,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.CompleteTimer(request.UserId, entryId));
+      }
 
       return ProcessResponse(response);
     }
@@ -104,7 +111,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.ResumeTimer(request.UserId, entryId));
+      }
 
       return ProcessResponse(response);
     }
@@ -119,7 +128,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(entryId), entryId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.PauseTimer(request.UserId, entryId));
+      }
 
       return ProcessResponse(response);
     }
@@ -147,7 +158,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(projectId), projectId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.GetProjectTimers(request.UserId, projectId));
+      }
 
       return ProcessResponse(response);
     }
@@ -162,7 +175,9 @@ namespace TimeTracker.Controllers
         .WithValidation(new AdHockValidator().GreaterThanZero(nameof(taskId), taskId));
 
       if (response.PassedValidation)
+      {
         response.WithResponse(await _timerService.GetDailyTaskTimers(request.UserId, taskId));
+      }
 
       return ProcessResponse(response);
     }

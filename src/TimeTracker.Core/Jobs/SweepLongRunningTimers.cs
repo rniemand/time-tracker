@@ -21,6 +21,8 @@ namespace TimeTracker.Core.Jobs
     private readonly ITimerService _timerService;
     private readonly IMetricService _metrics;
 
+
+    // Constructor and Run() logic
     public SweepLongRunningTimers(IServiceProvider services)
     {
       _logger = services.GetRequiredService<ILoggerAdapter<SweepLongRunningTimers>>();
@@ -40,17 +42,8 @@ namespace TimeTracker.Core.Jobs
       {
         using (builder.WithTiming())
         {
-          List<KeyValueEntity<int, string>> users;
-          using (builder.WithCustomTiming1())
+          foreach (var keyValueEntity in await GetUsersWithRunningTimers(builder))
           {
-            builder.IncrementQueryCount();
-            users = await _timerRepo.GetUsersWithRunningTimers();
-            builder.WithResultsCount(users.Count);
-          }
-
-          foreach (var keyValueEntity in users)
-          {
-            builder.IncrementQueryCount();
             await ProcessUserTimers(keyValueEntity.Key);
           }
         }
@@ -66,48 +59,42 @@ namespace TimeTracker.Core.Jobs
       }
     }
 
+
+    // Run() supporting methods
+    private async Task<List<KeyValueEntity<int, string>>> GetUsersWithRunningTimers(CronMetricBuilder builder)
+    {
+      // TODO: [TESTS] (SweepLongRunningTimers.GetUsersWithRunningTimers) Add tests
+      List<KeyValueEntity<int, string>> users;
+
+      using (builder.WithCustomTiming1())
+      {
+        builder.IncrementQueryCount();
+        users = await _timerRepo.GetUsersWithRunningTimers();
+        builder.WithResultsCount(users.Count);
+      }
+
+      return users;
+    }
+
     private async Task ProcessUserTimers(int userId)
     {
       // TODO: [TESTS] (SweepLongRunningTimers.ProcessUserTimers) Add tests
-      var builder = new CronMetricBuilder(nameof(SweepLongRunningTimers), nameof(ProcessUserTimers))
-        .WithCategory(MetricCategory.TrackedTime, MetricSubCategory.Update)
-        .WithUserId(userId);
+      // Load options and check if we have any timers that need to be stopped
+      var options = await _optionService.GenerateOptions("RunningTimers", userId);
+      var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
+      var timers = await _timerRepo.GetLongRunningTimers(userId, maxRunTimeSec);
+      if (timers.Count == 0)
+        return;
 
-      try
-      {
-        using (builder.WithTiming())
-        {
-          RawOptions options;
-          using (builder.WithCustomTiming1())
-          {
-            builder.IncrementQueryCount();
-            options = await _optionService.GenerateOptions("RunningTimers", userId);
-          }
+      // Log and stop running timers
+      _logger.Debug("Found {count} long running timer(s) for userId: {userId}",
+        timers.Count,
+        userId
+      );
 
-          var maxRunTimeSec = options.GetIntOption("MaxLength.Min", 60 * 5) * 60;
-          List<TimerEntity> timers;
-          using (builder.WithCustomTiming2())
-          {
-            builder.IncrementQueryCount();
-            timers = await _timerRepo.GetLongRunningTimers(userId, maxRunTimeSec);
-          }
-
-          foreach (var timer in timers)
-          {
-            builder.IncrementQueryCount();
-            if (await _timerService.PauseTimer(userId, timer.EntryId, "cron-paused"))
-              builder.IncrementResultsCount();
-          }
-        }
-      }
-      catch (Exception ex)
+      foreach (var timer in timers)
       {
-        _logger.LogUnexpectedException(ex);
-        builder.WithException(ex);
-      }
-      finally
-      {
-        await _metrics.SubmitPointAsync(builder.Build());
+        await _timerService.PauseTimer(userId, timer.EntryId, TimerNote.AutoPaused);
       }
     }
   }

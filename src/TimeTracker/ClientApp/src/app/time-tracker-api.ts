@@ -1218,7 +1218,7 @@ export class ProjectsClient implements IProjectsClient {
 
 export interface ITimersClient {
     startNew(timerDto: TimerDto): Observable<boolean>;
-    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean>;
+    updateTimerDuration(timerDto: TimerDto): Observable<boolean>;
     resumeSingleTimer(entryId: number): Observable<boolean>;
     completeTimer(entryId: number): Observable<boolean>;
     resumeTimer(entryId: number): Observable<boolean>;
@@ -1293,11 +1293,8 @@ export class TimersClient implements ITimersClient {
         return _observableOf<boolean>(<any>null);
     }
 
-    updateTimerDuration(entryId: number, timerDto: TimerDto): Observable<boolean> {
-        let url_ = this.baseUrl + "/api/Timers/timer/{entryId}/update-duration";
-        if (entryId === undefined || entryId === null)
-            throw new Error("The parameter 'entryId' must be defined.");
-        url_ = url_.replace("{entryId}", encodeURIComponent("" + entryId));
+    updateTimerDuration(timerDto: TimerDto): Observable<boolean> {
+        let url_ = this.baseUrl + "/api/Timers/timer/update-duration";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(timerDto);
@@ -2312,7 +2309,6 @@ export enum TimerState {
     Unknown = 0,
     Completed = 1,
     Paused = 2,
-    Stopped = 3,
 }
 
 export enum TimerType {

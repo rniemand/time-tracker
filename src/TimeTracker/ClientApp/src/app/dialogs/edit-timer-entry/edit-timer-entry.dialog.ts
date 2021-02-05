@@ -60,7 +60,7 @@ export class EditTimerEntryDialog implements OnInit {
     });
 
     this.uiService.showLoader(true);
-    this.timersClient.updateTimerDuration(entryId, updatedTimer).toPromise().then(
+    this.timersClient.updateTimerDuration(updatedTimer).toPromise().then(
       (success: boolean) => {
         this.uiService.hideLoader();
         this.closeDialog('updated');

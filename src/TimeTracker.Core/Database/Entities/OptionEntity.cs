@@ -1,5 +1,8 @@
-﻿namespace TimeTracker.Core.Database.Entities
+﻿using System.Diagnostics;
+
+namespace TimeTracker.Core.Database.Entities
 {
+  [DebuggerDisplay("{OptionCategory}:{OptionKey} = {OptionValue} ({OptionType})")]
   public class OptionEntity
   {
     public int OptionId { get; set; }

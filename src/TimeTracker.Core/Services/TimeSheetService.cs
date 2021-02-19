@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Caches;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
+using TimeTracker.Core.Models.Dto;
+using TimeTracker.Core.Models.Requests;
+using TimeTracker.Core.Models.Responses;
 
 namespace TimeTracker.Core.Services
 {
   public interface ITimeSheetService
   {
     Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date);
+    Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId);
   }
 
   public class TimeSheetService : ITimeSheetService
@@ -52,6 +57,20 @@ namespace TimeTracker.Core.Services
       dbDate = await _timeSheetDateRepo.GetEntry(userId, clientId, date);
       cache.CacheEntry(dbDate);
       return true;
+    }
+
+    public async Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId)
+    {
+      // TODO: [TESTS] (TimeSheetService.GetTimeSheet) Add tests
+      // ReSharper disable once UseObjectOrCollectionInitializer
+      var response = new GetTimeSheetResponse();
+
+      response.Dates = (await _timeSheetDateRepo.GetDatesForRange(userId, request.StartDate, request.EndDate))
+        .AsQueryable()
+        .Select(TimeSheetDateDto.Projection)
+        .ToList();
+
+      return response;
     }
 
 

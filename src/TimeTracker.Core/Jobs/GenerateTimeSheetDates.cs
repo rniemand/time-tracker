@@ -22,6 +22,7 @@ namespace TimeTracker.Core.Jobs
     private readonly IUserRepo _userRepo;
     private readonly IClientRepo _clientRepo;
     private readonly ITimeSheetDateRepo _timeSheetDateRepo;
+    private readonly ITimeSheetService _timeSheetService;
 
     // Constructor and Run()
     public GenerateTimeSheetDates(IServiceProvider serviceProvider)
@@ -33,6 +34,7 @@ namespace TimeTracker.Core.Jobs
       _userRepo = serviceProvider.GetRequiredService<IUserRepo>();
       _clientRepo = serviceProvider.GetRequiredService<IClientRepo>();
       _timeSheetDateRepo = serviceProvider.GetRequiredService<ITimeSheetDateRepo>();
+      _timeSheetService = serviceProvider.GetRequiredService<ITimeSheetService>();
     }
 
     public async Task Run()
@@ -76,9 +78,11 @@ namespace TimeTracker.Core.Jobs
       if (!config.CanProcessClient(client))
         return;
 
-      Console.WriteLine("here");
-
-
+      for (var i = 0; i < config.DaysAhead; i++)
+      {
+        var currentDate = config.StartDate.AddDays(i);
+        await config.GetDbTimeSheetDate(_timeSheetService, client, currentDate);
+      }
     }
 
   }
@@ -166,5 +170,8 @@ namespace TimeTracker.Core.Jobs
       var key = $"client.{client.ClientId:D}.generate";
       return _rawOptions.GetBoolOption(key, false);
     }
+
+    public async Task<TimeSheetDate> GetDbTimeSheetDate(ITimeSheetService timeSheetService, ClientEntity client, DateTime date)
+      => await timeSheetService.EnsureTimeSheetDateExists(_tsDateCache, client, date);
   }
 }

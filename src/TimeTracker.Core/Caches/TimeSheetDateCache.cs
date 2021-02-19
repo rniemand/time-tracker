@@ -55,6 +55,9 @@ namespace TimeTracker.Core.Caches
       return !_cache.ContainsKey(cacheKey) ? null : _cache[cacheKey];
     }
 
+    public TimeSheetDate GetCachedEntry(ClientEntity client, DateTime date)
+      => GetCachedEntry(client.UserId, client.ClientId, date);
+
 
     // Internal methods
     private static string GenerateKey(int userId, int clientId, DateTime date)

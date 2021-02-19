@@ -121,7 +121,13 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
-        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
+        .AddSingleton<ITimeSheetDateRepo, TimeSheetDateRepo>()
+        .AddSingleton<ITimeSheetDateRepoQueries, TimeSheetDateRepoQueries>()
+        .AddSingleton<ITimeSheetRowRepo, TimeSheetRowRepo>()
+        .AddSingleton<ITimeSheetRowRepoQueries, TimeSheetRowRepoQueries>()
+        .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
+        .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)

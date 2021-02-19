@@ -109,8 +109,8 @@ namespace TimeTracker
 
         if (env.IsDevelopment())
         {
-          spa.UseAngularCliServer(npmScript: "start");
-          //spa.UseProxyToSpaDevelopmentServer("http://localhost:4200/");
+          //spa.UseAngularCliServer(npmScript: "start");
+          spa.UseProxyToSpaDevelopmentServer("http://localhost:4200/");
         }
       });
     }
@@ -153,8 +153,8 @@ namespace TimeTracker
     {
       var mappedConfig = new TimeTrackerConfig();
       var configSection = Configuration.GetSection("TimeTracker");
-      
-      if(configSection.Exists())
+
+      if (configSection.Exists())
         configSection.Bind(mappedConfig);
 
       services.AddSingleton(mappedConfig);
@@ -209,7 +209,13 @@ namespace TimeTracker
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
-        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
+        .AddSingleton<ITimeSheetDateRepo, TimeSheetDateRepo>()
+        .AddSingleton<ITimeSheetDateRepoQueries, TimeSheetDateRepoQueries>()
+        .AddSingleton<ITimeSheetRowRepo, TimeSheetRowRepo>()
+        .AddSingleton<ITimeSheetRowRepoQueries, TimeSheetRowRepoQueries>()
+        .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
+        .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }
 
     private static void ConfigureServices_Metrics(IServiceCollection services)

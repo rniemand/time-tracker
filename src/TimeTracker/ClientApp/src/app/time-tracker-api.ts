@@ -1921,8 +1921,9 @@ export class ClientDto implements IClientDto {
     clientId?: number;
     deleted?: boolean;
     userId?: number;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     clientName?: string | undefined;
     clientEmail?: string | undefined;
 
@@ -1940,8 +1941,9 @@ export class ClientDto implements IClientDto {
             this.clientId = _data["clientId"];
             this.deleted = _data["deleted"];
             this.userId = _data["userId"];
-            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
-            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.dateAddedUtc = _data["dateAddedUtc"] ? new Date(_data["dateAddedUtc"].toString()) : <any>undefined;
+            this.dateUpdatedUtc = _data["dateUpdatedUtc"] ? new Date(_data["dateUpdatedUtc"].toString()) : <any>undefined;
+            this.dateDeletedUtc = _data["dateDeletedUtc"] ? new Date(_data["dateDeletedUtc"].toString()) : <any>undefined;
             this.clientName = _data["clientName"];
             this.clientEmail = _data["clientEmail"];
         }
@@ -1959,8 +1961,9 @@ export class ClientDto implements IClientDto {
         data["clientId"] = this.clientId;
         data["deleted"] = this.deleted;
         data["userId"] = this.userId;
-        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
-        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["dateAddedUtc"] = this.dateAddedUtc ? this.dateAddedUtc.toISOString() : <any>undefined;
+        data["dateUpdatedUtc"] = this.dateUpdatedUtc ? this.dateUpdatedUtc.toISOString() : <any>undefined;
+        data["dateDeletedUtc"] = this.dateDeletedUtc ? this.dateDeletedUtc.toISOString() : <any>undefined;
         data["clientName"] = this.clientName;
         data["clientEmail"] = this.clientEmail;
         return data; 
@@ -1971,8 +1974,9 @@ export interface IClientDto {
     clientId?: number;
     deleted?: boolean;
     userId?: number;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     clientName?: string | undefined;
     clientEmail?: string | undefined;
 }
@@ -2022,8 +2026,9 @@ export class DailyTaskDto implements IDailyTaskDto {
     userId?: number;
     clientId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     taskName?: string | undefined;
 
     constructor(data?: IDailyTaskDto) {
@@ -2041,8 +2046,9 @@ export class DailyTaskDto implements IDailyTaskDto {
             this.userId = _data["userId"];
             this.clientId = _data["clientId"];
             this.deleted = _data["deleted"];
-            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
-            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.dateAddedUtc = _data["dateAddedUtc"] ? new Date(_data["dateAddedUtc"].toString()) : <any>undefined;
+            this.dateUpdatedUtc = _data["dateUpdatedUtc"] ? new Date(_data["dateUpdatedUtc"].toString()) : <any>undefined;
+            this.dateDeletedUtc = _data["dateDeletedUtc"] ? new Date(_data["dateDeletedUtc"].toString()) : <any>undefined;
             this.taskName = _data["taskName"];
         }
     }
@@ -2060,8 +2066,9 @@ export class DailyTaskDto implements IDailyTaskDto {
         data["userId"] = this.userId;
         data["clientId"] = this.clientId;
         data["deleted"] = this.deleted;
-        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
-        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["dateAddedUtc"] = this.dateAddedUtc ? this.dateAddedUtc.toISOString() : <any>undefined;
+        data["dateUpdatedUtc"] = this.dateUpdatedUtc ? this.dateUpdatedUtc.toISOString() : <any>undefined;
+        data["dateDeletedUtc"] = this.dateDeletedUtc ? this.dateDeletedUtc.toISOString() : <any>undefined;
         data["taskName"] = this.taskName;
         return data; 
     }
@@ -2072,8 +2079,9 @@ export interface IDailyTaskDto {
     userId?: number;
     clientId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     taskName?: string | undefined;
 }
 
@@ -2082,8 +2090,9 @@ export class ProductDto implements IProductDto {
     clientId?: number;
     userId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     productName?: string | undefined;
 
     constructor(data?: IProductDto) {
@@ -2101,8 +2110,9 @@ export class ProductDto implements IProductDto {
             this.clientId = _data["clientId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
-            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
-            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.dateAddedUtc = _data["dateAddedUtc"] ? new Date(_data["dateAddedUtc"].toString()) : <any>undefined;
+            this.dateUpdatedUtc = _data["dateUpdatedUtc"] ? new Date(_data["dateUpdatedUtc"].toString()) : <any>undefined;
+            this.dateDeletedUtc = _data["dateDeletedUtc"] ? new Date(_data["dateDeletedUtc"].toString()) : <any>undefined;
             this.productName = _data["productName"];
         }
     }
@@ -2120,8 +2130,9 @@ export class ProductDto implements IProductDto {
         data["clientId"] = this.clientId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
-        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
-        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["dateAddedUtc"] = this.dateAddedUtc ? this.dateAddedUtc.toISOString() : <any>undefined;
+        data["dateUpdatedUtc"] = this.dateUpdatedUtc ? this.dateUpdatedUtc.toISOString() : <any>undefined;
+        data["dateDeletedUtc"] = this.dateDeletedUtc ? this.dateDeletedUtc.toISOString() : <any>undefined;
         data["productName"] = this.productName;
         return data; 
     }
@@ -2132,8 +2143,9 @@ export interface IProductDto {
     clientId?: number;
     userId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     productName?: string | undefined;
 }
 
@@ -2143,8 +2155,9 @@ export class ProjectDto implements IProjectDto {
     productId?: number;
     userId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     projectName?: string | undefined;
 
     constructor(data?: IProjectDto) {
@@ -2163,8 +2176,9 @@ export class ProjectDto implements IProjectDto {
             this.productId = _data["productId"];
             this.userId = _data["userId"];
             this.deleted = _data["deleted"];
-            this.dateCreatedUtc = _data["dateCreatedUtc"] ? new Date(_data["dateCreatedUtc"].toString()) : <any>undefined;
-            this.dateModifiedUtc = _data["dateModifiedUtc"] ? new Date(_data["dateModifiedUtc"].toString()) : <any>undefined;
+            this.dateAddedUtc = _data["dateAddedUtc"] ? new Date(_data["dateAddedUtc"].toString()) : <any>undefined;
+            this.dateUpdatedUtc = _data["dateUpdatedUtc"] ? new Date(_data["dateUpdatedUtc"].toString()) : <any>undefined;
+            this.dateDeletedUtc = _data["dateDeletedUtc"] ? new Date(_data["dateDeletedUtc"].toString()) : <any>undefined;
             this.projectName = _data["projectName"];
         }
     }
@@ -2183,8 +2197,9 @@ export class ProjectDto implements IProjectDto {
         data["productId"] = this.productId;
         data["userId"] = this.userId;
         data["deleted"] = this.deleted;
-        data["dateCreatedUtc"] = this.dateCreatedUtc ? this.dateCreatedUtc.toISOString() : <any>undefined;
-        data["dateModifiedUtc"] = this.dateModifiedUtc ? this.dateModifiedUtc.toISOString() : <any>undefined;
+        data["dateAddedUtc"] = this.dateAddedUtc ? this.dateAddedUtc.toISOString() : <any>undefined;
+        data["dateUpdatedUtc"] = this.dateUpdatedUtc ? this.dateUpdatedUtc.toISOString() : <any>undefined;
+        data["dateDeletedUtc"] = this.dateDeletedUtc ? this.dateDeletedUtc.toISOString() : <any>undefined;
         data["projectName"] = this.projectName;
         return data; 
     }
@@ -2196,8 +2211,9 @@ export interface IProjectDto {
     productId?: number;
     userId?: number;
     deleted?: boolean;
-    dateCreatedUtc?: Date;
-    dateModifiedUtc?: Date | undefined;
+    dateAddedUtc?: Date;
+    dateUpdatedUtc?: Date | undefined;
+    dateDeletedUtc?: Date | undefined;
     projectName?: string | undefined;
 }
 

@@ -10,7 +10,7 @@ namespace TimeTracker.Core.Services
 {
   public interface ITimeSheetService
   {
-    Task<TimeSheetDate> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date);
+    Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date);
   }
 
   public class TimeSheetService : ITimeSheetService
@@ -31,7 +31,7 @@ namespace TimeTracker.Core.Services
 
 
     // Interface methods
-    public async Task<TimeSheetDate> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date)
+    public async Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.EnsureTimeSheetDateExists) Add tests
       var userId = client.UserId;
@@ -43,15 +43,15 @@ namespace TimeTracker.Core.Services
       // If the entry exists, ensure it's cached and return it
       cache.CacheEntry(dbDate);
       if (dbDate != null)
-        return dbDate;
+        return true;
 
       // We need to create a new entry
       if (await _timeSheetDateRepo.Add(CreateTimeSheetDate(client, date)) == 0)
-        return null;
+        return false;
 
       dbDate = await _timeSheetDateRepo.GetEntry(userId, clientId, date);
       cache.CacheEntry(dbDate);
-      return dbDate;
+      return true;
     }
 
 

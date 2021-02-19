@@ -153,3 +153,10 @@ ALTER TABLE `ToDoSubCategory`
 ALTER TABLE `Users`
 	ADD COLUMN `DateDeletedUtc` DATETIME NULL DEFAULT NULL AFTER `LastLoginDateUtc`;
 	
+ALTER TABLE `TimeSheet_Date`
+	DROP FOREIGN KEY `FK_TimeSheet_Date_Clients`,
+	DROP FOREIGN KEY `FK_TimeSheet_Date_Users`;
+ALTER TABLE `TimeSheet_Date`
+	ADD CONSTRAINT `FK_TimeSheet_Date_Clients` FOREIGN KEY (`ClientId`) REFERENCES `TimeTrackerDev`.`Clients` (`ClientId`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	ADD CONSTRAINT `FK_TimeSheet_Date_Users` FOREIGN KEY (`UserId`) REFERENCES `TimeTrackerDev`.`Users` (`UserId`) ON UPDATE RESTRICT ON DELETE CASCADE;
+	

@@ -9,6 +9,7 @@ using NSubstitute;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Extensions;
+using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
@@ -90,6 +91,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IEnvironmentAbstraction, EnvironmentAbstraction>()
         .AddSingleton<IDirectoryAbstraction, DirectoryAbstraction>()
         .AddSingleton<IFileAbstraction, FileAbstraction>()
+        .AddSingleton<ITimerFactory, TimerFactory>()
         .AddLogging(loggingBuilder =>
         {
           // configure Logging with NLog

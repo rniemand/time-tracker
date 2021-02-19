@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Rn.NetCore.Common.Abstractions;
+using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Caches;
 using TimeTracker.Core.Database.Entities;
@@ -17,35 +18,36 @@ namespace TimeTracker.Core.Jobs
     public const string Category = "TimeSheet.Cron.GenerateDates";
 
     private readonly ILoggerAdapter<GenerateTimeSheetDates> _logger;
-    private readonly IDateTimeAbstraction _dateTime;
-    private readonly IOptionsService _optionsService;
+    private readonly ITimerFactory _timerFactory;
     private readonly IUserRepo _userRepo;
-    private readonly IClientRepo _clientRepo;
-    private readonly ITimeSheetDateRepo _timeSheetDateRepo;
-    private readonly ITimeSheetService _timeSheetService;
+    private readonly IServiceProvider _serviceProvider;
 
     // Constructor and Run()
     public GenerateTimeSheetDates(IServiceProvider serviceProvider)
     {
       // TODO: [TESTS] (GenerateTimeSheetDates) Add tests
+      _serviceProvider = serviceProvider;
       _logger = serviceProvider.GetRequiredService<ILoggerAdapter<GenerateTimeSheetDates>>();
-      _dateTime = serviceProvider.GetRequiredService<IDateTimeAbstraction>();
-      _optionsService = serviceProvider.GetRequiredService<IOptionsService>();
+      _timerFactory = serviceProvider.GetRequiredService<ITimerFactory>();
       _userRepo = serviceProvider.GetRequiredService<IUserRepo>();
-      _clientRepo = serviceProvider.GetRequiredService<IClientRepo>();
-      _timeSheetDateRepo = serviceProvider.GetRequiredService<ITimeSheetDateRepo>();
-      _timeSheetService = serviceProvider.GetRequiredService<ITimeSheetService>();
     }
 
     public async Task Run()
     {
       // TODO: [TESTS] (GenerateTimeSheetDates.Run) Add tests
-      var users = await _userRepo.GetEnabledUsers();
+      var stopwatch = _timerFactory.NewStopwatch();
+      stopwatch.Start();
 
+      var users = await _userRepo.GetEnabledUsers();
       foreach (var user in users)
       {
         await ProcessUser(user);
       }
+
+      _logger.Info("Processed {count} users in {time} ms.",
+        users.Count,
+        stopwatch.ElapsedMilliseconds
+      );
     }
 
 
@@ -54,50 +56,116 @@ namespace TimeTracker.Core.Jobs
     {
       // TODO: [TESTS] (GenerateTimeSheetDates.ProcessUser) Add tests
       // Check to see if we are able to run
-      var rawOptions = await _optionsService.GenerateOptions(Category, user.UserId);
-      var config = new GenerateTimeSheetDateConfig(rawOptions).SetUser(user);
-      if (!config.Enabled)
+      var state = await (new GenerateTimeSheetDateState(_serviceProvider)).SetUser(user);
+      if (!state.CanRun())
         return;
 
-      // Set the date range and process all enabled clients for this user
-      config.SetDateRange(_dateTime.Now);
-      await config.CacheTimeSheetDates(_timeSheetDateRepo);
-
-      foreach (var client in await _clientRepo.GetAll(user.UserId))
+      foreach (var client in state.Clients)
       {
-        await ProcessClient(config, client);
+        if (!state.CanProcessClient(client))
+          return;
+
+        var startDate = state.Config.StartDate;
+        for (var i = 0; i < state.Config.DaysAhead; i++)
+        {
+          await state.EnsureTimeSheetDateExists(client, startDate.AddDays(i));
+        }
       }
-
     }
+  }
 
-    private async Task ProcessClient(GenerateTimeSheetDateConfig config, ClientEntity client)
+  public class GenerateTimeSheetDateState
+  {
+    public UserEntity User { get; private set; }
+    public GenerateTimeSheetDateConfig Config { get; private set; }
+    public List<ClientEntity> Clients { get; private set; }
+
+    private readonly IOptionsService _optionsService;
+    private readonly IDateTimeAbstraction _dateTime;
+    private readonly ITimeSheetDateRepo _timeSheetDateRepo;
+    private readonly IClientRepo _clientRepo;
+    private readonly ITimeSheetService _timeSheetService;
+    private readonly TimeSheetDateCache _tsDateCache;
+
+    // Constructor
+    public GenerateTimeSheetDateState(IServiceProvider serviceProvider)
     {
-      // TODO: [TESTS] (GenerateTimeSheetDates.ProcessClient) Add tests
-      // Ensure that we can process this client (disabled by default)
-      await config.EnsureClientOptionExists(_optionsService, client);
-      if (!config.CanProcessClient(client))
-        return;
+      // TODO: [TESTS] (GenerateTimeSheetDateState.GenerateTimeSheetDateState) Add tests
+      _optionsService = serviceProvider.GetRequiredService<IOptionsService>();
+      _dateTime = serviceProvider.GetRequiredService<IDateTimeAbstraction>();
+      _timeSheetDateRepo = serviceProvider.GetRequiredService<ITimeSheetDateRepo>();
+      _clientRepo = serviceProvider.GetRequiredService<IClientRepo>();
+      _timeSheetService = serviceProvider.GetRequiredService<ITimeSheetService>();
 
-      for (var i = 0; i < config.DaysAhead; i++)
-      {
-        var currentDate = config.StartDate.AddDays(i);
-        await config.GetDbTimeSheetDate(_timeSheetService, client, currentDate);
-      }
+      _tsDateCache = new TimeSheetDateCache();
+
+      Clients = new List<ClientEntity>();
     }
 
+    public async Task<GenerateTimeSheetDateState> SetUser(UserEntity user)
+    {
+      // TODO: [TESTS] (GenerateTimeSheetDateState.SetUser) Add tests
+      var rawOptions = await _optionsService.GenerateOptions(GenerateTimeSheetDates.Category, user.UserId);
+
+      Config = new GenerateTimeSheetDateConfig(rawOptions);
+      User = user;
+
+      await BootstrapIfEnabled();
+      return this;
+    }
+
+
+    // Public methods
+    public bool CanRun() => Config.Enabled;
+
+    public async Task<List<ClientEntity>> GetClients()
+      => await _clientRepo.GetAll(User.UserId);
+
+    public bool CanProcessClient(ClientEntity client)
+      => Config.CanProcessClient(client);
+
+    public async Task<bool> EnsureTimeSheetDateExists(ClientEntity client, DateTime date)
+      => await _timeSheetService.EnsureTimeSheetDateExists(_tsDateCache, client, date);
+
+
+    // Internal methods
+    private async Task BootstrapIfEnabled()
+    {
+      // TODO: [TESTS] (GenerateTimeSheetDateState.BootstrapIfEnabled) Add tests
+      if (!Config.Enabled)
+        return;
+
+      Config.StartDate = _dateTime.Now;
+      Config.EndDate = Config.StartDate.AddDays(Config.DaysAhead);
+
+      _tsDateCache.CacheEntries(
+        await _timeSheetDateRepo.GetDatesForRange(User.UserId, Config.StartDate, Config.EndDate)
+      );
+
+      await LoadUserClients();
+    }
+
+    private async Task LoadUserClients()
+    {
+      // TODO: [TESTS] (GenerateTimeSheetDateState.LoadUserClients) Add tests
+      Clients.AddRange(await _clientRepo.GetAll(User.UserId));
+
+      foreach (var client in Clients)
+      {
+        await Config.EnsureClientOptionExists(_optionsService, client);
+      }
+    }
   }
 
   public class GenerateTimeSheetDateConfig
   {
     public int DaysAhead { get; }
     public bool Enabled { get; }
-    public UserEntity User { get; private set; }
-    public DateTime StartDate { get; private set; }
-    public DateTime EndDate { get; private set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 
     private readonly RawOptions _rawOptions;
     private readonly OptionEntityCache _optionCache;
-    private readonly TimeSheetDateCache _tsDateCache;
 
 
     // Constructors
@@ -109,7 +177,6 @@ namespace TimeTracker.Core.Jobs
 
       _rawOptions = null;
       _optionCache = new OptionEntityCache();
-      _tsDateCache = new TimeSheetDateCache();
     }
 
     public GenerateTimeSheetDateConfig(RawOptions options)
@@ -124,28 +191,6 @@ namespace TimeTracker.Core.Jobs
 
 
     // Public methods
-    public GenerateTimeSheetDateConfig SetUser(UserEntity user)
-    {
-      // TODO: [TESTS] (GenerateTimeSheetDateConfig.SetUser) Add tests
-      User = user;
-      return this;
-    }
-
-    public void SetDateRange(DateTime now)
-    {
-      // TODO: [TESTS] (GenerateTimeSheetDateConfig.SetDateRange) Add tests
-      StartDate = now;
-      EndDate = now.AddDays(DaysAhead);
-    }
-
-    public async Task CacheTimeSheetDates(ITimeSheetDateRepo timeSheetDateRepo)
-    {
-      // TODO: [TESTS] (GenerateTimeSheetDateConfig.CacheTimeSheetDates) Add tests
-      _tsDateCache.CacheEntries(
-        await timeSheetDateRepo.GetDatesForRange(User.UserId, StartDate, EndDate)
-      );
-    }
-
     public async Task EnsureClientOptionExists(IOptionsService optionsService, ClientEntity client)
     {
       // TODO: [TESTS] (GenerateTimeSheetDateConfig.EnsureClientOptionExists) Add tests
@@ -170,8 +215,5 @@ namespace TimeTracker.Core.Jobs
       var key = $"client.{client.ClientId:D}.generate";
       return _rawOptions.GetBoolOption(key, false);
     }
-
-    public async Task<TimeSheetDate> GetDbTimeSheetDate(ITimeSheetService timeSheetService, ClientEntity client, DateTime date)
-      => await timeSheetService.EnsureTimeSheetDateExists(_tsDateCache, client, date);
   }
 }

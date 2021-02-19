@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Encryption;
+using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
@@ -144,6 +145,12 @@ namespace TimeTracker
         () => new SweepLongRunningTimers(serviceProvider).Run(),
         "* * * * *"
       );
+
+      RecurringJob.AddOrUpdate(
+        "Generate TimeSheet Date Entries",
+        () => new GenerateTimeSheetDates(serviceProvider).Run(),
+        "5 */1 * * *"
+      );
     }
 
 
@@ -164,7 +171,8 @@ namespace TimeTracker
     {
       services
         .AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>))
-        .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>();
+        .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>()
+        .AddSingleton<ITimerFactory, TimerFactory>();
     }
 
     private static void ConfigureServices_Services(IServiceCollection services)

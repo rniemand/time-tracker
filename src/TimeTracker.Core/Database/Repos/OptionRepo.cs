@@ -13,6 +13,8 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<OptionEntity> GetRawOption(string category, string key, int userId);
     Task<List<OptionEntity>> GetRawOptionsForCategory(string category, int userId);
+    Task<int> Add(OptionEntity option);
+    Task<int> Update(OptionEntity option);
   }
 
   public class OptionRepo : BaseRepo<OptionRepo>, IOptionRepo
@@ -56,6 +58,18 @@ namespace TimeTracker.Core.Database.Repos
           UserId = userId
         }
       );
+    }
+
+    public async Task<int> Add(OptionEntity option)
+    {
+      // TODO: [TESTS] (OptionRepo.Add) Add tests
+      return await ExecuteAsync(nameof(Add), _queries.Add(), option);
+    }
+
+    public async Task<int> Update(OptionEntity option)
+    {
+      // TODO: [TESTS] (OptionRepo.Update) Add tests
+      return await ExecuteAsync(nameof(Update), _queries.Update(), option);
     }
   }
 }

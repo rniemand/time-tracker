@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Rn.NetCore.Common.Logging;
+using TimeTracker.Core.Caches;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Models;
@@ -52,6 +53,11 @@ namespace TimeTracker.Core.Jobs
 
       var clients = await _clientRepo.GetAll(user.UserId);
 
+      foreach (var client in clients)
+      {
+        await config.EnsureClientOptionExists(_optionsService, client);
+      }
+
 
     }
   }
@@ -61,13 +67,19 @@ namespace TimeTracker.Core.Jobs
     public int DaysAhead { get; set; }
     public bool Enabled { get; set; }
 
+    private readonly RawOptions _rawOptions;
+    private readonly OptionEntityCache _cache;
+
 
     // Constructors
-    public GenerateTimeSheetDateConfig()
+    private GenerateTimeSheetDateConfig()
     {
       // TODO: [TESTS] (GenerateTimeSheetDateConfig) Add tests
       DaysAhead = 7;
       Enabled = false;
+
+      _rawOptions = null;
+      _cache = new OptionEntityCache();
     }
 
     public GenerateTimeSheetDateConfig(RawOptions options)
@@ -76,6 +88,28 @@ namespace TimeTracker.Core.Jobs
       // TODO: [TESTS] (GenerateTimeSheetDateConfig) Add tests
       DaysAhead = options.GetIntOption("DaysAhead", 7);
       Enabled = options.GetBoolOption("Enabled", false);
+
+      _rawOptions = options;
+    }
+
+
+    // Public methods
+    public async Task EnsureClientOptionExists(IOptionsService optionsService, ClientEntity client)
+    {
+      // TODO: [TESTS] (GenerateTimeSheetDateConfig.EnsureClientOptionExists) Add tests
+      // Do we need to add this option
+      var key = $"client.{client.ClientId:D}.generate";
+      if (_rawOptions.HasOption(GenerateTimeSheetDates.Category, key))
+        return;
+      
+      // Were we able to add this option
+      var stubbedOption = _rawOptions.GenerateBoolOption(key, false, client.UserId);
+      var dbOption = await optionsService.UpsertOption(_cache, stubbedOption);
+      if (dbOption == null)
+        return;
+
+      // Cache option (we will need it later)
+      _rawOptions.AddOption(dbOption);
     }
   }
 }

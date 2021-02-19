@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon.Helpers;
@@ -13,6 +14,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<UserEntity> GetUsingCredentials(string username, string password);
     Task<int> UpdateLastLoginDate(int userId);
     Task<UserEntity> GetUserById(int userId);
+    Task<List<UserEntity>> GetEnabledUsers();
   }
 
   public class UserRepo : BaseRepo<UserRepo>, IUserRepo
@@ -29,6 +31,8 @@ namespace TimeTracker.Core.Database.Repos
       _queries = queries;
     }
 
+
+    // Interface methods
     public async Task<UserEntity> GetUsingCredentials(string username, string password)
     {
       // TODO: [TESTS] (UserRepo.GetUsingCredentials) Add tests
@@ -61,6 +65,15 @@ namespace TimeTracker.Core.Database.Repos
         nameof(GetUserById),
         _queries.GetUserById(),
         new { UserId = userId }
+      );
+    }
+
+    public async Task<List<UserEntity>> GetEnabledUsers()
+    {
+      // TODO: [TESTS] (UserRepo.GetEnabledUsers) Add tests
+      return await GetList<UserEntity>(
+        nameof(GetEnabledUsers),
+        _queries.GetEnabledUsers()
       );
     }
   }

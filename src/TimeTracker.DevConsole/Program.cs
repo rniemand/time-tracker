@@ -38,7 +38,7 @@ namespace TimeTracker.DevConsole
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
 
-      new SweepLongRunningTimers(_serviceProvider)
+      new GenerateTimeSheetDates(_serviceProvider)
         .Run()
         .ConfigureAwait(false)
         .GetAwaiter()
@@ -139,7 +139,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
-        .AddSingleton<IDailyTasksService, DailyTasksService>();
+        .AddSingleton<IDailyTasksService, DailyTasksService>()
+        .AddSingleton<ITimeSheetService, TimeSheetService>();
     }
 
     private static void ConfigureDI_Configuration(IServiceCollection services, IConfiguration config)

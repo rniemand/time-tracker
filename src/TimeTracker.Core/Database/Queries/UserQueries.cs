@@ -5,6 +5,7 @@
     string GetUsingCredentials();
     string UpdateLastLoginDate();
     string GetUserById();
+    string GetEnabledUsers();
   }
 
   public class UserQueries : IUserQueries
@@ -33,6 +34,14 @@
       return @"SELECT *
       FROM `Users`
       WHERE `UserId` = @UserId";
+    }
+
+    public string GetEnabledUsers()
+    {
+      return @"SELECT *
+      FROM `Users`
+      WHERE
+	      `Deleted` = 0";
     }
   }
 }

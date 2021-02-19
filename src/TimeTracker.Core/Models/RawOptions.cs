@@ -10,6 +10,8 @@ namespace TimeTracker.Core.Models
     public Dictionary<string, OptionEntity> Options { get; set; }
     public string DefaultCategory { get; set; }
 
+
+    // Constructors
     public RawOptions()
     {
       // TODO: [TESTS] (RawOptions) Add tests
@@ -25,6 +27,7 @@ namespace TimeTracker.Core.Models
     }
 
 
+    // Public methods
     public void AddOption(OptionEntity option)
     {
       // TODO: [TESTS] (RawOptions.AddOption) Add tests
@@ -84,6 +87,9 @@ namespace TimeTracker.Core.Models
         ? fallback
         : option.OptionValue.AsBool(fallback);
     }
+
+    public bool GetBoolOption(string key, bool fallback)
+      => GetBoolOption(DefaultCategory, key, fallback);
 
 
     // Internal methods

@@ -32,6 +32,8 @@ namespace TimeTracker.Core.Services
       _metrics = metrics;
     }
 
+
+    // Interface methods
     public async Task<RawOptions> GenerateOptions(string category, int userId)
     {
       // TODO: [TESTS] (OptionsService.GetRawOptionsForCategory) Add tests

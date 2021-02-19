@@ -177,7 +177,8 @@ namespace TimeTracker
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
-        .AddSingleton<IDailyTasksService, DailyTasksService>();
+        .AddSingleton<IDailyTasksService, DailyTasksService>()
+        .AddSingleton<ITimeSheetService, TimeSheetService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)

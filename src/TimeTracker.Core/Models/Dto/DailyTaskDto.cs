@@ -12,8 +12,9 @@ namespace TimeTracker.Core.Models.Dto
     public int UserId { get; set; }
     public int ClientId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string TaskName { get; set; }
 
     public DailyTaskDto()
@@ -23,8 +24,9 @@ namespace TimeTracker.Core.Models.Dto
       UserId = 0;
       ClientId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       TaskName = string.Empty;
     }
 
@@ -38,10 +40,11 @@ namespace TimeTracker.Core.Models.Dto
           UserId = entity.UserId,
           ClientId = entity.ClientId,
           Deleted = entity.Deleted,
-          DateCreatedUtc = entity.DateCreatedUtc,
-          DateModifiedUtc = entity.DateModifiedUtc,
+          DateAddedUtc = entity.DateAddedUtc,
+          DateUpdatedUtc = entity.DateUpdatedUtc,
           TaskId = entity.TaskId,
-          TaskName = entity.TaskName
+          TaskName = entity.TaskName,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }
@@ -60,10 +63,11 @@ namespace TimeTracker.Core.Models.Dto
         UserId = userIdOverride > 0 ? userIdOverride : UserId,
         ClientId = ClientId,
         Deleted = Deleted,
-        DateCreatedUtc = DateCreatedUtc,
-        DateModifiedUtc = DateModifiedUtc,
+        DateAddedUtc = DateAddedUtc,
+        DateUpdatedUtc = DateUpdatedUtc,
         TaskId = TaskId,
-        TaskName = TaskName
+        TaskName = TaskName,
+        DateDeletedUtc = DateDeletedUtc
       };
     }
   }

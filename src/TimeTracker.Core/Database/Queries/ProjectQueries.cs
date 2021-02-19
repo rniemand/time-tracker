@@ -51,7 +51,7 @@
     {
       return @"UPDATE `Projects`
       SET
-	      `DateModifiedUtc` = CURRENT_TIMESTAMP(),
+	      `DateUpdatedUtc` = utc_timestamp(4),
 	      `ProjectName` = @ProjectName
       WHERE
 	      `ProjectId` = @ProjectId";

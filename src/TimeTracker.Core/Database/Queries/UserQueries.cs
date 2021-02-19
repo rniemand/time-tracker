@@ -23,7 +23,7 @@
     {
       return @"UPDATE `Users`
       SET
-	      `LastLoginDateUtc` = current_timestamp()
+	      `LastLoginDateUtc` = utc_timestamp(4)
       WHERE
 	      `UserId` = @UserId";
     }

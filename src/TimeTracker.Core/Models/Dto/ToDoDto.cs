@@ -12,7 +12,8 @@ namespace TimeTracker.Core.Models.Dto
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public DateTime DateAddedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ToDo { get; set; }
 
     public ToDoDto()
@@ -24,7 +25,8 @@ namespace TimeTracker.Core.Models.Dto
       UserId = 0;
       Deleted = false;
       DateAddedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ToDo = string.Empty;
     }
 
@@ -34,14 +36,15 @@ namespace TimeTracker.Core.Models.Dto
       {
         return entity => new ToDoDto
         {
-          DateModifiedUtc = entity.DateModifiedUtc,
+          DateUpdatedUtc = entity.DateUpdatedUtc,
           Deleted = entity.Deleted,
           UserId = entity.UserId,
           SubCategoryId = entity.SubCategoryId,
           DateAddedUtc = entity.DateAddedUtc,
           ToDo = entity.ToDo,
           ToDoId = entity.ToDoId,
-          CategoryId = entity.SubCategoryId
+          CategoryId = entity.SubCategoryId,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }

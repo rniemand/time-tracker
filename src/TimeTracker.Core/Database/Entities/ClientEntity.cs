@@ -7,8 +7,9 @@ namespace TimeTracker.Core.Database.Entities
     public int ClientId { get; set; }
     public bool Deleted { get; set; }
     public int UserId { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ClientName { get; set; }
     public string ClientEmail { get; set; }
 
@@ -18,8 +19,9 @@ namespace TimeTracker.Core.Database.Entities
       ClientId = 0;
       Deleted = false;
       UserId = 0;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ClientName = string.Empty;
       ClientEmail = string.Empty;
     }

@@ -12,6 +12,7 @@ namespace TimeTracker.Core.Database.Entities
     public DateTime? DateUpdatedUtc { get; set; }
     public DateTime? DateDeletedUtc { get; set; }
     public DayOfWeek DayOfWeek { get; set; }
+    public DateTime EntryDate { get; set; }
 
     public TimeSheetDate()
     {
@@ -24,6 +25,7 @@ namespace TimeTracker.Core.Database.Entities
       DateUpdatedUtc = null;
       DateDeletedUtc = null;
       DayOfWeek = DayOfWeek.Sunday;
+      EntryDate = DateTime.Now;
     }
   }
 }

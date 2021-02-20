@@ -2546,8 +2546,6 @@ export class TimeSheetRowDto implements ITimeSheetRowDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
-    entryDate?: Date;
-    description?: string | undefined;
 
     constructor(data?: ITimeSheetRowDto) {
         if (data) {
@@ -2566,8 +2564,6 @@ export class TimeSheetRowDto implements ITimeSheetRowDto {
             this.clientId = _data["clientId"];
             this.productId = _data["productId"];
             this.projectId = _data["projectId"];
-            this.entryDate = _data["entryDate"] ? new Date(_data["entryDate"].toString()) : <any>undefined;
-            this.description = _data["description"];
         }
     }
 
@@ -2586,8 +2582,6 @@ export class TimeSheetRowDto implements ITimeSheetRowDto {
         data["clientId"] = this.clientId;
         data["productId"] = this.productId;
         data["projectId"] = this.projectId;
-        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
-        data["description"] = this.description;
         return data; 
     }
 }
@@ -2599,8 +2593,6 @@ export interface ITimeSheetRowDto {
     clientId?: number;
     productId?: number;
     projectId?: number;
-    entryDate?: Date;
-    description?: string | undefined;
 }
 
 export class TimeSheetEntryDto implements ITimeSheetEntryDto {

@@ -39,6 +39,14 @@ namespace TimeTracker.DevConsole
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
 
+
+      /*
+       INSERT INTO `TimeSheet_Rows`
+	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
+      VALUES
+	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
+       */
+
       new GenerateTimeSheetDates(_serviceProvider)
         .Run()
         .ConfigureAwait(false)

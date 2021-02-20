@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
-import { AddTimesheetRowDialog, AddTimesheetRowDialogData } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
+import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
+import { AuthService } from 'src/app/services/auth.service';
 import { GetTimeSheetRequest, GetTimeSheetResponse, TimeSheetClient, TimeSheetDateDto } from 'src/app/time-tracker-api';
 
 @Component({
@@ -11,26 +12,37 @@ import { GetTimeSheetRequest, GetTimeSheetResponse, TimeSheetClient, TimeSheetDa
 })
 export class TimesheetComponent implements OnInit {
   clientId: number = 0;
+  startDate: Date = new Date();
+  endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000))
   dates: TimeSheetDateDto[] = [];
 
   constructor(
     public dialog: MatDialog,
-    private timeSheetClient: TimeSheetClient
+    private timeSheetClient: TimeSheetClient,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
-    let dialogData: AddTimesheetRowDialogData = { };
+    let dialogData: AddTimesheetRowDialogData = {
+      userId: this.authService.currentUser?.id ?? 0,
+      clientId: 1, //this.clientId
+      startDate: this.startDate,
+      endDate: this.endDate
+    };
 
     let dialogRef = this.dialog.open(AddTimesheetRowDialog, {
       ...DIALOG_DEFAULTS,
       data: dialogData
     });
 
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if(result?.outcome == 'updated') {
-    //     this.refreshTable();
-    //   }
-    // });
+    dialogRef.afterClosed().subscribe(result => {
+      if(result && result.hasOwnProperty('addLine')) {
+        const outcome = result as AddTimesheetRowDialogResult;
+        if(outcome.addLine) {
+          console.log('need to add line!', outcome);
+        }
+      }
+    });
   }
 
   clientSelected = (clientId: number) => {
@@ -54,11 +66,9 @@ export class TimesheetComponent implements OnInit {
   }
 
   private loadTimeSheet = () => {
-    const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + (60 * 60 * 24 * 7 * 1000));
     const request = new GetTimeSheetRequest({
-      startDate: startDate,
-      endDate: endDate,
+      startDate: this.startDate,
+      endDate: this.endDate,
       clientId: 1
     });
 

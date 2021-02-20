@@ -12,8 +12,6 @@ namespace TimeTracker.Core.Models.Dto
     public int ClientId { get; set; }
     public int ProductId { get; set; }
     public int ProjectId { get; set; }
-    public DateTime EntryDate { get; set; }
-    public string Description { get; set; }
 
     public TimeSheetRowDto()
     {
@@ -24,8 +22,6 @@ namespace TimeTracker.Core.Models.Dto
       ClientId = 0;
       ProductId = 0;
       ProjectId = 0;
-      EntryDate = DateTime.Now;
-      Description = string.Empty;
     }
 
     public static Expression<Func<TimeSheetRow, TimeSheetRowDto>> Projection
@@ -38,9 +34,7 @@ namespace TimeTracker.Core.Models.Dto
           ClientId = entity.ClientId,
           ProductId = entity.ProductId,
           ProjectId = entity.ProjectId,
-          EntryDate = entity.EntryDate,
           DateId = entity.DateId,
-          Description = entity.Description,
           RowId = entity.RowId
         };
       }

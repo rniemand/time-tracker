@@ -3,6 +3,7 @@
   public interface ITimeSheetDateRepoQueries
   {
     string GetDatesForRange();
+    string GetClientDatesForRange();
     string GetEntry();
     string Add();
   }
@@ -15,6 +16,18 @@
       FROM `TimeSheet_Date`
       WHERE
 	      `UserId` = @UserId AND
+	      `Deleted` = 0 AND
+	      `EntryDate` >= @StartDate AND
+	      `EntryDate` <= @EndDate
+      ORDER BY `ClientId`, `EntryDate` ASC";
+    }
+
+    public string GetClientDatesForRange()
+    {
+      return @"SELECT *
+      FROM `TimeSheet_Date`
+      WHERE
+	      `ClientId` = @ClientId AND
 	      `Deleted` = 0 AND
 	      `EntryDate` >= @StartDate AND
 	      `EntryDate` <= @EndDate

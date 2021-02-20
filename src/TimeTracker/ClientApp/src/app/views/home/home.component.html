@@ -28,6 +28,10 @@
     <app-home-card title="Overview" icon="hourglass_empty">
       <button mat-stroked-button class="last-btn" [routerLink]="['/timers', 'daily-overview']" fxFlex>View</button>
     </app-home-card>
+
+    <app-home-card title="Timesheet" icon="date_range">
+      <button mat-stroked-button class="last-btn" [routerLink]="['/timesheet']" fxFlex>View</button>
+    </app-home-card>
   </div>
 
   <div class="content-row" *ngIf="loggedIn">

@@ -6,12 +6,14 @@ namespace TimeTracker.Core.Models.Requests
   {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public int ClientId { get; set; }
 
     public GetTimeSheetRequest()
     {
       // TODO: [TESTS] (GetTimeSheetRequest.GetTimeSheetRequest) Add tests
       StartDate = DateTime.Now;
       EndDate = StartDate.AddDays(7);
+      ClientId = 0;
     }
   }
 }

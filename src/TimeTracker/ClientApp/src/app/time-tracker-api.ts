@@ -1825,6 +1825,74 @@ export class TimersClient implements ITimersClient {
     }
 }
 
+export interface ITimeSheetClient {
+    getTimeSheet(timeSheetRequest: GetTimeSheetRequest): Observable<GetTimeSheetResponse>;
+}
+
+@Injectable()
+export class TimeSheetClient implements ITimeSheetClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getTimeSheet(timeSheetRequest: GetTimeSheetRequest): Observable<GetTimeSheetResponse> {
+        let url_ = this.baseUrl + "/api/TimeSheet/get";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(timeSheetRequest);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTimeSheet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTimeSheet(<any>response_);
+                } catch (e) {
+                    return <Observable<GetTimeSheetResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<GetTimeSheetResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetTimeSheet(response: HttpResponseBase): Observable<GetTimeSheetResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetTimeSheetResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<GetTimeSheetResponse>(<any>null);
+    }
+}
+
 export class AuthenticationResponse implements IAuthenticationResponse {
     userId?: number;
     username?: string | undefined;
@@ -2331,6 +2399,324 @@ export enum TimerType {
     Unspecified = 0,
     ProjectWork = 1,
     DailyTask = 2,
+}
+
+export class GetTimeSheetResponse implements IGetTimeSheetResponse {
+    dates?: TimeSheetDateDto[] | undefined;
+    rows?: TimeSheetRowDto[] | undefined;
+    entries?: TimeSheetEntryDto[] | undefined;
+    startDate?: Date;
+    endDate?: Date;
+
+    constructor(data?: IGetTimeSheetResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["dates"])) {
+                this.dates = [] as any;
+                for (let item of _data["dates"])
+                    this.dates!.push(TimeSheetDateDto.fromJS(item));
+            }
+            if (Array.isArray(_data["rows"])) {
+                this.rows = [] as any;
+                for (let item of _data["rows"])
+                    this.rows!.push(TimeSheetRowDto.fromJS(item));
+            }
+            if (Array.isArray(_data["entries"])) {
+                this.entries = [] as any;
+                for (let item of _data["entries"])
+                    this.entries!.push(TimeSheetEntryDto.fromJS(item));
+            }
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetTimeSheetResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTimeSheetResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.dates)) {
+            data["dates"] = [];
+            for (let item of this.dates)
+                data["dates"].push(item.toJSON());
+        }
+        if (Array.isArray(this.rows)) {
+            data["rows"] = [];
+            for (let item of this.rows)
+                data["rows"].push(item.toJSON());
+        }
+        if (Array.isArray(this.entries)) {
+            data["entries"] = [];
+            for (let item of this.entries)
+                data["entries"].push(item.toJSON());
+        }
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IGetTimeSheetResponse {
+    dates?: TimeSheetDateDto[] | undefined;
+    rows?: TimeSheetRowDto[] | undefined;
+    entries?: TimeSheetEntryDto[] | undefined;
+    startDate?: Date;
+    endDate?: Date;
+}
+
+export class TimeSheetDateDto implements ITimeSheetDateDto {
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    dayOfWeek?: DayOfWeek;
+    entryDate?: Date;
+
+    constructor(data?: ITimeSheetDateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.dateId = _data["dateId"];
+            this.userId = _data["userId"];
+            this.clientId = _data["clientId"];
+            this.dayOfWeek = _data["dayOfWeek"];
+            this.entryDate = _data["entryDate"] ? new Date(_data["entryDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): TimeSheetDateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TimeSheetDateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["dateId"] = this.dateId;
+        data["userId"] = this.userId;
+        data["clientId"] = this.clientId;
+        data["dayOfWeek"] = this.dayOfWeek;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface ITimeSheetDateDto {
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    dayOfWeek?: DayOfWeek;
+    entryDate?: Date;
+}
+
+export enum DayOfWeek {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+}
+
+export class TimeSheetRowDto implements ITimeSheetRowDto {
+    rowId?: number;
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    productId?: number;
+    projectId?: number;
+    entryDate?: Date;
+    description?: string | undefined;
+
+    constructor(data?: ITimeSheetRowDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.rowId = _data["rowId"];
+            this.dateId = _data["dateId"];
+            this.userId = _data["userId"];
+            this.clientId = _data["clientId"];
+            this.productId = _data["productId"];
+            this.projectId = _data["projectId"];
+            this.entryDate = _data["entryDate"] ? new Date(_data["entryDate"].toString()) : <any>undefined;
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): TimeSheetRowDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TimeSheetRowDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["rowId"] = this.rowId;
+        data["dateId"] = this.dateId;
+        data["userId"] = this.userId;
+        data["clientId"] = this.clientId;
+        data["productId"] = this.productId;
+        data["projectId"] = this.projectId;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["description"] = this.description;
+        return data; 
+    }
+}
+
+export interface ITimeSheetRowDto {
+    rowId?: number;
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    productId?: number;
+    projectId?: number;
+    entryDate?: Date;
+    description?: string | undefined;
+}
+
+export class TimeSheetEntryDto implements ITimeSheetEntryDto {
+    entryId?: number;
+    rowId?: number;
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    productId?: number;
+    projectId?: number;
+    entryDate?: Date;
+    entryVersion?: number;
+    entryTimeMin?: number;
+
+    constructor(data?: ITimeSheetEntryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.entryId = _data["entryId"];
+            this.rowId = _data["rowId"];
+            this.dateId = _data["dateId"];
+            this.userId = _data["userId"];
+            this.clientId = _data["clientId"];
+            this.productId = _data["productId"];
+            this.projectId = _data["projectId"];
+            this.entryDate = _data["entryDate"] ? new Date(_data["entryDate"].toString()) : <any>undefined;
+            this.entryVersion = _data["entryVersion"];
+            this.entryTimeMin = _data["entryTimeMin"];
+        }
+    }
+
+    static fromJS(data: any): TimeSheetEntryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TimeSheetEntryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entryId"] = this.entryId;
+        data["rowId"] = this.rowId;
+        data["dateId"] = this.dateId;
+        data["userId"] = this.userId;
+        data["clientId"] = this.clientId;
+        data["productId"] = this.productId;
+        data["projectId"] = this.projectId;
+        data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["entryVersion"] = this.entryVersion;
+        data["entryTimeMin"] = this.entryTimeMin;
+        return data; 
+    }
+}
+
+export interface ITimeSheetEntryDto {
+    entryId?: number;
+    rowId?: number;
+    dateId?: number;
+    userId?: number;
+    clientId?: number;
+    productId?: number;
+    projectId?: number;
+    entryDate?: Date;
+    entryVersion?: number;
+    entryTimeMin?: number;
+}
+
+export class GetTimeSheetRequest implements IGetTimeSheetRequest {
+    startDate?: Date;
+    endDate?: Date;
+    clientId?: number;
+
+    constructor(data?: IGetTimeSheetRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.clientId = _data["clientId"];
+        }
+    }
+
+    static fromJS(data: any): GetTimeSheetRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetTimeSheetRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["clientId"] = this.clientId;
+        return data; 
+    }
+}
+
+export interface IGetTimeSheetRequest {
+    startDate?: Date;
+    endDate?: Date;
+    clientId?: number;
 }
 
 export class SwaggerException extends Error {

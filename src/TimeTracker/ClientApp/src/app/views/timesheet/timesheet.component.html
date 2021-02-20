@@ -1,0 +1,22 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / Timesheet</h1>
+  </div>
+
+  <div class="content-row">
+    <app-client-selector (changed)="clientSelected($event)" class="stretched"></app-client-selector>
+  </div>
+
+  <div class="content-row" *ngIf="dates.length > 0">
+    <table>
+      <tr>
+        <td>&nbsp;</td>
+        <td *ngFor="let date of dates">Hi</td>
+      </tr>
+      <tr>
+        <td>Description</td>
+        <td *ngFor="let date of dates">Input</td>
+      </tr>
+    </table>
+  </div>
+</div>

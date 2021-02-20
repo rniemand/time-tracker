@@ -65,7 +65,14 @@ namespace TimeTracker.Core.Services
       // ReSharper disable once UseObjectOrCollectionInitializer
       var response = new GetTimeSheetResponse();
 
-      response.Dates = (await _timeSheetDateRepo.GetDatesForRange(userId, request.StartDate, request.EndDate))
+      var clientId = request.ClientId;
+      var from = request.StartDate;
+      var to = request.EndDate;
+
+      request.StartDate = from;
+      request.EndDate = to;
+
+      response.Dates = (await _timeSheetDateRepo.GetClientDatesForRange(clientId, from, to))
         .AsQueryable()
         .Select(TimeSheetDateDto.Projection)
         .ToList();

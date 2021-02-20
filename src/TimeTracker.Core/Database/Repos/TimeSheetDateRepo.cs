@@ -14,6 +14,7 @@ namespace TimeTracker.Core.Database.Repos
   public interface ITimeSheetDateRepo
   {
     Task<List<TimeSheetDate>> GetDatesForRange(int userId, DateTime from, DateTime to);
+    Task<List<TimeSheetDate>> GetClientDatesForRange(int clientId, DateTime from, DateTime to);
     Task<TimeSheetDate> GetEntry(int userId, int clientId, DateTime date);
     Task<int> Add(TimeSheetDate timeSheetDate);
   }
@@ -38,13 +39,28 @@ namespace TimeTracker.Core.Database.Repos
     {
       // TODO: [TESTS] (TimeSheetDateRepo.GetDatesForRange) Add tests
       return await GetList<TimeSheetDate>(
-        nameof(GetDatesForRange),
+        nameof(GetClientDatesForRange),
         _queries.GetDatesForRange(),
         new
         {
           UserId = userId,
           StartDate = from.ToShortDbDate(),
           EndDate = to.ToShortDbDate()
+        }
+      );
+    }
+
+    public async Task<List<TimeSheetDate>> GetClientDatesForRange(int clientId, DateTime @from, DateTime to)
+    {
+      // TODO: [TESTS] (TimeSheetDateRepo.GetClientDatesForRange) Add tests
+      return await GetList<TimeSheetDate>(
+        nameof(GetClientDatesForRange),
+        _queries.GetClientDatesForRange(),
+        new
+        {
+          StartDate = from.ToShortDbDate(),
+          EndDate = to.ToShortDbDate(),
+          ClientId = clientId
         }
       );
     }

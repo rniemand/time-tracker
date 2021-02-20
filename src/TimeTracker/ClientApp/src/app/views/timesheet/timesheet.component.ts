@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DIALOG_DEFAULTS } from 'src/app/constants';
+import { AddTimesheetRowDialog, AddTimesheetRowDialogData } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { GetTimeSheetRequest, GetTimeSheetResponse, TimeSheetClient, TimeSheetDateDto } from 'src/app/time-tracker-api';
 
 @Component({
@@ -11,10 +14,24 @@ export class TimesheetComponent implements OnInit {
   dates: TimeSheetDateDto[] = [];
 
   constructor(
+    public dialog: MatDialog,
     private timeSheetClient: TimeSheetClient
   ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    let dialogData: AddTimesheetRowDialogData = { };
+
+    let dialogRef = this.dialog.open(AddTimesheetRowDialog, {
+      ...DIALOG_DEFAULTS,
+      data: dialogData
+    });
+
+    // dialogRef.afterClosed().subscribe(result => {
+    //   if(result?.outcome == 'updated') {
+    //     this.refreshTable();
+    //   }
+    // });
+  }
 
   clientSelected = (clientId: number) => {
     this.clientId = clientId;
@@ -51,7 +68,7 @@ export class TimesheetComponent implements OnInit {
           this.dates = response?.dates ?? [];
           
           console.log(response);
-          
+
           resolve();
         },
         (error: any) => { reject(error); }

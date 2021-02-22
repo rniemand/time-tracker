@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace TimeTracker.Core.Database.Entities
 {
+  [DebuggerDisplay("{ClientId}: {EntryDate}")]
   public class TimeSheetDate
   {
     public int DateId { get; set; }

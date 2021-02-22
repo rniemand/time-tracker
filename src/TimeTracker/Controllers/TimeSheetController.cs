@@ -6,6 +6,7 @@ using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
+using TimeTracker.Core.WebApi.Attributes;
 using TimeTracker.Core.WebApi.Requests;
 
 namespace TimeTracker.Controllers
@@ -25,7 +26,7 @@ namespace TimeTracker.Controllers
       _timeSheetService = timeSheetService;
     }
 
-    [HttpPost, Route("get")]
+    [HttpPost, Route("get"), Authorize]
     public async Task<ActionResult<GetTimeSheetResponse>> GetTimeSheet(
       [FromBody] GetTimeSheetRequest timeSheetRequest,
       [OpenApiIgnore] CoreApiRequest request)
@@ -35,6 +36,22 @@ namespace TimeTracker.Controllers
         .WithResponse(await _timeSheetService.GetTimeSheet(timeSheetRequest, request.UserId));
 
       return ProcessResponse(response);
+    }
+
+    [HttpPost, Route("add-row"), Authorize]
+    public async Task<ActionResult<GetTimeSheetResponse>> AddRow(
+      [FromBody] AddTimeSheetRowRequest addRequest)
+    {
+      // TODO: [TESTS] (TimeSheetController.AddRow) Add tests
+      var apiResponse = new BaseResponse<GetTimeSheetResponse>()
+        .WithValidation(AddTimeSheetRowRequestValidator.Update(addRequest));
+
+      if (apiResponse.PassedValidation)
+      {
+        apiResponse.WithResponse(await _timeSheetService.AddTimeSheetRow(addRequest));
+      }
+
+      return ProcessResponse(apiResponse);
     }
   }
 }

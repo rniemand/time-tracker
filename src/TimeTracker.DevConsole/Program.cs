@@ -20,6 +20,7 @@ using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
+using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 using TimeTracker.DevConsole.Setup.Config;
 
@@ -47,11 +48,21 @@ namespace TimeTracker.DevConsole
 	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
        */
 
-      new GenerateTimeSheetDates(_serviceProvider)
-        .Run()
+      var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
+
+      service.AddTimeSheetRow(new AddTimeSheetRowRequest
+        {
+          UserId = 1,
+          ClientId = 1,
+          ProductId = 1,
+          ProjectId = 1,
+          NumberDays = 7,
+          StartDate = DateTime.Now
+        })
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
+
     }
 
 

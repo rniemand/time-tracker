@@ -23,6 +23,15 @@ export class TimesheetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.addRow();
+  }
+
+  clientSelected = (clientId: number) => {
+    this.clientId = clientId;
+    this.refreshView();
+  }
+
+  addRow = () => {
     let dialogData: AddTimesheetRowDialogData = {
       userId: this.authService.currentUser?.id ?? 0,
       clientId: 1, //this.clientId
@@ -43,11 +52,6 @@ export class TimesheetComponent implements OnInit {
         }
       }
     });
-  }
-
-  clientSelected = (clientId: number) => {
-    this.clientId = clientId;
-    this.refreshView();
   }
 
 

@@ -86,6 +86,11 @@ namespace TimeTracker.Core.Services
         .Select(ProjectDto.Projection)
         .ToList();
 
+      response.Products = (await _rowRepo.GetTimeSheetProducts(clientId, from, to))
+        .AsQueryable()
+        .Select(ProductDto.Projection)
+        .ToList();
+
       return response;
     }
 

@@ -7,6 +7,7 @@
     string GetProjectRows();
     string GetClientRows();
     string GetTimeSheetProjects();
+    string GetTimeSheetProducts();
   }
 
   public class TimeSheetRowRepoQueries : ITimeSheetRowRepoQueries
@@ -71,6 +72,21 @@
             `EntryDate` >= @FromDate AND
             `EntryDate` <= @ToDate
 	      )";
+    }
+
+    public string GetTimeSheetProducts()
+    {
+      return @"SELECT *
+      FROM `Products`
+      WHERE `ProductId` IN (
+         SELECT DISTINCT(`ProductId`)
+         FROM `TimeSheet_Rows`
+         WHERE
+            `Deleted` = 0 AND
+            `ClientId` = @ClientId AND
+            `EntryDate` >= @FromDate AND
+            `EntryDate` <= @ToDate
+      )";
     }
   }
 }

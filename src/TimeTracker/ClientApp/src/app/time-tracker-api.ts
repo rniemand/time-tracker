@@ -2457,6 +2457,7 @@ export enum TimerType {
 export class GetTimeSheetResponse implements IGetTimeSheetResponse {
     dates?: TimeSheetDateDto[] | undefined;
     projects?: ProjectDto[] | undefined;
+    products?: ProductDto[] | undefined;
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;
@@ -2481,6 +2482,11 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
                 this.projects = [] as any;
                 for (let item of _data["projects"])
                     this.projects!.push(ProjectDto.fromJS(item));
+            }
+            if (Array.isArray(_data["products"])) {
+                this.products = [] as any;
+                for (let item of _data["products"])
+                    this.products!.push(ProductDto.fromJS(item));
             }
             if (Array.isArray(_data["entries"])) {
                 this.entries = [] as any;
@@ -2511,6 +2517,11 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
             for (let item of this.projects)
                 data["projects"].push(item.toJSON());
         }
+        if (Array.isArray(this.products)) {
+            data["products"] = [];
+            for (let item of this.products)
+                data["products"].push(item.toJSON());
+        }
         if (Array.isArray(this.entries)) {
             data["entries"] = [];
             for (let item of this.entries)
@@ -2525,6 +2536,7 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
 export interface IGetTimeSheetResponse {
     dates?: TimeSheetDateDto[] | undefined;
     projects?: ProjectDto[] | undefined;
+    products?: ProductDto[] | undefined;
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;

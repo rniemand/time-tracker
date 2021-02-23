@@ -1,0 +1,23 @@
+.logged-time {
+    width: 50px;
+    margin-right: 5px;
+}
+
+.entry-table {
+    width: 100%;
+
+    tr {
+        &.header {
+            text-align: center;
+        }
+
+        td {
+            border: 1px solid red;
+
+            .time-editor {
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+}

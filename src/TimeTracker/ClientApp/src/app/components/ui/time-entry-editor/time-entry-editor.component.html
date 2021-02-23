@@ -1,0 +1,7 @@
+<div class="editor">
+  <div class="display" (click)="editValue()" *ngIf="!editMode">0</div>
+
+  <div class="value-editor" *ngIf="editMode" appearance="outline">
+    <input #loggedTime matInput value="0" type="number" (blur)="onBlur()" (keydown)="onKeyDown($event)">
+  </div>
+</div>

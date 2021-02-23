@@ -1,0 +1,22 @@
+.editor {
+  width: 100%;
+
+  .display {
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .value-editor {
+    text-align: center;
+    
+    input {
+      border: 1px solid #6e6e6e;
+      padding: 3px;
+      margin: 1px;
+      border-radius: 6px;
+      display: inline-block;
+      width: 50px;
+      text-align: center;
+    }
+  }
+}

@@ -51,6 +51,7 @@ import { DailyOverviewComponent } from './views/timers/daily-overview/daily-over
 import { TimerTypePipe } from './pipes/timer-type.pipe';
 import { TimesheetComponent } from './views/timesheet/timesheet.component';
 import { AddTimesheetRowDialog } from './dialogs/add-timesheet-row/add-timesheet-row.dialog';
+import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time-entry-editor.component';
 
 @NgModule({
   declarations: [
@@ -96,7 +97,8 @@ import { AddTimesheetRowDialog } from './dialogs/add-timesheet-row/add-timesheet
     DailyOverviewComponent,
     TimerTypePipe,
     TimesheetComponent,
-    AddTimesheetRowDialog
+    AddTimesheetRowDialog,
+    TimeEntryEditorComponent
   ],
   imports: [
     BrowserModule,

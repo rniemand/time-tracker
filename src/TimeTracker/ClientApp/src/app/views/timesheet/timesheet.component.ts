@@ -8,7 +8,7 @@ import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient,
 @Component({
   selector: 'app-timesheet',
   templateUrl: './timesheet.component.html',
-  styleUrls: ['./timesheet.component.css']
+  styleUrls: ['./timesheet.component.scss']
 })
 export class TimesheetComponent implements OnInit {
   clientId: number = 0;
@@ -82,6 +82,8 @@ export class TimesheetComponent implements OnInit {
         (response: GetTimeSheetResponse) => {
           this.dates = response?.dates ?? [];
           this.projects = response?.projects ?? [];
+
+          console.log(this.dates);
           
           console.log(response);
 

@@ -10,17 +10,17 @@
   <div class="content-row" *ngIf="dates.length > 0">
     <button mat-stroked-button (click)="addRow()">Add Row</button>
 
-    <table>
-      <tr>
+    <table class="entry-table">
+      <tr class="header">
         <td>&nbsp;</td>
-        <td *ngFor="let date of dates">Hi</td>
+        <td *ngFor="let date of dates">
+          {{ date.entryDate | date:'shortDate' }}
+        </td>
       </tr>
       <tr *ngFor="let project of projects">
         <td>{{ project.projectName }}</td>
         <td *ngFor="let date of dates">
-          <mat-form-field appearance="outline" class="logged-time">
-            <input matInput value="0">
-          </mat-form-field>
+          <app-time-entry-editor [date]="date" [project]="project" class="time-editor"></app-time-entry-editor>
         </td>
       </tr>
     </table>

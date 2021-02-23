@@ -164,3 +164,6 @@ ALTER TABLE `TimeSheet_Rows`
 	DROP COLUMN `EntryDate`,
 	DROP COLUMN `Description`;
 	
+ALTER TABLE `TimeSheet_Rows`
+	ADD COLUMN `EntryDate` DATE NOT NULL DEFAULT curdate() AFTER `DateDeletedUtc`;
+	

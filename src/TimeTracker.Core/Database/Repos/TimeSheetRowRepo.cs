@@ -19,6 +19,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<TimeSheetRow>> GetClientRows(int clientId, DateTime from, DateTime to);
     Task<List<ProjectEntity>> GetTimeSheetProjects(int clientId, DateTime from, DateTime to);
     Task<List<ProductEntity>> GetTimeSheetProducts(int clientId, DateTime from, DateTime to);
+    Task<TimeSheetRow> GetProjectRow(int projectId, DateTime entryDate);
   }
 
   public class TimeSheetRowRepo : BaseRepo<TimeSheetRowRepo>, ITimeSheetRowRepo
@@ -109,6 +110,20 @@ namespace TimeTracker.Core.Database.Repos
           ClientId = clientId,
           FromDate = from.ToShortDbDate(),
           ToDate = to.ToShortDbDate()
+        }
+      );
+    }
+
+    public async Task<TimeSheetRow> GetProjectRow(int projectId, DateTime entryDate)
+    {
+      // TODO: [TESTS] (TimeSheetRowRepo.GetProjectRow) Add tests
+      return await GetSingle<TimeSheetRow>(
+        nameof(GetProjectRow),
+        _queries.GetProjectRow(),
+        new
+        {
+          ProjectId = projectId,
+          EntryDate = entryDate.ToShortDbDate()
         }
       );
     }

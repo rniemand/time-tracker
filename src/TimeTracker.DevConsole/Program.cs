@@ -48,15 +48,13 @@ namespace TimeTracker.DevConsole
 
       var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
 
-      service.AddTimeSheetRow(new AddTimeSheetRowRequest
-      {
-        UserId = 1,
-        ClientId = 1,
-        ProductId = 8,
-        ProjectId = 3,
-        NumberDays = 7,
-        StartDate = DateTime.Now
-      })
+      service.UpdateEntry(new UpdateTimeSheetEntryRequest
+        {
+          UserId = 1,
+          DateId = 2,
+          ProjectId = 2,
+          LoggedTimeMin = 60
+        })
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();

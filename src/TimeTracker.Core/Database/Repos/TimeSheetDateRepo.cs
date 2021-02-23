@@ -17,6 +17,7 @@ namespace TimeTracker.Core.Database.Repos
     Task<List<TimeSheetDate>> GetClientDates(int clientId, DateTime from, DateTime to);
     Task<TimeSheetDate> GetEntry(int userId, int clientId, DateTime date);
     Task<int> Add(TimeSheetDate timeSheetDate);
+    Task<TimeSheetDate> GetById(int dateId);
   }
 
   public class TimeSheetDateRepo : BaseRepo<TimeSheetDateRepo>, ITimeSheetDateRepo
@@ -84,6 +85,19 @@ namespace TimeTracker.Core.Database.Repos
     {
       // TODO: [TESTS] (TimeSheetDateRepo.Add) Add tests
       return await ExecuteAsync(nameof(Add), _queries.Add(), timeSheetDate);
+    }
+
+    public async Task<TimeSheetDate> GetById(int dateId)
+    {
+      // TODO: [TESTS] (TimeSheetDateRepo.GetById) Add tests
+      return await GetSingle<TimeSheetDate>(
+        nameof(GetById),
+        _queries.GetById(),
+        new
+        {
+          DateId = dateId
+        }
+      );
     }
   }
 }

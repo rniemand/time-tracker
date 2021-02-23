@@ -53,5 +53,21 @@ namespace TimeTracker.Controllers
 
       return ProcessResponse(apiResponse);
     }
+
+    [HttpPost, Route("update-entry"), Authorize]
+    public async Task<ActionResult<GetTimeSheetResponse>> UpdateEntry(
+      [FromBody] UpdateTimeSheetEntryRequest updateRequest)
+    {
+      // TODO: [TESTS] (TimeSheetController.UpdateEntry) Add tests
+      var apiResponse = new BaseResponse<GetTimeSheetResponse>()
+        .WithValidation(UpdateTimeSheetEntryRequestValidator.Default(updateRequest));
+
+      if (apiResponse.PassedValidation)
+      {
+        apiResponse.WithResponse(await _timeSheetService.UpdateEntry(updateRequest));
+      }
+
+      return ProcessResponse(apiResponse);
+    }
   }
 }

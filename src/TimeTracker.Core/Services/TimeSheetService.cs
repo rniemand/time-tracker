@@ -17,6 +17,7 @@ namespace TimeTracker.Core.Services
     Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date);
     Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId);
     Task<GetTimeSheetResponse> AddTimeSheetRow(AddTimeSheetRowRequest request);
+    Task<GetTimeSheetResponse> UpdateEntry(UpdateTimeSheetEntryRequest request);
   }
 
   public class TimeSheetService : ITimeSheetService
@@ -24,18 +25,24 @@ namespace TimeTracker.Core.Services
     private readonly ILoggerAdapter<TimeSheetService> _logger;
     private readonly ITimeSheetDateRepo _dateRepo;
     private readonly ITimeSheetRowRepo _rowRepo;
+    private readonly IProjectRepo _projectRepo;
+    private readonly ITimeSheetEntryRepo _entriesRepo;
     private readonly IDateTimeAbstraction _dateTime;
 
     public TimeSheetService(
       ILoggerAdapter<TimeSheetService> logger,
       ITimeSheetDateRepo dateRepo,
       IDateTimeAbstraction dateTime,
-      ITimeSheetRowRepo rowRepo)
+      ITimeSheetRowRepo rowRepo,
+      IProjectRepo projectRepo,
+      ITimeSheetEntryRepo entriesRepo)
     {
       _logger = logger;
       _dateRepo = dateRepo;
       _dateTime = dateTime;
       _rowRepo = rowRepo;
+      _projectRepo = projectRepo;
+      _entriesRepo = entriesRepo;
     }
 
 
@@ -138,12 +145,42 @@ namespace TimeTracker.Core.Services
       );
     }
 
+    public async Task<GetTimeSheetResponse> UpdateEntry(UpdateTimeSheetEntryRequest request)
+    {
+      // TODO: [TESTS] (TimeSheetService.UpdateEntry) Add tests
+
+      var dbDate = await _dateRepo.GetById(request.DateId);
+      var dbProject = await _projectRepo.GetById(request.ProjectId);
+      var dbRow = await _rowRepo.GetProjectRow(request.ProjectId, dbDate.EntryDate);
+
+      var entry = new TimeSheetEntry
+      {
+        UserId = dbProject.UserId,
+        ClientId = dbDate.ClientId,
+        Deleted = false,
+        ProductId = dbProject.ProductId,
+        DateId = dbDate.DateId,
+        EntryDate = dbDate.EntryDate,
+        EntryVersion = 1,
+        ProjectId = dbProject.ProjectId,
+        RowId = dbRow.RowId,
+        DateAddedUtc = _dateTime.UtcNow,
+        DateDeletedUtc = null,
+        DateUpdatedUtc = null,
+        EntryTimeMin = request.LoggedTimeMin
+      };
+
+
+
+      return null;
+    }
+
 
     // Internal methods
     private TimeSheetRow CreateTimeSheetRow(AddTimeSheetRowRequest request, int dateId, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.CreateTimeSheetRow) Add tests
-      return new()
+      return new TimeSheetRow
       {
         ClientId = request.ClientId,
         DateId = dateId,
@@ -159,7 +196,7 @@ namespace TimeTracker.Core.Services
     private TimeSheetDate CreateTimeSheetDate(int clientId, int userId, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.CreateTimeSheetDate) Add tests
-      return new()
+      return new TimeSheetDate
       {
         UserId = userId,
         ClientId = clientId,

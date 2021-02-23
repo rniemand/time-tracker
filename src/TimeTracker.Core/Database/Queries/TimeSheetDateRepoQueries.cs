@@ -6,6 +6,7 @@
     string GetClientDates();
     string GetEntry();
     string Add();
+    string GetById();
   }
 
   public class TimeSheetDateRepoQueries : ITimeSheetDateRepoQueries
@@ -51,6 +52,13 @@
 	      (`UserId`, `ClientId`, `EntryDate`, `DayOfWeek`)
       VALUES
 	      (@UserId, @ClientId, @EntryDate, @DayOfWeek)";
+    }
+
+    public string GetById()
+    {
+      return @"SELECT *
+      FROM `TimeSheet_Date`
+      WHERE `DateId` = @DateId";
     }
   }
 }

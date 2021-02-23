@@ -5,7 +5,8 @@ export interface TimeSheetEntryInfo {
   entryDate: Date;
   startDate: Date;
   endDate: Date;
-  entryTimeMin: number;
+  entryDateStr: string;
+  entryTimes: { [key: number]: number };
 }
 
 @Component({

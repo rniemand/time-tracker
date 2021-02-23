@@ -44,3 +44,11 @@ export const getBaseDate = (now?: Date) => {
   if(!now) { now = new Date(); }
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
+
+export const getShortDateString = (date: Date) => {
+  const yyyy = date.getFullYear();
+  const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+  const dd = date.getDate().toString().padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}`;
+}

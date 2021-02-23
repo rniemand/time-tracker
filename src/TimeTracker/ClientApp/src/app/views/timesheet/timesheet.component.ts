@@ -4,8 +4,8 @@ import { TimeSheetEntryInfo } from 'src/app/components/ui/time-entry-editor/time
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
-import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
-import { getBaseDate } from 'src/app/utils/core.utils';
+import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetEntryDto } from 'src/app/time-tracker-api';
+import { getBaseDate, getShortDateString } from 'src/app/utils/core.utils';
 
 @Component({
   selector: 'app-timesheet',
@@ -86,11 +86,13 @@ export class TimesheetComponent implements OnInit {
     const workingDate = getBaseDate(startDate);
 
     for(var i = 0; i < length; i++) {
+      const curDate = new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1)));
       entries.push({
-        entryDate: new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1))),
+        entryDate: curDate,
         startDate: this.startDate,
         endDate: this.endDate,
-        entryTimeMin: 0
+        entryTimes: {},
+        entryDateStr: getShortDateString(curDate)
       });
     }
 
@@ -107,12 +109,34 @@ export class TimesheetComponent implements OnInit {
       })
   }
 
+  private getEntryInfo = (entryDate?: Date): TimeSheetEntryInfo | undefined => {
+    if(!entryDate) { return undefined; }
+
+    const wanted = getShortDateString(entryDate);
+    for(var i = 0; i < this.entries.length; i++) {
+      if(getShortDateString(this.entries[i].entryDate) == wanted) {
+        return this.entries[i];
+      }
+    }
+
+    return undefined;
+  }
+
+  private setEntryDate = (entry: TimeSheetEntryDto) => {
+
+    console.log(entry, this.getEntryInfo(entry.entryDate));
+
+  }
+
   private updateTimeSheet = (response: GetTimeSheetResponse) => {
     this.projects = response?.projects ?? [];
     this.colspan = this.entries.length + 2;
 
     const startDate = response?.startDate ?? this.startDate;
     this.setDates(startDate, response?.dayCount ?? 7);
+
+    const entries = response?.entries ?? [];
+    entries.forEach(this.setEntryDate);
   }
 
   private loadTimeSheet = () => {

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
-import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
+import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
 import { getBaseDate } from 'src/app/utils/core.utils';
 
 @Component({
@@ -52,6 +52,23 @@ export class TimesheetComponent implements OnInit {
         const outcome = result as AddTimesheetRowDialogResult;
         if(outcome.addLine) {
           console.log('need to add line!', outcome);
+
+          const request = new AddTimeSheetEntryRequest({
+            projectId: outcome.projectId,
+            loggedTimeMin: 0,
+            entryDate: this.dates[0],
+            endDate: this.dates[this.dates.length - 1],
+            startDate: this.dates[0]
+          });
+
+          this.timeSheetClient.updateEntry(request).toPromise().then(
+            (response: GetTimeSheetResponse) => {
+              this.updateTimeSheet(response);
+            },
+            (error: any) => {
+              console.log(error);
+            }
+          );
         }
       }
     });
@@ -82,6 +99,13 @@ export class TimesheetComponent implements OnInit {
       })
   }
 
+  private updateTimeSheet = (response: GetTimeSheetResponse) => {
+    this.projects = response?.projects ?? [];
+    this.colspan = this.dates.length + 2;
+
+    console.log(response);
+  }
+
   private loadTimeSheet = () => {
     const request = new GetTimeSheetRequest({
       startDate: this.startDate,
@@ -92,11 +116,7 @@ export class TimesheetComponent implements OnInit {
     return new Promise<void>((resolve, reject) => {
       this.timeSheetClient.getTimeSheet(request).toPromise().then(
         (response: GetTimeSheetResponse) => {
-          this.projects = response?.projects ?? [];
-          this.colspan = this.dates.length + 2;
-
-          console.log(response);
-
+          this.updateTimeSheet(response);
           resolve();
         },
         (error: any) => { reject(error); }

@@ -2639,10 +2639,11 @@ export interface IGetTimeSheetRequest {
 }
 
 export class AddTimeSheetEntryRequest implements IAddTimeSheetEntryRequest {
-    userId?: number;
     projectId?: number;
     loggedTimeMin?: number;
     entryDate?: Date;
+    startDate?: Date;
+    endDate?: Date;
 
     constructor(data?: IAddTimeSheetEntryRequest) {
         if (data) {
@@ -2655,10 +2656,11 @@ export class AddTimeSheetEntryRequest implements IAddTimeSheetEntryRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
             this.projectId = _data["projectId"];
             this.loggedTimeMin = _data["loggedTimeMin"];
             this.entryDate = _data["entryDate"] ? new Date(_data["entryDate"].toString()) : <any>undefined;
+            this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
+            this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
         }
     }
 
@@ -2671,19 +2673,21 @@ export class AddTimeSheetEntryRequest implements IAddTimeSheetEntryRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
         data["projectId"] = this.projectId;
         data["loggedTimeMin"] = this.loggedTimeMin;
         data["entryDate"] = this.entryDate ? this.entryDate.toISOString() : <any>undefined;
+        data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
+        data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         return data; 
     }
 }
 
 export interface IAddTimeSheetEntryRequest {
-    userId?: number;
     projectId?: number;
     loggedTimeMin?: number;
     entryDate?: Date;
+    startDate?: Date;
+    endDate?: Date;
 }
 
 export class SwaggerException extends Error {

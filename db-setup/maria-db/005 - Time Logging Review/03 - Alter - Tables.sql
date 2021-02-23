@@ -202,3 +202,6 @@ ALTER TABLE `TimeSheet_Entries`
 	
 RENAME TABLE `TimeSheet_Entries` TO `TimeSheetEntries`;
 
+ALTER TABLE `TimeSheetEntries`
+	CHANGE COLUMN `EntryId` `EntryId` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST;
+	

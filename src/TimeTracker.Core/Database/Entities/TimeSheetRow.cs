@@ -14,6 +14,7 @@ namespace TimeTracker.Core.Database.Entities
     public DateTime DateAddedUtc { get; set; }
     public DateTime? DateUpdatedUtc { get; set; }
     public DateTime? DateDeletedUtc { get; set; }
+    public DateTime EntryDate { get; set; }
 
     public TimeSheetRow()
     {
@@ -28,6 +29,7 @@ namespace TimeTracker.Core.Database.Entities
       DateAddedUtc = DateTime.UtcNow;
       DateUpdatedUtc = null;
       DateDeletedUtc = null;
+      EntryDate = DateTime.Now;
     }
   }
 }

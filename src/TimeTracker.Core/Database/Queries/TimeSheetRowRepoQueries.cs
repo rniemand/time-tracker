@@ -27,9 +27,9 @@
     public string AddRow()
     {
       return @"INSERT INTO `TimeSheet_Rows`
-	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
+	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`, `EntryDate`)
       VALUES
-	      (@DateId, @UserId, @ClientId, @ProductId, @ProjectId)";
+	      (@DateId, @UserId, @ClientId, @ProductId, @ProjectId, @EntryDate)";
     }
 
     public string GetProjectRows()
@@ -39,15 +39,8 @@
       WHERE
 	      `Deleted` = 0 AND
 	      `ProjectId` = @ProjectId AND
-	      `DateId` IN (
-		      SELECT `DateId`
-		      FROM `TimeSheet_Date`
-		      WHERE
-			      `Deleted` = 0 AND
-			      `ClientId` = (SELECT `ClientId` FROM `Projects` WHERE `ProjectId` = @ProjectId) AND
-			      `EntryDate` >= @FromDate AND
-			      `EntryDate` <= @ToDate
-	      )
+        `EntryDate` >= @FromDate AND
+        `EntryDate` <= @ToDate
       ORDER BY `DateId` ASC";
     }
 
@@ -58,15 +51,8 @@
       WHERE
 	      `Deleted` = 0 AND
 	      `ClientId` = @ClientId AND
-	      `DateId` IN (
-		      SELECT `DateId`
-		      FROM `TimeSheet_Date`
-		      WHERE
-			      `ClientId` = @ClientId AND
-			      `Deleted` = 0 AND
-			      `EntryDate` >= @FromDate AND
-			      `EntryDate` <= @ToDate
-	      )
+        `EntryDate` >= @FromDate AND
+        `EntryDate` <= @ToDate
       ORDER BY `DateId` DESC";
     }
 
@@ -82,15 +68,8 @@
 		      WHERE
 			      `Deleted` = 0 AND
 			      `ClientId` = @ClientId AND
-			      `DateId` IN (
-				      SELECT `DateId`
-				      FROM `TimeSheet_Date`
-				      WHERE
-					      `Deleted` = 0 AND
-					      `ClientId` = @ClientId AND
-					      `EntryDate` >= @FromDate AND
-					      `EntryDate` <= @ToDate
-			      )
+            `EntryDate` >= @FromDate AND
+            `EntryDate` <= @ToDate
 	      )";
     }
   }

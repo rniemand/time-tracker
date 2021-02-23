@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rn.NetCore.Common.Abstractions;
@@ -119,7 +118,7 @@ namespace TimeTracker.Core.Services
           continue;
 
         // TODO: [EX] (TimeSheetService.AddTimeSheetRow) Throw better exception
-        var rowToAdd = CreateTimeSheetRow(request, dbDate.DateId);
+        var rowToAdd = CreateTimeSheetRow(request, dbDate.DateId, dbDate.EntryDate);
         if (await _rowRepo.AddRow(rowToAdd) == 0)
           throw new Exception("Unable to create row entry");
       }
@@ -136,7 +135,7 @@ namespace TimeTracker.Core.Services
 
 
     // Internal methods
-    private TimeSheetRow CreateTimeSheetRow(AddTimeSheetRowRequest request, int dateId)
+    private TimeSheetRow CreateTimeSheetRow(AddTimeSheetRowRequest request, int dateId, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.CreateTimeSheetRow) Add tests
       return new()
@@ -147,7 +146,8 @@ namespace TimeTracker.Core.Services
         DateAddedUtc = _dateTime.UtcNow,
         Deleted = false,
         ProjectId = request.ProjectId,
-        UserId = request.UserId
+        UserId = request.UserId,
+        EntryDate = date
       };
     }
 

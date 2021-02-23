@@ -13,8 +13,8 @@ namespace TimeTracker.Core.Database.Repos
 {
   public interface ITimeSheetDateRepo
   {
-    Task<List<TimeSheetDate>> GetDatesForRange(int userId, DateTime from, DateTime to);
-    Task<List<TimeSheetDate>> GetClientDatesForRange(int clientId, DateTime from, DateTime to);
+    Task<List<TimeSheetDate>> GetUserDates(int userId, DateTime from, DateTime to);
+    Task<List<TimeSheetDate>> GetClientDates(int clientId, DateTime from, DateTime to);
     Task<TimeSheetDate> GetEntry(int userId, int clientId, DateTime date);
     Task<int> Add(TimeSheetDate timeSheetDate);
   }
@@ -35,12 +35,12 @@ namespace TimeTracker.Core.Database.Repos
 
 
     // Interface methods
-    public async Task<List<TimeSheetDate>> GetDatesForRange(int userId, DateTime @from, DateTime to)
+    public async Task<List<TimeSheetDate>> GetUserDates(int userId, DateTime @from, DateTime to)
     {
-      // TODO: [TESTS] (TimeSheetDateRepo.GetDatesForRange) Add tests
+      // TODO: [TESTS] (TimeSheetDateRepo.GetUserDates) Add tests
       return await GetList<TimeSheetDate>(
-        nameof(GetClientDatesForRange),
-        _queries.GetDatesForRange(),
+        nameof(GetUserDates),
+        _queries.GetUserDates(),
         new
         {
           UserId = userId,
@@ -50,12 +50,12 @@ namespace TimeTracker.Core.Database.Repos
       );
     }
 
-    public async Task<List<TimeSheetDate>> GetClientDatesForRange(int clientId, DateTime @from, DateTime to)
+    public async Task<List<TimeSheetDate>> GetClientDates(int clientId, DateTime @from, DateTime to)
     {
-      // TODO: [TESTS] (TimeSheetDateRepo.GetClientDatesForRange) Add tests
+      // TODO: [TESTS] (TimeSheetDateRepo.GetClientDates) Add tests
       return await GetList<TimeSheetDate>(
-        nameof(GetClientDatesForRange),
-        _queries.GetClientDatesForRange(),
+        nameof(GetClientDates),
+        _queries.GetClientDates(),
         new
         {
           StartDate = from.ToShortDbDate(),

@@ -2,15 +2,15 @@
 {
   public interface ITimeSheetDateRepoQueries
   {
-    string GetDatesForRange();
-    string GetClientDatesForRange();
+    string GetUserDates();
+    string GetClientDates();
     string GetEntry();
     string Add();
   }
 
   public class TimeSheetDateRepoQueries : ITimeSheetDateRepoQueries
   {
-    public string GetDatesForRange()
+    public string GetUserDates()
     {
       return @"SELECT *
       FROM `TimeSheet_Date`
@@ -22,7 +22,7 @@
       ORDER BY `ClientId`, `EntryDate` ASC";
     }
 
-    public string GetClientDatesForRange()
+    public string GetClientDates()
     {
       return @"SELECT *
       FROM `TimeSheet_Date`

@@ -139,7 +139,7 @@ namespace TimeTracker.Core.Jobs
       Config.EndDate = Config.StartDate.AddDays(Config.DaysAhead);
 
       _tsDateCache.CacheEntries(
-        await _timeSheetDateRepo.GetDatesForRange(User.UserId, Config.StartDate, Config.EndDate)
+        await _timeSheetDateRepo.GetUserDates(User.UserId, Config.StartDate, Config.EndDate)
       );
 
       await LoadUserClients();

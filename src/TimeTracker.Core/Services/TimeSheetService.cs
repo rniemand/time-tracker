@@ -73,7 +73,7 @@ namespace TimeTracker.Core.Services
       request.StartDate = from;
       request.EndDate = to;
 
-      response.Dates = (await _timeSheetDateRepo.GetClientDatesForRange(clientId, from, to))
+      response.Dates = (await _timeSheetDateRepo.GetClientDates(clientId, from, to))
         .AsQueryable()
         .Select(TimeSheetDateDto.Projection)
         .ToList();
@@ -95,7 +95,7 @@ namespace TimeTracker.Core.Services
       if (!datesExist)
         throw new Exception("Unable to created required date range");
 
-      var dates = await _timeSheetDateRepo.GetClientDatesForRange(
+      var dates = await _timeSheetDateRepo.GetClientDates(
         request.ClientId,
         request.StartDate, 
         request.StartDate.AddDays(request.NumberDays)
@@ -133,7 +133,7 @@ namespace TimeTracker.Core.Services
       try
       {
         var endDate = startDate.AddDays(length);
-        var dbEntries = await _timeSheetDateRepo.GetClientDatesForRange(clientId, startDate, endDate);
+        var dbEntries = await _timeSheetDateRepo.GetClientDates(clientId, startDate, endDate);
 
         for (var i = 0; i < length; i++)
         {

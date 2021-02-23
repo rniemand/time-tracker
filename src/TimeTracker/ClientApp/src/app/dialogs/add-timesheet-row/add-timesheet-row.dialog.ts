@@ -18,6 +18,8 @@ export interface AddTimesheetRowDialogResult {
   addLine: boolean;
   startDate: Date;
   endDate: Date;
+  productName: string;
+  projectName: string;
 }
 
 @Component({
@@ -31,7 +33,9 @@ export class AddTimesheetRowDialog implements OnInit {
 
   clientId: number = 0;
   productId: number = 0;
+  productName: string = '';
   projectId: number = 0;
+  projectName: string = '';
 
   constructor(
     public dialogRef: MatDialogRef<AddTimesheetRowDialog>,
@@ -43,13 +47,11 @@ export class AddTimesheetRowDialog implements OnInit {
   }
 
   productChanged = () => {
-    console.log('productChanged', this.products.productName);
-
+    this.productName = this.products.productName;
   }
 
   projectChanged = () => {
-    console.log('projectChanged', this.projectId, this.projects);
-
+    this.projectName = this.projects.projectName;
   }
 
   cancel(): void {
@@ -69,7 +71,9 @@ export class AddTimesheetRowDialog implements OnInit {
       projectId: this.projectId,
       addLine: addLine,
       startDate: this.data.startDate,
-      endDate: this.data.endDate
+      endDate: this.data.endDate,
+      productName: this.productName,
+      projectName: this.projectName
     };
   }
 

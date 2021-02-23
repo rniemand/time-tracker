@@ -26,8 +26,8 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   loading: boolean = true;
   entries: IntListItem[] = [];
   label: string = 'Select a client first';
+  
   private lookup: { [key: number]: string } = {};
-
   private _onChangeFn = (_: any) => { };
 
   constructor(
@@ -41,10 +41,7 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   }
 
   selectionChange = () => {
-    this.productName = '';
-    if(this.lookup.hasOwnProperty(this.productId)) {
-      this.productName = this.lookup[this.productId];
-    }
+    this.setProductName();
 
     if (this._onChangeFn) {
       this._onChangeFn(this.productId);
@@ -111,14 +108,17 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
     );
   }
 
+  private setProductName = () => {
+    this.productName = '';
+
+    if(this.lookup.hasOwnProperty(this.productId)) {
+      this.productName = this.lookup[this.productId];
+    }
+  }
+
   private setProductId = (productId: number) => {
     this.productId = productId;
-    
-    this.productName = '';
-    if(this.lookup.hasOwnProperty(productId)) {
-      this.productName = this.lookup[productId];
-    }
-    
+    this.setProductName();
     this.selectionChange();
   }
 

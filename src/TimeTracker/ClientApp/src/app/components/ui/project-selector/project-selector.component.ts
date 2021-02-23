@@ -20,11 +20,14 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
   @Input('productId') productId: number = 0;
   @Input('appearance') appearance: MatFormFieldAppearance = "outline";
   @Input('class') class: string = "";
+
   projectId: number = 0;
   loading: boolean = true;
   label: string = 'Select a product first';
+  projectName: string = '';
   entries: IntListItem[] = [];
 
+  private lookup: { [key: number]: string } = {};
   private _onChangeFn = (_: any) => { };
 
   constructor(
@@ -35,6 +38,8 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
   }
 
   valueChanged = () => {
+    this.setProjectName();
+
     if (this._onChangeFn) {
       this._onChangeFn(this.projectId);
     }
@@ -67,10 +72,12 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
     }
   }
 
+  
   // Internal methods
   private refreshProjects = () => {
     this.loading = true;
     this.entries = [];
+    this.lookup = {};
     this.label = 'Select a product first';
 
     if(isNaN(this.productId) || this.productId <= 0) {
@@ -79,6 +86,10 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
 
     this.projectsClient.listProductProjects(this.productId).toPromise().then(
       (projects: IntListItem[]) => {
+        projects.forEach((p: IntListItem) => {
+          this.lookup[p?.value ?? 0] = p?.name ?? '';
+        });
+
         this.entries = projects;
         this.label = 'Select a project';
 
@@ -95,8 +106,17 @@ export class ProjectSelectorComponent implements OnInit, ControlValueAccessor, O
     );
   }
 
+  private setProjectName = () => {
+    this.projectName = '';
+
+    if(this.lookup.hasOwnProperty(this.projectId)) {
+      this.projectName = this.lookup[this.projectId];
+    }
+  }
+
   private setProjectId = (projectId: number) => {
     this.projectId = projectId;
+    this.setProjectName();
     this.valueChanged();
   }
 }

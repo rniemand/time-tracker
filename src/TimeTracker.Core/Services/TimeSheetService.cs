@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rn.NetCore.Common.Abstractions;
@@ -23,16 +24,19 @@ namespace TimeTracker.Core.Services
   {
     private readonly ILoggerAdapter<TimeSheetService> _logger;
     private readonly ITimeSheetDateRepo _timeSheetDateRepo;
+    private readonly ITimeSheetRowRepo _timeSheetRowRepo;
     private readonly IDateTimeAbstraction _dateTime;
 
     public TimeSheetService(
       ILoggerAdapter<TimeSheetService> logger,
       ITimeSheetDateRepo timeSheetDateRepo,
-      IDateTimeAbstraction dateTime)
+      IDateTimeAbstraction dateTime,
+      ITimeSheetRowRepo timeSheetRowRepo)
     {
       _logger = logger;
       _timeSheetDateRepo = timeSheetDateRepo;
       _dateTime = dateTime;
+      _timeSheetRowRepo = timeSheetRowRepo;
     }
 
 
@@ -77,6 +81,7 @@ namespace TimeTracker.Core.Services
         .AsQueryable()
         .Select(TimeSheetDateDto.Projection)
         .ToList();
+      
 
       return response;
     }
@@ -95,18 +100,60 @@ namespace TimeTracker.Core.Services
       if (!datesExist)
         throw new Exception("Unable to created required date range");
 
-      var dates = await _timeSheetDateRepo.GetClientDates(
-        request.ClientId,
-        request.StartDate, 
+      var dbRows = await _timeSheetRowRepo.GetRows(
+        request.ProductId,
+        request.StartDate,
         request.StartDate.AddDays(request.NumberDays)
       );
 
+      var dbDates = await _timeSheetDateRepo.GetClientDates(
+        request.ClientId,
+        request.StartDate,
+        request.StartDate.AddDays(request.NumberDays)
+      );
 
-      return null;
+      for (var i = 0; i < request.NumberDays; i++)
+      {
+        var baseDate = request.StartDate.AddDays(i);
+        var dbFilterDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day);
+        var dbDate = dbDates.First(x => x.EntryDate == dbFilterDate);
+        var dbRow = dbRows.FirstOrDefault(x => x.DateId == dbDate.DateId);
+        if (dbRow != null)
+          continue;
+
+        // TODO: [EX] (TimeSheetService.AddTimeSheetRow) Throw better exception
+        var rowToAdd = CreateTimeSheetRow(request, dbDate.DateId);
+        if (await _timeSheetRowRepo.AddRow(rowToAdd) == 0)
+          throw new Exception("Unable to create row entry");
+      }
+
+      return await GetTimeSheet(new GetTimeSheetRequest
+        {
+          ClientId = request.ClientId,
+          StartDate = request.StartDate,
+          EndDate = request.StartDate.AddDays(request.NumberDays)
+        },
+        request.UserId
+      );
     }
 
 
     // Internal methods
+    private TimeSheetRow CreateTimeSheetRow(AddTimeSheetRowRequest request, int dateId)
+    {
+      // TODO: [TESTS] (TimeSheetService.CreateTimeSheetRow) Add tests
+      return new()
+      {
+        ClientId = request.ClientId,
+        DateId = dateId,
+        ProductId = request.ProductId,
+        DateAddedUtc = _dateTime.UtcNow,
+        Deleted = false,
+        ProjectId = request.ProjectId,
+        UserId = request.UserId
+      };
+    }
+
     private TimeSheetDate CreateTimeSheetDate(int clientId, int userId, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.CreateTimeSheetDate) Add tests

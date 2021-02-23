@@ -7,6 +7,7 @@ using Rn.NetCore.DbCommon.Helpers;
 using Rn.NetCore.DbCommon.Repos;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Queries;
+using TimeTracker.Core.Extensions;
 
 namespace TimeTracker.Core.Database.Repos
 {
@@ -14,7 +15,7 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<TimeSheetRow> GetRow(TimeSheetRow row);
     Task<int> AddRow(TimeSheetRow row);
-    Task<List<TimeSheetRow>> GetRowsForRange(int projectId, DateTime from, DateTime to);
+    Task<List<TimeSheetRow>> GetRows(int projectId, DateTime from, DateTime to);
   }
 
   public class TimeSheetRowRepo : BaseRepo<TimeSheetRowRepo>, ITimeSheetRowRepo
@@ -45,15 +46,17 @@ namespace TimeTracker.Core.Database.Repos
       return await ExecuteAsync(nameof(AddRow), _queries.AddRow(), row);
     }
 
-    public async Task<List<TimeSheetRow>> GetRowsForRange(int projectId, DateTime @from, DateTime to)
+    public async Task<List<TimeSheetRow>> GetRows(int projectId, DateTime @from, DateTime to)
     {
-      // TODO: [TESTS] (TimeSheetRowRepo.GetRowsForRange) Add tests
+      // TODO: [TESTS] (TimeSheetRowRepo.GetRows) Add tests
       return await GetList<TimeSheetRow>(
-        nameof(GetRowsForRange),
-        _queries.GetRowsForRange(),
+        nameof(GetRows),
+        _queries.GetRows(),
         new
         {
-
+          ProjectId = projectId,
+          FromDate = from.ToShortDbDate(),
+          ToDate = to.ToShortDbDate()
         }
       );
     }

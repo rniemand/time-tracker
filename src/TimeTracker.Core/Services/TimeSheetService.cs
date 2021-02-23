@@ -81,7 +81,11 @@ namespace TimeTracker.Core.Services
         .AsQueryable()
         .Select(TimeSheetDateDto.Projection)
         .ToList();
-      
+
+      response.Rows = (await _timeSheetRowRepo.GetClientRows(clientId, from, to))
+        .AsQueryable()
+        .Select(TimeSheetRowDto.Projection)
+        .ToList();
 
       return response;
     }
@@ -100,7 +104,7 @@ namespace TimeTracker.Core.Services
       if (!datesExist)
         throw new Exception("Unable to created required date range");
 
-      var dbRows = await _timeSheetRowRepo.GetRows(
+      var dbRows = await _timeSheetRowRepo.GetProjectRows(
         request.ProductId,
         request.StartDate,
         request.StartDate.AddDays(request.NumberDays)

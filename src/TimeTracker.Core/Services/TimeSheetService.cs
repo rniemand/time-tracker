@@ -82,9 +82,9 @@ namespace TimeTracker.Core.Services
         .Select(TimeSheetDateDto.Projection)
         .ToList();
 
-      response.Rows = (await _rowRepo.GetClientRows(clientId, from, to))
+      response.Projects = (await _rowRepo.GetTimeSheetProjects(clientId, from, to))
         .AsQueryable()
-        .Select(TimeSheetRowDto.Projection)
+        .Select(ProjectDto.Projection)
         .ToList();
 
       return response;

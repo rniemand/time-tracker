@@ -6,6 +6,7 @@
     string AddRow();
     string GetProjectRows();
     string GetClientRows();
+    string GetTimeSheetProjects();
   }
 
   public class TimeSheetRowRepoQueries : ITimeSheetRowRepoQueries
@@ -67,6 +68,30 @@
 			      `EntryDate` <= @ToDate
 	      )
       ORDER BY `DateId` DESC";
+    }
+
+    public string GetTimeSheetProjects()
+    {
+      return @"SELECT *
+      FROM `Projects`
+      WHERE
+	      `Deleted` = 0 AND
+	      `ProjectId` IN (
+		      SELECT DISTINCT(`ProjectId`)
+		      FROM `TimeSheet_Rows`
+		      WHERE
+			      `Deleted` = 0 AND
+			      `ClientId` = @ClientId AND
+			      `DateId` IN (
+				      SELECT `DateId`
+				      FROM `TimeSheet_Date`
+				      WHERE
+					      `Deleted` = 0 AND
+					      `ClientId` = @ClientId AND
+					      `EntryDate` >= @FromDate AND
+					      `EntryDate` <= @ToDate
+			      )
+	      )";
     }
   }
 }

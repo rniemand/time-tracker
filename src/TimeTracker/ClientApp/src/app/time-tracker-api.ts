@@ -2456,7 +2456,7 @@ export enum TimerType {
 
 export class GetTimeSheetResponse implements IGetTimeSheetResponse {
     dates?: TimeSheetDateDto[] | undefined;
-    rows?: TimeSheetRowDto[] | undefined;
+    projects?: ProjectDto[] | undefined;
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;
@@ -2477,10 +2477,10 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
                 for (let item of _data["dates"])
                     this.dates!.push(TimeSheetDateDto.fromJS(item));
             }
-            if (Array.isArray(_data["rows"])) {
-                this.rows = [] as any;
-                for (let item of _data["rows"])
-                    this.rows!.push(TimeSheetRowDto.fromJS(item));
+            if (Array.isArray(_data["projects"])) {
+                this.projects = [] as any;
+                for (let item of _data["projects"])
+                    this.projects!.push(ProjectDto.fromJS(item));
             }
             if (Array.isArray(_data["entries"])) {
                 this.entries = [] as any;
@@ -2506,10 +2506,10 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
             for (let item of this.dates)
                 data["dates"].push(item.toJSON());
         }
-        if (Array.isArray(this.rows)) {
-            data["rows"] = [];
-            for (let item of this.rows)
-                data["rows"].push(item.toJSON());
+        if (Array.isArray(this.projects)) {
+            data["projects"] = [];
+            for (let item of this.projects)
+                data["projects"].push(item.toJSON());
         }
         if (Array.isArray(this.entries)) {
             data["entries"] = [];
@@ -2524,7 +2524,7 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
 
 export interface IGetTimeSheetResponse {
     dates?: TimeSheetDateDto[] | undefined;
-    rows?: TimeSheetRowDto[] | undefined;
+    projects?: ProjectDto[] | undefined;
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;
@@ -2590,62 +2590,6 @@ export enum DayOfWeek {
     Thursday = 4,
     Friday = 5,
     Saturday = 6,
-}
-
-export class TimeSheetRowDto implements ITimeSheetRowDto {
-    rowId?: number;
-    dateId?: number;
-    userId?: number;
-    clientId?: number;
-    productId?: number;
-    projectId?: number;
-
-    constructor(data?: ITimeSheetRowDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.rowId = _data["rowId"];
-            this.dateId = _data["dateId"];
-            this.userId = _data["userId"];
-            this.clientId = _data["clientId"];
-            this.productId = _data["productId"];
-            this.projectId = _data["projectId"];
-        }
-    }
-
-    static fromJS(data: any): TimeSheetRowDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TimeSheetRowDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["rowId"] = this.rowId;
-        data["dateId"] = this.dateId;
-        data["userId"] = this.userId;
-        data["clientId"] = this.clientId;
-        data["productId"] = this.productId;
-        data["projectId"] = this.projectId;
-        return data; 
-    }
-}
-
-export interface ITimeSheetRowDto {
-    rowId?: number;
-    dateId?: number;
-    userId?: number;
-    clientId?: number;
-    productId?: number;
-    projectId?: number;
 }
 
 export class TimeSheetEntryDto implements ITimeSheetEntryDto {

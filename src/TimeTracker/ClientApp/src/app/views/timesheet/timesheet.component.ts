@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
-import { GetTimeSheetRequest, GetTimeSheetResponse, TimeSheetClient, TimeSheetDateDto } from 'src/app/time-tracker-api';
+import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetDateDto } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-timesheet',
@@ -15,6 +15,7 @@ export class TimesheetComponent implements OnInit {
   startDate: Date = new Date();
   endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000))
   dates: TimeSheetDateDto[] = [];
+  projects: ProjectDto[] = [];
 
   constructor(
     public dialog: MatDialog,
@@ -80,6 +81,7 @@ export class TimesheetComponent implements OnInit {
       this.timeSheetClient.getTimeSheet(request).toPromise().then(
         (response: GetTimeSheetResponse) => {
           this.dates = response?.dates ?? [];
+          this.projects = response?.projects ?? [];
           
           console.log(response);
 

@@ -15,8 +15,8 @@
         <td>&nbsp;</td>
         <td *ngFor="let date of dates">Hi</td>
       </tr>
-      <tr>
-        <td>Description</td>
+      <tr *ngFor="let project of projects">
+        <td>{{ project.projectName }}</td>
         <td *ngFor="let date of dates">Input</td>
       </tr>
     </table>

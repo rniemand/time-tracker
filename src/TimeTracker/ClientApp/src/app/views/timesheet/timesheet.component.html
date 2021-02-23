@@ -7,18 +7,18 @@
     <app-client-selector (changed)="clientSelected($event)" class="stretched"></app-client-selector>
   </div>
 
-  <div class="content-row" *ngIf="dates.length > 0">
+  <div class="content-row" *ngIf="entries.length > 0">
     <table class="entry-table">
       <tr class="header">
         <td>&nbsp;</td>
-        <td *ngFor="let date of dates">{{ date | date:'shortDate' }}</td>
+        <td *ngFor="let entry of entries">{{ entry.entryDate | date:'shortDate' }}</td>
         <td>&nbsp;</td>
       </tr>
 
       <tr *ngFor="let project of projects">
         <td>{{ project.projectName }}</td>
-        <td *ngFor="let date of dates">
-          <app-time-entry-editor [date]="date" [project]="project" class="time-editor"></app-time-entry-editor>
+        <td *ngFor="let entry of entries">
+          <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" class="time-editor"></app-time-entry-editor>
         </td>
         <td class="total">
           0
@@ -27,7 +27,7 @@
 
       <tr class="totals" *ngIf="projects.length > 0">
         <td>&nbsp;</td>
-        <td *ngFor="let date of dates">0</td>
+        <td *ngFor="let entry of entries">0</td>
         <td>0</td>
       </tr>
 

@@ -48,8 +48,9 @@ namespace TimeTracker.Core.Services
       var from = request.StartDate;
       var to = request.EndDate;
 
-      request.StartDate = from;
-      request.EndDate = to;
+      response.StartDate = from;
+      response.EndDate = to;
+      response.DayCount = (to - from).Days;
 
       response.Projects = (await _entriesRepo.GetReferencedProjects(clientId, from, to))
         .AsQueryable()
@@ -72,7 +73,7 @@ namespace TimeTracker.Core.Services
     public async Task<GetTimeSheetResponse> UpdateEntry(AddTimeSheetEntryRequest request)
     {
       // TODO: [TESTS] (TimeSheetService.UpdateEntry) Add tests
-
+      var loggedTime = request.LoggedTimeMin;
       var dbProject = await _projectRepo.GetById(request.ProjectId);
       var entryDate = new DateTime(request.EntryDate.Year, request.EntryDate.Month, request.EntryDate.Day);
       var dbEntry = await _entriesRepo.GetProjectTimeSheetEntry(request.ProjectId, request.EntryDate);
@@ -80,12 +81,13 @@ namespace TimeTracker.Core.Services
       if (dbEntry == null)
       {
         // TODO: [EX] (TimeSheetService.UpdateEntry) Throw better exception here
-        if (await _entriesRepo.AddEntry(CreateTimeSheetEntry(dbProject, entryDate)) == 0)
+        if (await _entriesRepo.AddEntry(CreateTimeSheetEntry(dbProject, entryDate, loggedTime)) == 0)
           throw new Exception("Unable to create entry");
       }
       else
       {
         dbEntry.EntryVersion += 1;
+        dbEntry.EntryTimeMin = loggedTime;
         // TODO: [EX] (TimeSheetService.UpdateEntry) Throw better exception
         if (await _entriesRepo.UpdateEntry(dbEntry) == 0)
           throw new Exception("Unable to update entry");

@@ -11,6 +11,7 @@ namespace TimeTracker.Core.Models.Responses
     public List<TimeSheetEntryDto> Entries { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public int DayCount { get; set; }
 
     public GetTimeSheetResponse()
     {
@@ -20,6 +21,7 @@ namespace TimeTracker.Core.Models.Responses
       Entries = new List<TimeSheetEntryDto>();
       StartDate = DateTime.Now;
       EndDate = DateTime.Now;
+      DayCount = 1;
     }
   }
 }

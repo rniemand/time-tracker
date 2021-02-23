@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { TimeSheetEntryInfo } from 'src/app/components/ui/time-entry-editor/time-entry-editor.component';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,10 +14,10 @@ import { getBaseDate } from 'src/app/utils/core.utils';
 })
 export class TimesheetComponent implements OnInit {
   clientId: number = 0;
-  startDate: Date = new Date();
-  endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000));
+  startDate!: Date;
+  endDate!: Date;
   projects: ProjectDto[] = [];
-  dates: Date[] = [];
+  entries: TimeSheetEntryInfo[] = [];
   colspan: number = 3;
 
   constructor(
@@ -26,7 +27,8 @@ export class TimesheetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.setDates();
+    this.startDate = new Date();
+    this.endDate = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000));
   }
 
   clientSelected = (clientId: number) => {
@@ -36,8 +38,7 @@ export class TimesheetComponent implements OnInit {
 
   addRow = () => {
     let dialogData: AddTimesheetRowDialogData = {
-      userId: this.authService.currentUser?.id ?? 0,
-      clientId: 1, //this.clientId
+      clientId: this.clientId,
       startDate: this.startDate,
       endDate: this.endDate
     };
@@ -53,45 +54,52 @@ export class TimesheetComponent implements OnInit {
         if(outcome.addLine) {
           console.log('need to add line!', outcome);
 
-          const request = new AddTimeSheetEntryRequest({
-            projectId: outcome.projectId,
-            loggedTimeMin: 0,
-            entryDate: this.dates[0],
-            endDate: this.dates[this.dates.length - 1],
-            startDate: this.dates[0]
-          });
+          // const request = new AddTimeSheetEntryRequest({
+          //   projectId: outcome.projectId,
+          //   loggedTimeMin: 0,
+          //   entryDate: this.dates[0],
+          //   endDate: this.endDate,
+          //   startDate: this.startDate
+          // });
 
-          this.timeSheetClient.updateEntry(request).toPromise().then(
-            (response: GetTimeSheetResponse) => {
-              this.updateTimeSheet(response);
-            },
-            (error: any) => {
-              console.log(error);
-            }
-          );
+          // this.timeSheetClient.updateEntry(request).toPromise().then(
+          //   (response: GetTimeSheetResponse) => {
+          //     this.updateTimeSheet(response);
+          //   },
+          //   (error: any) => {
+          //     console.log(error);
+          //   }
+          // );
         }
       }
     });
   }
 
+  onEntryChange = (timeSheet: GetTimeSheetResponse) => {
+    this.updateTimeSheet(timeSheet);
+  }
+
 
   // Internal methods
-  private setDates = (startDate?: Date) => {
-    const dates: Date[] = [];
-
+  private setDates = (startDate: Date, length: number) => {
+    const entries: TimeSheetEntryInfo[] = [];
     const workingDate = getBaseDate(startDate);
 
-    for(var i = 0; i < 7; i++) {
-      dates.push(new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1))));
+    for(var i = 0; i < length; i++) {
+      entries.push({
+        entryDate: new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1))),
+        startDate: this.startDate,
+        endDate: this.endDate,
+        entryTimeMin: 0
+      });
     }
 
-    this.dates = dates;
+    this.entries = entries;
   }
 
   private refreshView = () => {
-    if(this.clientId == 0) {
-      return;
-    }
+    if(this.clientId == 0) { return; }
+    this.entries = [];
 
     this.loadTimeSheet()
       .finally(() => {
@@ -101,9 +109,10 @@ export class TimesheetComponent implements OnInit {
 
   private updateTimeSheet = (response: GetTimeSheetResponse) => {
     this.projects = response?.projects ?? [];
-    this.colspan = this.dates.length + 2;
+    this.colspan = this.entries.length + 2;
 
-    console.log(response);
+    const startDate = response?.startDate ?? this.startDate;
+    this.setDates(startDate, response?.dayCount ?? 7);
   }
 
   private loadTimeSheet = () => {

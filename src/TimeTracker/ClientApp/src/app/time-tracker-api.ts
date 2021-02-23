@@ -2460,6 +2460,7 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;
+    dayCount?: number;
 
     constructor(data?: IGetTimeSheetResponse) {
         if (data) {
@@ -2489,6 +2490,7 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
             }
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
+            this.dayCount = _data["dayCount"];
         }
     }
 
@@ -2518,6 +2520,7 @@ export class GetTimeSheetResponse implements IGetTimeSheetResponse {
         }
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
+        data["dayCount"] = this.dayCount;
         return data; 
     }
 }
@@ -2528,6 +2531,7 @@ export interface IGetTimeSheetResponse {
     entries?: TimeSheetEntryDto[] | undefined;
     startDate?: Date;
     endDate?: Date;
+    dayCount?: number;
 }
 
 export class TimeSheetEntryDto implements ITimeSheetEntryDto {

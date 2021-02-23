@@ -4,14 +4,12 @@ import { ProductSelectorComponent } from 'src/app/components/ui/product-selector
 import { ProjectSelectorComponent } from 'src/app/components/ui/project-selector/project-selector.component';
 
 export interface AddTimesheetRowDialogData {
-  userId: number;
   clientId: number;
   startDate: Date;
   endDate: Date;
 }
 
 export interface AddTimesheetRowDialogResult {
-  userId: number;
   clientId: number;
   productId: number;
   projectId: number;
@@ -65,7 +63,6 @@ export class AddTimesheetRowDialog implements OnInit {
   // Internal methods
   private generateCloseOutcome = (addLine: boolean): AddTimesheetRowDialogResult => {
     return {
-      userId: this.data.userId,
       clientId: this.clientId,
       productId: this.productId,
       projectId: this.projectId,

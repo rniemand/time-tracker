@@ -1,5 +1,12 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ProjectDto } from 'src/app/time-tracker-api';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AddTimeSheetEntryRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
+
+export interface TimeSheetEntryInfo {
+  entryDate: Date;
+  startDate: Date;
+  endDate: Date;
+  entryTimeMin: number;
+}
 
 @Component({
   selector: 'app-time-entry-editor',
@@ -7,8 +14,11 @@ import { ProjectDto } from 'src/app/time-tracker-api';
   styleUrls: ['./time-entry-editor.component.scss']
 })
 export class TimeEntryEditorComponent implements OnInit {
-  @Input('date') date!: Date;
+  @Input('info') info!: TimeSheetEntryInfo;
   @Input('project') project!: ProjectDto;
+  @Input('startDate') startDate!: Date;
+  @Input('endDate') endDate!: Date;
+  @Output('onUpdate') onUpdate = new EventEmitter<GetTimeSheetResponse>();
   @ViewChild('loggedTime', { static: false }) loggedTime?: ElementRef;
   
   editMode: boolean = false;
@@ -16,7 +26,9 @@ export class TimeEntryEditorComponent implements OnInit {
   currentValue: number = 0;
   private originalValue: number = 0;
 
-  constructor() { }
+  constructor(
+    private timeSheetClient: TimeSheetClient
+  ) { }
 
   ngOnInit(): void {
     this.currentValue = 0;
@@ -24,7 +36,6 @@ export class TimeEntryEditorComponent implements OnInit {
   }
 
   editValue = () => {
-    console.log('edit me baby!', this.project);
     this.editMode = true;
 
     setTimeout(() => {
@@ -47,13 +58,21 @@ export class TimeEntryEditorComponent implements OnInit {
   private updateLoggedTime = () => {
     this.editMode = false;
     this.apiCallRunning = true;
-
-    console.log('updateLoggedTime', this.originalValue, this.currentValue);
-
-    console.log({
-      loggedTime: this.currentValue,
+    
+    const request = new AddTimeSheetEntryRequest({
       projectId: this.project.projectId,
-      date: this.date
+      entryDate: this.info.entryDate,
+      startDate: this.startDate,
+      endDate: this.endDate,
+      loggedTimeMin: Math.floor(this.currentValue * 60)
+    });
+    
+    this.timeSheetClient.updateEntry(request).toPromise().then((response: GetTimeSheetResponse) => {
+      console.log(response);
+      this.onUpdate.emit(response);
+    })
+    .finally(() => {
+      this.apiCallRunning = false;
     });
   }
 

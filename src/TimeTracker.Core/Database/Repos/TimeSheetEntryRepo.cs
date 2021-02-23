@@ -15,6 +15,10 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<List<ProjectEntity>> GetReferencedProjects(int clientId, DateTime fromDate, DateTime toDate);
     Task<List<ProductEntity>> GetReferencedProducts(int clientId, DateTime fromDate, DateTime toDate);
+    Task<TimeSheetEntry> GetProjectTimeSheetEntry(int projectId, DateTime entryDate);
+    Task<int> AddEntry(TimeSheetEntry entry);
+    Task<int> UpdateEntry(TimeSheetEntry entry);
+    Task<List<TimeSheetEntry>> GetEntries(int clientId, DateTime fromDate, DateTime toDate);
   }
 
   public class TimeSheetEntryRepo : BaseRepo<TimeSheetEntryRepo>, ITimeSheetEntryRepo
@@ -31,6 +35,8 @@ namespace TimeTracker.Core.Database.Repos
       _queries = queries;
     }
 
+
+    // Interface methods
     public async Task<List<ProjectEntity>> GetReferencedProjects(int clientId, DateTime fromDate, DateTime toDate)
     {
       // TODO: [TESTS] (TimeSheetEntryRepo.GetReferencedProjects) Add tests
@@ -52,6 +58,55 @@ namespace TimeTracker.Core.Database.Repos
       return await GetList<ProductEntity>(
         nameof(GetReferencedProducts),
         _queries.GetReferencedProducts(),
+        new
+        {
+          ClientId = clientId,
+          FromDate = fromDate.ToShortDbDate(),
+          ToDate = toDate.ToShortDbDate()
+        }
+      );
+    }
+
+    public async Task<TimeSheetEntry> GetProjectTimeSheetEntry(int projectId, DateTime entryDate)
+    {
+      // TODO: [TESTS] (TimeSheetEntryRepo.GetProjectTimeSheetEntry) Add tests
+      return await GetSingle<TimeSheetEntry>(
+        nameof(GetProjectTimeSheetEntry),
+        _queries.GetProjectTimeSheetEntry(),
+        new
+        {
+          ProjectId = projectId,
+          EntryDate = entryDate.ToShortDbDate()
+        }
+      );
+    }
+
+    public async Task<int> AddEntry(TimeSheetEntry entry)
+    {
+      // TODO: [TESTS] (TimeSheetEntryRepo.AddEntry) Add tests
+      return await ExecuteAsync(
+        nameof(AddEntry),
+        _queries.AddEntry(),
+        entry
+      );
+    }
+
+    public async Task<int> UpdateEntry(TimeSheetEntry entry)
+    {
+      // TODO: [TESTS] (TimeSheetEntryRepo.UpdateEntry) Add tests
+      return await ExecuteAsync(
+        nameof(UpdateEntry),
+        _queries.UpdateEntry(),
+        entry
+      );
+    }
+
+    public async Task<List<TimeSheetEntry>> GetEntries(int clientId, DateTime fromDate, DateTime toDate)
+    {
+      // TODO: [TESTS] (TimeSheetEntryRepo.GetEntries) Add tests
+      return await GetList<TimeSheetEntry>(
+        nameof(GetEntries),
+        _queries.GetEntries(),
         new
         {
           ClientId = clientId,

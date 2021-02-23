@@ -28,12 +28,11 @@ namespace TimeTracker.Controllers
 
     [HttpPost, Route("get"), Authorize]
     public async Task<ActionResult<GetTimeSheetResponse>> GetTimeSheet(
-      [FromBody] GetTimeSheetRequest timeSheetRequest,
-      [OpenApiIgnore] CoreApiRequest request)
+      [FromBody] GetTimeSheetRequest timeSheetRequest)
     {
       // TODO: [TESTS] (TimeSheetController.GetTimeSheet) Add tests
       var response = new BaseResponse<GetTimeSheetResponse>()
-        .WithResponse(await _timeSheetService.GetTimeSheet(timeSheetRequest, request.UserId));
+        .WithResponse(await _timeSheetService.GetTimeSheet(timeSheetRequest));
 
       return ProcessResponse(response);
     }

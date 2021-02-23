@@ -6,18 +6,20 @@ namespace TimeTracker.Core.Models.Requests
 {
   public class AddTimeSheetEntryRequest
   {
-    public int UserId { get; set; }
     public int ProjectId { get; set; }
     public int LoggedTimeMin { get; set; }
     public DateTime EntryDate { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 
     public AddTimeSheetEntryRequest()
     {
       // TODO: [TESTS] (AddTimeSheetEntryRequest) Add tests
-      UserId = 0;
       ProjectId = 0;
       LoggedTimeMin = 0;
       EntryDate = DateTime.Now;
+      StartDate = DateTime.Now;
+      EndDate = DateTime.Now.AddDays(7);
     }
   }
 
@@ -27,7 +29,6 @@ namespace TimeTracker.Core.Models.Requests
     {
       RuleSet("Default", () =>
       {
-        RuleFor(x => x.UserId).GreaterThan(0);
         RuleFor(x => x.ProjectId).GreaterThan(0);
         RuleFor(x => x.EntryDate).NotNull();
         RuleFor(x => x.LoggedTimeMin).GreaterThanOrEqualTo(0).LessThan(60 * 24);

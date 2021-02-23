@@ -13,7 +13,7 @@ namespace TimeTracker.Core.Services
 {
   public interface ITimeSheetService
   {
-    Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId);
+    Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request);
     Task<GetTimeSheetResponse> UpdateEntry(AddTimeSheetEntryRequest request);
   }
 
@@ -38,7 +38,7 @@ namespace TimeTracker.Core.Services
 
 
     // Interface methods
-    public async Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId)
+    public async Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request)
     {
       // TODO: [TESTS] (TimeSheetService.GetTimeSheet) Add tests
       // ReSharper disable once UseObjectOrCollectionInitializer
@@ -61,6 +61,11 @@ namespace TimeTracker.Core.Services
         .Select(ProductDto.Projection)
         .ToList();
 
+      response.Entries = (await _entriesRepo.GetEntries(request.ClientId, from, to))
+        .AsQueryable()
+        .Select(TimeSheetEntryDto.Projection)
+        .ToList();
+
       return response;
     }
 
@@ -70,24 +75,49 @@ namespace TimeTracker.Core.Services
 
       var dbProject = await _projectRepo.GetById(request.ProjectId);
       var entryDate = new DateTime(request.EntryDate.Year, request.EntryDate.Month, request.EntryDate.Day);
+      var dbEntry = await _entriesRepo.GetProjectTimeSheetEntry(request.ProjectId, request.EntryDate);
 
-      var entry = new TimeSheetEntry
+      if (dbEntry == null)
       {
-        UserId = dbProject.UserId,
+        // TODO: [EX] (TimeSheetService.UpdateEntry) Throw better exception here
+        if (await _entriesRepo.AddEntry(CreateTimeSheetEntry(dbProject, entryDate)) == 0)
+          throw new Exception("Unable to create entry");
+      }
+      else
+      {
+        dbEntry.EntryVersion += 1;
+        // TODO: [EX] (TimeSheetService.UpdateEntry) Throw better exception
+        if (await _entriesRepo.UpdateEntry(dbEntry) == 0)
+          throw new Exception("Unable to update entry");
+      }
+
+      return await GetTimeSheet(new GetTimeSheetRequest
+      {
         ClientId = dbProject.ClientId,
+        StartDate = request.StartDate,
+        EndDate = request.EndDate
+      });
+    }
+
+
+    // Internal methods
+    private TimeSheetEntry CreateTimeSheetEntry(ProjectEntity project, DateTime entryDate, int loggedMin = 0)
+    {
+      // TODO: [TESTS] (TimeSheetService.CreateTimeSheetEntry) Add tests
+      return new TimeSheetEntry
+      {
         Deleted = false,
-        ProductId = dbProject.ProductId,
-        EntryDate = entryDate,
         EntryVersion = 1,
-        ProjectId = dbProject.ProjectId,
-        DateAddedUtc = _dateTime.UtcNow,
         DateDeletedUtc = null,
         DateUpdatedUtc = null,
-        EntryTimeMin = request.LoggedTimeMin
+        UserId = project.UserId,
+        ClientId = project.ClientId,
+        ProductId = project.ProductId,
+        ProjectId = project.ProjectId,
+        EntryDate = entryDate,
+        DateAddedUtc = _dateTime.UtcNow,
+        EntryTimeMin = loggedMin
       };
-
-
-      return null;
     }
   }
 }

@@ -23,7 +23,7 @@ export class TimesheetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.addRow();
+    // this.addRow();
   }
 
   clientSelected = (clientId: number) => {

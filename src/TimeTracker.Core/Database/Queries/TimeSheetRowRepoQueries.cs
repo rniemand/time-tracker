@@ -43,7 +43,7 @@
 		      FROM `TimeSheet_Date`
 		      WHERE
 			      `Deleted` = 0 AND
-			      `ClientId` = 1 AND
+			      `ClientId` = (SELECT `ClientId` FROM `Projects` WHERE `ProjectId` = @ProjectId) AND
 			      `EntryDate` >= @FromDate AND
 			      `EntryDate` <= @ToDate
 	      )

@@ -44,7 +44,11 @@ namespace TimeTracker.Core.Database.Repos
     public async Task<int> AddRow(TimeSheetRow row)
     {
       // TODO: [TESTS] (TimeSheetRowRepo.AddRow) Add tests
-      return await ExecuteAsync(nameof(AddRow), _queries.AddRow(), row);
+      return await ExecuteAsync(
+        nameof(AddRow),
+        _queries.AddRow(),
+        row
+      );
     }
 
     public async Task<List<TimeSheetRow>> GetProjectRows(int projectId, DateTime @from, DateTime to)

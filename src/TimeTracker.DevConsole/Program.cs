@@ -53,7 +53,7 @@ namespace TimeTracker.DevConsole
         UserId = 1,
         ClientId = 1,
         ProductId = 1,
-        ProjectId = 1,
+        ProjectId = 2,
         NumberDays = 7,
         StartDate = DateTime.Now
       })

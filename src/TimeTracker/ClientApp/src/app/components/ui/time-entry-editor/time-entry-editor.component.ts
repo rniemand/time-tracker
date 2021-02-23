@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ProjectDto, TimeSheetDateDto } from 'src/app/time-tracker-api';
+import { ProjectDto } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-time-entry-editor',
@@ -7,7 +7,6 @@ import { ProjectDto, TimeSheetDateDto } from 'src/app/time-tracker-api';
   styleUrls: ['./time-entry-editor.component.scss']
 })
 export class TimeEntryEditorComponent implements OnInit {
-  @Input('date') date!: TimeSheetDateDto;
   @Input('project') project!: ProjectDto;
   @ViewChild('loggedTime', { static: false }) loggedTime?: ElementRef;
   
@@ -24,7 +23,7 @@ export class TimeEntryEditorComponent implements OnInit {
   }
 
   editValue = () => {
-    console.log('edit me baby!', this.date, this.project);
+    console.log('edit me baby!', this.project);
     this.editMode = true;
 
     setTimeout(() => {
@@ -51,7 +50,6 @@ export class TimeEntryEditorComponent implements OnInit {
     console.log('updateLoggedTime', this.originalValue, this.currentValue);
 
     console.log({
-      dateId: this.date.dateId,
       loggedTime: this.currentValue,
       projectId: this.project.projectId
     });

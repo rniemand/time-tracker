@@ -48,7 +48,7 @@ namespace TimeTracker.DevConsole
 
       var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
 
-      service.UpdateEntry(new UpdateTimeSheetEntryRequest
+      service.UpdateEntry(new AddTimeSheetEntryRequest
         {
           UserId = 1,
           DateId = 2,
@@ -139,10 +139,6 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
         .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
-        .AddSingleton<ITimeSheetDateRepo, TimeSheetDateRepo>()
-        .AddSingleton<ITimeSheetDateRepoQueries, TimeSheetDateRepoQueries>()
-        .AddSingleton<ITimeSheetRowRepo, TimeSheetRowRepo>()
-        .AddSingleton<ITimeSheetRowRepoQueries, TimeSheetRowRepoQueries>()
         .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
         .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }

@@ -6,7 +6,6 @@ namespace TimeTracker.Core.Models.Responses
 {
   public class GetTimeSheetResponse
   {
-    public List<TimeSheetDateDto> Dates { get; set; }
     public List<ProjectDto> Projects { get; set; }
     public List<ProductDto> Products { get; set; }
     public List<TimeSheetEntryDto> Entries { get; set; }
@@ -16,7 +15,6 @@ namespace TimeTracker.Core.Models.Responses
     public GetTimeSheetResponse()
     {
       // TODO: [TESTS] (GetTimeSheetResponse) Add tests
-      Dates = new List<TimeSheetDateDto>();
       Projects = new List<ProjectDto>();
       Products = new List<ProductDto>();
       Entries = new List<TimeSheetEntryDto>();

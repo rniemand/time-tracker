@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Logging;
-using TimeTracker.Core.Caches;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Models.Dto;
@@ -14,62 +13,31 @@ namespace TimeTracker.Core.Services
 {
   public interface ITimeSheetService
   {
-    Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date);
     Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId);
-    Task<GetTimeSheetResponse> AddTimeSheetRow(AddTimeSheetRowRequest request);
-    Task<GetTimeSheetResponse> UpdateEntry(UpdateTimeSheetEntryRequest request);
+    Task<GetTimeSheetResponse> UpdateEntry(AddTimeSheetEntryRequest request);
   }
 
   public class TimeSheetService : ITimeSheetService
   {
     private readonly ILoggerAdapter<TimeSheetService> _logger;
-    private readonly ITimeSheetDateRepo _dateRepo;
-    private readonly ITimeSheetRowRepo _rowRepo;
     private readonly IProjectRepo _projectRepo;
     private readonly ITimeSheetEntryRepo _entriesRepo;
     private readonly IDateTimeAbstraction _dateTime;
 
     public TimeSheetService(
       ILoggerAdapter<TimeSheetService> logger,
-      ITimeSheetDateRepo dateRepo,
       IDateTimeAbstraction dateTime,
-      ITimeSheetRowRepo rowRepo,
       IProjectRepo projectRepo,
       ITimeSheetEntryRepo entriesRepo)
     {
       _logger = logger;
-      _dateRepo = dateRepo;
       _dateTime = dateTime;
-      _rowRepo = rowRepo;
       _projectRepo = projectRepo;
       _entriesRepo = entriesRepo;
     }
 
 
     // Interface methods
-    public async Task<bool> EnsureTimeSheetDateExists(TimeSheetDateCache cache, ClientEntity client, DateTime date)
-    {
-      // TODO: [TESTS] (TimeSheetService.EnsureTimeSheetDateExists) Add tests
-      var userId = client.UserId;
-      var clientId = client.ClientId;
-
-      var dbDate = cache.GetCachedEntry(client, date)
-                   ?? await _dateRepo.GetEntry(userId, clientId, date);
-
-      // If the entry exists, ensure it's cached and return it
-      cache.CacheEntry(dbDate);
-      if (dbDate != null)
-        return true;
-
-      // We need to create a new entry
-      if (await _dateRepo.Add(CreateTimeSheetDate(client, date)) == 0)
-        return false;
-
-      dbDate = await _dateRepo.GetEntry(userId, clientId, date);
-      cache.CacheEntry(dbDate);
-      return true;
-    }
-
     public async Task<GetTimeSheetResponse> GetTimeSheet(GetTimeSheetRequest request, int userId)
     {
       // TODO: [TESTS] (TimeSheetService.GetTimeSheet) Add tests
@@ -83,17 +51,12 @@ namespace TimeTracker.Core.Services
       request.StartDate = from;
       request.EndDate = to;
 
-      response.Dates = (await _dateRepo.GetClientDates(clientId, from, to))
-        .AsQueryable()
-        .Select(TimeSheetDateDto.Projection)
-        .ToList();
-
-      response.Projects = (await _rowRepo.GetTimeSheetProjects(clientId, from, to))
+      response.Projects = (await _entriesRepo.GetReferencedProjects(clientId, from, to))
         .AsQueryable()
         .Select(ProjectDto.Projection)
         .ToList();
 
-      response.Products = (await _rowRepo.GetTimeSheetProducts(clientId, from, to))
+      response.Products = (await _entriesRepo.GetReferencedProducts(clientId, from, to))
         .AsQueryable()
         .Select(ProductDto.Projection)
         .ToList();
@@ -101,69 +64,22 @@ namespace TimeTracker.Core.Services
       return response;
     }
 
-    public async Task<GetTimeSheetResponse> AddTimeSheetRow(AddTimeSheetRowRequest request)
-    {
-      // TODO: [TESTS] (TimeSheetService.AddTimeSheetRow) Add tests
-      var clientId = request.ClientId;
-      var userId = request.UserId;
-      var projectId = request.ProjectId;
-      var fromDate = request.StartDate;
-      var numDays = request.NumberDays;
-      var toDate = fromDate.AddDays(numDays);
-
-      // Ensure that all dates exist for the requested range
-      // TODO: [EX] (TimeSheetService.AddTimeSheetRow) Throw better exception here
-      var datesExist = await EnsureDatesExist(clientId, userId, fromDate, numDays);
-      if (!datesExist)
-        throw new Exception("Unable to created required date range");
-
-      var dbRows = await _rowRepo.GetProjectRows(projectId, fromDate, toDate);
-      var dbDates = await _dateRepo.GetClientDates(clientId, fromDate, toDate);
-
-      for (var i = 0; i < numDays; i++)
-      {
-        var baseDate = fromDate.AddDays(i);
-        var filterDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day);
-        var dbDate = dbDates.First(x => x.EntryDate == filterDate);
-        var dbRow = dbRows.FirstOrDefault(x => x.DateId == dbDate.DateId);
-        if (dbRow != null)
-          continue;
-
-        // TODO: [EX] (TimeSheetService.AddTimeSheetRow) Throw better exception
-        var rowToAdd = CreateTimeSheetRow(request, dbDate.DateId, dbDate.EntryDate);
-        if (await _rowRepo.AddRow(rowToAdd) == 0)
-          throw new Exception("Unable to create row entry");
-      }
-
-      return await GetTimeSheet(new GetTimeSheetRequest
-      {
-        ClientId = clientId,
-        StartDate = fromDate,
-        EndDate = toDate
-      },
-        userId
-      );
-    }
-
-    public async Task<GetTimeSheetResponse> UpdateEntry(UpdateTimeSheetEntryRequest request)
+    public async Task<GetTimeSheetResponse> UpdateEntry(AddTimeSheetEntryRequest request)
     {
       // TODO: [TESTS] (TimeSheetService.UpdateEntry) Add tests
 
-      var dbDate = await _dateRepo.GetById(request.DateId);
       var dbProject = await _projectRepo.GetById(request.ProjectId);
-      var dbRow = await _rowRepo.GetProjectRow(request.ProjectId, dbDate.EntryDate);
+      var entryDate = new DateTime(request.EntryDate.Year, request.EntryDate.Month, request.EntryDate.Day);
 
       var entry = new TimeSheetEntry
       {
         UserId = dbProject.UserId,
-        ClientId = dbDate.ClientId,
+        ClientId = dbProject.ClientId,
         Deleted = false,
         ProductId = dbProject.ProductId,
-        DateId = dbDate.DateId,
-        EntryDate = dbDate.EntryDate,
+        EntryDate = entryDate,
         EntryVersion = 1,
         ProjectId = dbProject.ProjectId,
-        RowId = dbRow.RowId,
         DateAddedUtc = _dateTime.UtcNow,
         DateDeletedUtc = null,
         DateUpdatedUtc = null,
@@ -171,79 +87,7 @@ namespace TimeTracker.Core.Services
       };
 
 
-
       return null;
-    }
-
-
-    // Internal methods
-    private TimeSheetRow CreateTimeSheetRow(AddTimeSheetRowRequest request, int dateId, DateTime date)
-    {
-      // TODO: [TESTS] (TimeSheetService.CreateTimeSheetRow) Add tests
-      return new TimeSheetRow
-      {
-        ClientId = request.ClientId,
-        DateId = dateId,
-        ProductId = request.ProductId,
-        DateAddedUtc = _dateTime.UtcNow,
-        Deleted = false,
-        ProjectId = request.ProjectId,
-        UserId = request.UserId,
-        EntryDate = date
-      };
-    }
-
-    private TimeSheetDate CreateTimeSheetDate(int clientId, int userId, DateTime date)
-    {
-      // TODO: [TESTS] (TimeSheetService.CreateTimeSheetDate) Add tests
-      return new TimeSheetDate
-      {
-        UserId = userId,
-        ClientId = clientId,
-        Deleted = false,
-        DateAddedUtc = _dateTime.UtcNow,
-        DateDeletedUtc = null,
-        DateUpdatedUtc = null,
-        EntryDate = date,
-        DayOfWeek = date.DayOfWeek
-      };
-    }
-
-    private TimeSheetDate CreateTimeSheetDate(ClientEntity client, DateTime date)
-      => CreateTimeSheetDate(client.ClientId, client.UserId, date);
-
-    private async Task<bool> EnsureDatesExist(int clientId, int userId, DateTime startDate, int length)
-    {
-      // TODO: [TESTS] (TimeSheetService.EnsureDatesExist) Add tests
-
-      try
-      {
-        var endDate = startDate.AddDays(length);
-        var dbEntries = await _dateRepo.GetClientDates(clientId, startDate, endDate);
-
-        for (var i = 0; i < length; i++)
-        {
-          var currentDate = startDate.AddDays(i);
-          var dbCurrentDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day);
-
-          // Check to see if the requested date exists
-          var dbEntry = dbEntries.FirstOrDefault(x => x.EntryDate == dbCurrentDate);
-          if (dbEntry != null)
-            continue;
-
-          // Add a missing date entry
-          var entryToAdd = CreateTimeSheetDate(clientId, userId, dbCurrentDate);
-          if (await _dateRepo.Add(entryToAdd) == 0)
-            return false;
-        }
-
-        return true;
-      }
-      catch (Exception ex)
-      {
-        _logger.LogUnexpectedException(ex);
-        return false;
-      }
     }
   }
 }

@@ -5,7 +5,6 @@ using Hangfire;
 using Hangfire.MySql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -145,12 +144,6 @@ namespace TimeTracker
         () => new SweepLongRunningTimers(serviceProvider).Run(),
         "* * * * *"
       );
-
-      RecurringJob.AddOrUpdate(
-        "Generate TimeSheet Date Entries",
-        () => new GenerateTimeSheetDates(serviceProvider).Run(),
-        "5 */1 * * *"
-      );
     }
 
 
@@ -219,10 +212,6 @@ namespace TimeTracker
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
         .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
-        .AddSingleton<ITimeSheetDateRepo, TimeSheetDateRepo>()
-        .AddSingleton<ITimeSheetDateRepoQueries, TimeSheetDateRepoQueries>()
-        .AddSingleton<ITimeSheetRowRepo, TimeSheetRowRepo>()
-        .AddSingleton<ITimeSheetRowRepoQueries, TimeSheetRowRepoQueries>()
         .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
         .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }

@@ -167,3 +167,38 @@ ALTER TABLE `TimeSheet_Rows`
 ALTER TABLE `TimeSheet_Rows`
 	ADD COLUMN `EntryDate` DATE NOT NULL DEFAULT curdate() AFTER `DateDeletedUtc`;
 	
+ALTER TABLE `TimeSheet_Entries`
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_Users`,
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_TimeSheet_Date`,
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_Products`,
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_Projects`,
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_Clients`,
+	DROP FOREIGN KEY `FK_TimeSheet_Entries_TimeSheet_Rows`;
+	
+ALTER TABLE `TimeSheet_Rows`
+	DROP FOREIGN KEY `FK_TimeSheet_Rows_Users`,
+	DROP FOREIGN KEY `FK_TimeSheet_Rows_TimeSheet_Date`,
+	DROP FOREIGN KEY `FK_TimeSheet_Rows_Projects`,
+	DROP FOREIGN KEY `FK_TimeSheet_Rows_Products`,
+	DROP FOREIGN KEY `FK_TimeSheet_Rows_Clients`;
+	
+ALTER TABLE `TimeSheet_Date`
+	DROP FOREIGN KEY `FK_TimeSheet_Date_Users`,
+	DROP FOREIGN KEY `FK_TimeSheet_Date_Clients`;
+	
+DROP TABLE `TimeSheet_Rows`;
+
+DROP TABLE `TimeSheet_Date`;
+
+ALTER TABLE `TimeSheet_Entries`
+	DROP COLUMN `RowId`,
+	DROP COLUMN `DateId`;
+	
+ALTER TABLE `TimeSheet_Entries`
+	ADD CONSTRAINT `FK_TimeSheet_Entries_Users` FOREIGN KEY (`UserId`) REFERENCES `Users` (`UserId`),
+	ADD CONSTRAINT `FK_TimeSheet_Entries_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`ClientId`),
+	ADD CONSTRAINT `FK_TimeSheet_Entries_Products` FOREIGN KEY (`ProductId`) REFERENCES `Products` (`ProductId`),
+	ADD CONSTRAINT `FK_TimeSheet_Entries_Projects` FOREIGN KEY (`ProjectId`) REFERENCES `Projects` (`ProjectId`);
+	
+RENAME TABLE `TimeSheet_Entries` TO `TimeSheetEntries`;
+

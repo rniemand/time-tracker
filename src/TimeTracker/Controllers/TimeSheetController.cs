@@ -38,33 +38,17 @@ namespace TimeTracker.Controllers
       return ProcessResponse(response);
     }
 
-    [HttpPost, Route("add-row"), Authorize]
-    public async Task<ActionResult<GetTimeSheetResponse>> AddRow(
-      [FromBody] AddTimeSheetRowRequest addRequest)
-    {
-      // TODO: [TESTS] (TimeSheetController.AddRow) Add tests
-      var apiResponse = new BaseResponse<GetTimeSheetResponse>()
-        .WithValidation(AddTimeSheetRowRequestValidator.Update(addRequest));
-
-      if (apiResponse.PassedValidation)
-      {
-        apiResponse.WithResponse(await _timeSheetService.AddTimeSheetRow(addRequest));
-      }
-
-      return ProcessResponse(apiResponse);
-    }
-
     [HttpPost, Route("update-entry"), Authorize]
     public async Task<ActionResult<GetTimeSheetResponse>> UpdateEntry(
-      [FromBody] UpdateTimeSheetEntryRequest updateRequest)
+      [FromBody] AddTimeSheetEntryRequest addRequest)
     {
       // TODO: [TESTS] (TimeSheetController.UpdateEntry) Add tests
       var apiResponse = new BaseResponse<GetTimeSheetResponse>()
-        .WithValidation(UpdateTimeSheetEntryRequestValidator.Default(updateRequest));
+        .WithValidation(UpdateTimeSheetEntryRequestValidator.Default(addRequest));
 
       if (apiResponse.PassedValidation)
       {
-        apiResponse.WithResponse(await _timeSheetService.UpdateEntry(updateRequest));
+        apiResponse.WithResponse(await _timeSheetService.UpdateEntry(addRequest));
       }
 
       return ProcessResponse(apiResponse);

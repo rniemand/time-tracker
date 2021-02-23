@@ -5,8 +5,6 @@ namespace TimeTracker.Core.Database.Entities
   public class TimeSheetEntry
   {
     public long EntryId { get; set; }
-    public long RowId { get; set; }
-    public int DateId { get; set; }
     public int UserId { get; set; }
     public int ClientId { get; set; }
     public int ProductId { get; set; }
@@ -23,8 +21,6 @@ namespace TimeTracker.Core.Database.Entities
     {
       // TODO: [TESTS] (TimeSheetEntry) Add tests
       EntryId = 0;
-      RowId = 0;
-      DateId = 0;
       UserId = 0;
       ClientId = 0;
       ProductId = 0;

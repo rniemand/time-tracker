@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
-import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetDateDto } from 'src/app/time-tracker-api';
+import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-timesheet',
@@ -13,8 +13,7 @@ import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient,
 export class TimesheetComponent implements OnInit {
   clientId: number = 0;
   startDate: Date = new Date();
-  endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000))
-  dates: TimeSheetDateDto[] = [];
+  endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000));
   projects: ProjectDto[] = [];
   colspan: number = 3;
 
@@ -59,8 +58,6 @@ export class TimesheetComponent implements OnInit {
 
   // Internal methods
   private refreshView = () => {
-    this.dates = [];
-
     if(this.clientId == 0) {
       return;
     }
@@ -81,12 +78,9 @@ export class TimesheetComponent implements OnInit {
     return new Promise<void>((resolve, reject) => {
       this.timeSheetClient.getTimeSheet(request).toPromise().then(
         (response: GetTimeSheetResponse) => {
-          this.dates = response?.dates ?? [];
           this.projects = response?.projects ?? [];
-          this.colspan = this.dates.length + 2;
+          this.colspan = 2;
 
-          console.log(this.dates);
-          
           console.log(response);
 
           resolve();

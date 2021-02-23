@@ -7,8 +7,6 @@ namespace TimeTracker.Core.Models.Dto
   public class TimeSheetEntryDto
   {
     public long EntryId { get; set; }
-    public long RowId { get; set; }
-    public int DateId { get; set; }
     public int UserId { get; set; }
     public int ClientId { get; set; }
     public int ProductId { get; set; }
@@ -21,8 +19,6 @@ namespace TimeTracker.Core.Models.Dto
     {
       // TODO: [TESTS] (TimeSheetEntryDto) Add tests
       EntryId = 0;
-      RowId = 0;
-      DateId = 0;
       UserId = 0;
       ClientId = 0;
       ProductId = 0;
@@ -42,12 +38,10 @@ namespace TimeTracker.Core.Models.Dto
           ClientId = entity.ClientId,
           ProductId = entity.ProductId,
           ProjectId = entity.ProjectId,
-          DateId = entity.DateId,
           EntryDate = entity.EntryDate,
           EntryId = entity.EntryId,
           EntryTimeMin = entity.EntryTimeMin,
-          EntryVersion = entity.EntryVersion,
-          RowId = entity.RowId
+          EntryVersion = entity.EntryVersion
         };
       }
     }

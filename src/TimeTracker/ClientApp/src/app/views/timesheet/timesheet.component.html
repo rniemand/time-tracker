@@ -17,7 +17,11 @@
       </tr>
       <tr *ngFor="let project of projects">
         <td>{{ project.projectName }}</td>
-        <td *ngFor="let date of dates">Input</td>
+        <td *ngFor="let date of dates">
+          <mat-form-field appearance="outline" class="logged-time">
+            <input matInput value="0">
+          </mat-form-field>
+        </td>
       </tr>
     </table>
   </div>

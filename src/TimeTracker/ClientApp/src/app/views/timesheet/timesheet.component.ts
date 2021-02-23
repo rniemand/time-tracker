@@ -16,6 +16,7 @@ export class TimesheetComponent implements OnInit {
   endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000))
   dates: TimeSheetDateDto[] = [];
   projects: ProjectDto[] = [];
+  colspan: number = 3;
 
   constructor(
     public dialog: MatDialog,
@@ -82,6 +83,7 @@ export class TimesheetComponent implements OnInit {
         (response: GetTimeSheetResponse) => {
           this.dates = response?.dates ?? [];
           this.projects = response?.projects ?? [];
+          this.colspan = this.dates.length + 2;
 
           console.log(this.dates);
           

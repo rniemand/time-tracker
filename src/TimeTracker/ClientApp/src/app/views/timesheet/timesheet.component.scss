@@ -11,8 +11,25 @@
             text-align: center;
         }
 
+        &.controls {
+            td {
+                text-align: left;
+            }
+        }
+        
+        &.totals {
+            td {
+                text-align: center;
+            }
+        }
+
         td {
             border: 1px solid red;
+
+            &.total {
+                text-align: center;
+                color: rgb(240, 241, 143);
+            }
 
             .time-editor {
                 display: block;

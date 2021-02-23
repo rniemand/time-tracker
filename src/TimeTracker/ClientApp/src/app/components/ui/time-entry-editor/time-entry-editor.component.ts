@@ -10,11 +10,17 @@ export class TimeEntryEditorComponent implements OnInit {
   @Input('date') date!: TimeSheetDateDto;
   @Input('project') project!: ProjectDto;
   @ViewChild('loggedTime', { static: false }) loggedTime?: ElementRef;
+  
   editMode: boolean = false;
+  apiCallRunning: boolean = false;
+  currentValue: number = 0;
+  private originalValue: number = 0;
 
   constructor() { }
 
   ngOnInit(): void {
+    this.currentValue = 0;
+    this.originalValue = 0;
   }
 
   editValue = () => {
@@ -28,14 +34,27 @@ export class TimeEntryEditorComponent implements OnInit {
   }
 
   onBlur = () => {
-    console.log('onBlur');
+    this.updateLoggedTime();
   }
 
   onKeyDown = (e: any) => {
     const keyCode = e?.keyCode ?? 0;
-    if(keyCode === 13) {
-      console.log('pressed enter');
-    }
+    if(keyCode !== 13) { return; }
+    this.updateLoggedTime();
+  }
+
+  // Internal methods
+  private updateLoggedTime = () => {
+    this.editMode = false;
+    this.apiCallRunning = true;
+
+    console.log('updateLoggedTime', this.originalValue, this.currentValue);
+
+    console.log({
+      dateId: this.date.dateId,
+      loggedTime: this.currentValue,
+      projectId: this.project.projectId
+    });
   }
 
 }

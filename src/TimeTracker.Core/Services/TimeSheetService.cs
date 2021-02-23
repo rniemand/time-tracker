@@ -6,7 +6,6 @@ using Rn.NetCore.Common.Logging;
 using TimeTracker.Core.Caches;
 using TimeTracker.Core.Database.Entities;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Extensions;
 using TimeTracker.Core.Models.Dto;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
@@ -86,17 +85,21 @@ namespace TimeTracker.Core.Services
     {
       // TODO: [TESTS] (TimeSheetService.AddTimeSheetRow) Add tests
 
-      var datesExist = await EnsureClientDatesExist(request.ClientId,
+      var datesExist = await EnsureDatesExist(request.ClientId,
         request.UserId,
         request.StartDate,
         request.NumberDays
       );
 
+      // TODO: [EX] (TimeSheetService.AddTimeSheetRow) Throw better exception here
+      if (!datesExist)
+        throw new Exception("Unable to created required date range");
 
-
-
-
-
+      var dates = await _timeSheetDateRepo.GetClientDatesForRange(
+        request.ClientId,
+        request.StartDate, 
+        request.StartDate.AddDays(request.NumberDays)
+      );
 
 
       return null;
@@ -107,7 +110,7 @@ namespace TimeTracker.Core.Services
     private TimeSheetDate CreateTimeSheetDate(int clientId, int userId, DateTime date)
     {
       // TODO: [TESTS] (TimeSheetService.CreateTimeSheetDate) Add tests
-      return new TimeSheetDate
+      return new()
       {
         UserId = userId,
         ClientId = clientId,
@@ -123,9 +126,9 @@ namespace TimeTracker.Core.Services
     private TimeSheetDate CreateTimeSheetDate(ClientEntity client, DateTime date)
       => CreateTimeSheetDate(client.ClientId, client.UserId, date);
 
-    private async Task<bool> EnsureClientDatesExist(int clientId, int userId, DateTime startDate, int length)
+    private async Task<bool> EnsureDatesExist(int clientId, int userId, DateTime startDate, int length)
     {
-      // TODO: [TESTS] (TimeSheetService.EnsureClientDatesExist) Add tests
+      // TODO: [TESTS] (TimeSheetService.EnsureDatesExist) Add tests
 
       try
       {

@@ -13,12 +13,10 @@ using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
-using Rn.NetCore.DbCommon;
 using Rn.NetCore.DbCommon.Helpers;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
@@ -51,14 +49,14 @@ namespace TimeTracker.DevConsole
       var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
 
       service.AddTimeSheetRow(new AddTimeSheetRowRequest
-        {
-          UserId = 1,
-          ClientId = 1,
-          ProductId = 1,
-          ProjectId = 1,
-          NumberDays = 7,
-          StartDate = DateTime.Now
-        })
+      {
+        UserId = 1,
+        ClientId = 1,
+        ProductId = 1,
+        ProjectId = 1,
+        NumberDays = 7,
+        StartDate = DateTime.Now
+      })
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();

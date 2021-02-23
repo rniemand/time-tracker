@@ -1,7 +1,7 @@
 import { Component, EventEmitter, forwardRef, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldAppearance } from '@angular/material/form-field';
-import { IntListItem, ProductsClient } from 'src/app/time-tracker-api';
+import { IntListItem, ProductDto, ProductsClient } from 'src/app/time-tracker-api';
 
 @Component({
   selector: 'app-product-selector',
@@ -20,10 +20,13 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
   @Input('clientId') clientId: number = 0;
   @Input('appearance') appearance: MatFormFieldAppearance = "outline";
   @Input('class') class: string = "";
+  
   productId: number = 0;
+  productName: string = '';
   loading: boolean = true;
   entries: IntListItem[] = [];
   label: string = 'Select a client first';
+  private lookup: { [key: number]: string } = {};
 
   private _onChangeFn = (_: any) => { };
 
@@ -37,7 +40,12 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
       this.clientId = 0;
   }
 
-  valueChanged = () => {
+  selectionChange = () => {
+    this.productName = '';
+    if(this.lookup.hasOwnProperty(this.productId)) {
+      this.productName = this.lookup[this.productId];
+    }
+
     if (this._onChangeFn) {
       this._onChangeFn(this.productId);
     }
@@ -69,10 +77,12 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
 
   registerOnTouched(fn: any): void { }
 
+
   // Internal methods
   private refreshProducts = () => {
     this.loading = true;
     this.entries = [];
+    this.lookup = {};
 
     if(isNaN(this.clientId) || this.clientId <= 0) {
       return;
@@ -81,6 +91,10 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
     this.label = 'Select a client first';
     this.productsClient.listClientProducts(this.clientId).toPromise().then(
       (products: IntListItem[]) => {
+        products.forEach((p: IntListItem) => {
+          this.lookup[p?.value ?? 0] = p?.name ?? '';
+        });
+
         this.entries = products;
 
         if(this.productId <= 0 && this.entries.length > 0) {
@@ -99,7 +113,13 @@ export class ProductSelectorComponent implements OnInit, ControlValueAccessor, O
 
   private setProductId = (productId: number) => {
     this.productId = productId;
-    this.valueChanged();
+    
+    this.productName = '';
+    if(this.lookup.hasOwnProperty(productId)) {
+      this.productName = this.lookup[productId];
+    }
+    
+    this.selectionChange();
   }
 
   private hasProductId = (productId: number) => {

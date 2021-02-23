@@ -7,7 +7,6 @@ export const isToday = (someDate: Date) => {
     someDate.getFullYear() == today.getFullYear()
 }
 
-
 export const toHumanTime = (seconds: number): HumanTime => {
   let mapped: HumanTime = { hours: 0, mins: 0, seconds: 0 };
 
@@ -39,4 +38,9 @@ export const shortTimeString = (seconds: number): string => {
     return `${mins}:${secs}`;
 
   return `${hours}:${mins}:${secs}`;
+}
+
+export const getBaseDate = (now?: Date) => {
+  if(!now) { now = new Date(); }
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }

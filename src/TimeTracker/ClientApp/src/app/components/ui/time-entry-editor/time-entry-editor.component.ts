@@ -7,6 +7,7 @@ import { ProjectDto } from 'src/app/time-tracker-api';
   styleUrls: ['./time-entry-editor.component.scss']
 })
 export class TimeEntryEditorComponent implements OnInit {
+  @Input('date') date!: Date;
   @Input('project') project!: ProjectDto;
   @ViewChild('loggedTime', { static: false }) loggedTime?: ElementRef;
   
@@ -51,7 +52,8 @@ export class TimeEntryEditorComponent implements OnInit {
 
     console.log({
       loggedTime: this.currentValue,
-      projectId: this.project.projectId
+      projectId: this.project.projectId,
+      date: this.date
     });
   }
 

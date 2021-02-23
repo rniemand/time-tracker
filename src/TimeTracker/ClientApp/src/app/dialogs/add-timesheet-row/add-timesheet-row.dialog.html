@@ -2,11 +2,11 @@
 
 <div mat-dialog-content>
   <div>
-    <app-product-selector [(ngModel)]="productId" (changed)="productChanged()" [clientId]="clientId"></app-product-selector>
+    <app-product-selector #products [(ngModel)]="productId" (changed)="productChanged()" [clientId]="clientId"></app-product-selector>
   </div>
 
   <div>
-    <app-project-selector [(ngModel)]="projectId" (changed)="projectChanged()" [productId]="productId"></app-project-selector>
+    <app-project-selector #projects [(ngModel)]="projectId" (changed)="projectChanged()" [productId]="productId"></app-project-selector>
   </div>
 
 </div>

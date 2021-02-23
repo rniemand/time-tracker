@@ -4,6 +4,7 @@ import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient } from 'src/app/time-tracker-api';
+import { getBaseDate } from 'src/app/utils/core.utils';
 
 @Component({
   selector: 'app-timesheet',
@@ -15,6 +16,7 @@ export class TimesheetComponent implements OnInit {
   startDate: Date = new Date();
   endDate: Date = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000));
   projects: ProjectDto[] = [];
+  dates: Date[] = [];
   colspan: number = 3;
 
   constructor(
@@ -24,7 +26,7 @@ export class TimesheetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // this.addRow();
+    this.setDates();
   }
 
   clientSelected = (clientId: number) => {
@@ -57,6 +59,18 @@ export class TimesheetComponent implements OnInit {
 
 
   // Internal methods
+  private setDates = (startDate?: Date) => {
+    const dates: Date[] = [];
+
+    const workingDate = getBaseDate(startDate);
+
+    for(var i = 0; i < 7; i++) {
+      dates.push(new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1))));
+    }
+
+    this.dates = dates;
+  }
+
   private refreshView = () => {
     if(this.clientId == 0) {
       return;
@@ -79,7 +93,7 @@ export class TimesheetComponent implements OnInit {
       this.timeSheetClient.getTimeSheet(request).toPromise().then(
         (response: GetTimeSheetResponse) => {
           this.projects = response?.projects ?? [];
-          this.colspan = 2;
+          this.colspan = this.dates.length + 2;
 
           console.log(response);
 

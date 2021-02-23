@@ -1,5 +1,7 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ProductSelectorComponent } from 'src/app/components/ui/product-selector/product-selector.component';
+import { ProjectSelectorComponent } from 'src/app/components/ui/project-selector/project-selector.component';
 
 export interface AddTimesheetRowDialogData {
   userId: number;
@@ -24,6 +26,9 @@ export interface AddTimesheetRowDialogResult {
   styleUrls: ['./add-timesheet-row.dialog.css']
 })
 export class AddTimesheetRowDialog implements OnInit {
+  @ViewChild('products', { static: true }) products!: ProductSelectorComponent;
+  @ViewChild('projects', { static: true }) projects!: ProjectSelectorComponent;
+
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
@@ -38,11 +43,13 @@ export class AddTimesheetRowDialog implements OnInit {
   }
 
   productChanged = () => {
-    console.log('productChanged', this.productId);
+    console.log('productChanged', this.products.productName);
+
   }
 
   projectChanged = () => {
-    console.log('projectChanged', this.projectId);
+    console.log('projectChanged', this.projectId, this.projects);
+
   }
 
   cancel(): void {

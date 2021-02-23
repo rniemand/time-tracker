@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using Rn.NetCore.DbCommon.Helpers;
@@ -12,6 +14,7 @@ namespace TimeTracker.Core.Database.Repos
   {
     Task<TimeSheetRow> GetRow(TimeSheetRow row);
     Task<int> AddRow(TimeSheetRow row);
+    Task<List<TimeSheetRow>> GetRowsForRange(int projectId, DateTime from, DateTime to);
   }
 
   public class TimeSheetRowRepo : BaseRepo<TimeSheetRowRepo>, ITimeSheetRowRepo
@@ -40,6 +43,19 @@ namespace TimeTracker.Core.Database.Repos
     {
       // TODO: [TESTS] (TimeSheetRowRepo.AddRow) Add tests
       return await ExecuteAsync(nameof(AddRow), _queries.AddRow(), row);
+    }
+
+    public async Task<List<TimeSheetRow>> GetRowsForRange(int projectId, DateTime @from, DateTime to)
+    {
+      // TODO: [TESTS] (TimeSheetRowRepo.GetRowsForRange) Add tests
+      return await GetList<TimeSheetRow>(
+        nameof(GetRowsForRange),
+        _queries.GetRowsForRange(),
+        new
+        {
+
+        }
+      );
     }
   }
 }

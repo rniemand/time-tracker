@@ -4,6 +4,7 @@
   {
     string GetRow();
     string AddRow();
+    string GetRowsForRange();
   }
 
   public class TimeSheetRowRepoQueries : ITimeSheetRowRepoQueries
@@ -27,6 +28,25 @@
 	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
       VALUES
 	      (@DateId, @UserId, @ClientId, @ProductId, @ProjectId)";
+    }
+
+    public string GetRowsForRange()
+    {
+      return @"SELECT *
+      FROM `TimeSheet_Rows`
+      WHERE
+	      `Deleted` = 0 AND
+	      `ProjectId` = 1 AND
+	      `DateId` IN (
+		      SELECT `DateId`
+		      FROM `TimeSheet_Date`
+		      WHERE
+			      `Deleted` = 0 AND
+			      `ClientId` = 1 AND
+			      `EntryDate` >= '2021-02-19' AND
+			      `EntryDate` <= '2021-02-22'
+	      )
+      ORDER BY `DateId` ASC";
     }
   }
 }

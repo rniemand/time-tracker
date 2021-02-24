@@ -11,30 +11,31 @@
     <table class="entry-table">
       <tr class="header">
         <td>&nbsp;</td>
-        <td *ngFor="let entry of entries">{{ entry.entryDate | date:'shortDate' }}</td>
+        <td *ngFor="let entry of entries" class="date">
+          <div class="day">{{ entry.entryDate | date:'E' }}</div>
+          <div>{{ entry.entryDate | date:'MM-dd' }}</div>
+        </td>
         <td>&nbsp;</td>
       </tr>
 
-      <tr *ngFor="let project of projects">
+      <tr *ngFor="let project of projects" class="projects">
         <td>{{ project.projectName }}</td>
-        <td *ngFor="let entry of entries">
+        <td *ngFor="let entry of entries" [class]="getDateClass(entry)">
           <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" class="time-editor"></app-time-entry-editor>
         </td>
-        <td class="total">
-          0
+        <td>
+          <span class="total">{{ getProjectTotalTime(project) }}</span>
         </td>
       </tr>
 
       <tr class="totals" *ngIf="projects.length > 0">
-        <td>&nbsp;</td>
-        <td *ngFor="let entry of entries">0</td>
-        <td>0</td>
-      </tr>
-
-      <tr class="controls">
-        <td [attr.colspan]="colspan">
-          <button mat-stroked-button (click)="addRow()">Add Row</button>
+        <td class="add-button">
+          <mat-icon (click)="addRow()">add</mat-icon>
         </td>
+        <td *ngFor="let entry of entries">
+          <span class="daily-sum">{{ getDailyTotalTime(entry.entryTime) }}</span>
+        </td>
+        <td class="final-total">{{ totalLoggedTime }}</td>
       </tr>
     </table>
   </div>

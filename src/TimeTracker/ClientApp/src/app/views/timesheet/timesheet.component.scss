@@ -9,29 +9,64 @@
     tr {
         &.header {
             text-align: center;
+
+            td {
+                &.date {
+                    background-color: #3e3e3e;
+                    border-radius: 5px;
+
+                    .day {
+                        color: #c084da;
+                    }
+                }
+            }
         }
 
-        &.controls {
+        &.projects {
             td {
-                text-align: left;
+                text-align: center;
+
+                &.date {
+                    border: 1px dotted #4e4e4e;
+
+                    &.weekend {
+                        background-color: #484741;
+                    }
+
+                    &.today {
+                        background-color: #87ff7d29;
+                    }
+                }
+
+                span.total {
+                    color: #8165b7;
+                    font-family: monospace;
+                }
+
+                .time-editor {
+                    display: block;
+                    width: 100%;
+                }
             }
         }
         
         &.totals {
             td {
                 text-align: center;
-            }
-        }
 
-        td {
-            &.total {
-                text-align: center;
-                color: rgb(240, 241, 143);
-            }
+                span.daily-sum {
+                    font-family: monospace;
+                    color: #94c9e761;
+                }
 
-            .time-editor {
-                display: block;
-                width: 100%;
+                &.final-total {
+                    font-family: monospace;
+                    color: #fff;
+                }
+
+                &.add-button {
+                    cursor: pointer;
+                }
             }
         }
     }

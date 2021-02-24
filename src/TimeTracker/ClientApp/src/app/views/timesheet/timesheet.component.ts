@@ -5,7 +5,7 @@ import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetEntryDto } from 'src/app/time-tracker-api';
-import { getBaseDate, getShortDateString } from 'src/app/utils/core.utils';
+import { getBaseDate, isToday } from 'src/app/utils/core.utils';
 
 @Component({
   selector: 'app-timesheet',
@@ -19,6 +19,9 @@ export class TimesheetComponent implements OnInit {
   projects: ProjectDto[] = [];
   entries: TimeSheetEntryInfo[] = [];
   colspan: number = 3;
+  projectTimes: { [key: number]: number } = {};
+  dailyTimes: { [key: number]: number } = {};
+  totalLoggedTime: number = 0;
 
   constructor(
     public dialog: MatDialog,
@@ -77,6 +80,37 @@ export class TimesheetComponent implements OnInit {
     this.updateTimeSheet(timeSheet);
   }
 
+  getProjectTotalTime = (project: ProjectDto) => {
+    const projectId = project?.projectId ?? 0;
+    if(projectId == 0 || !this.projectTimes.hasOwnProperty(projectId)) {
+      return 0;
+    }
+
+    return this.projectTimes[projectId];
+  }
+
+  getDailyTotalTime = (time: number) => {
+    if(this.dailyTimes.hasOwnProperty(time)) {
+      return this.dailyTimes[time];
+    }
+
+    return 0;
+  }
+
+  getDateClass = (entry: TimeSheetEntryInfo) => {
+    const classes: string[] = ['date'];
+
+    if(entry.weekend) {
+      classes.push('weekend');
+    }
+
+    if(entry.today) {
+      classes.push('today');
+    }
+
+    return classes;
+  }
+
 
   // Internal methods
   private setDates = (startDate: Date, length: number) => {
@@ -84,11 +118,17 @@ export class TimesheetComponent implements OnInit {
     const workingTime = getBaseDate(startDate, true).getTime();
 
     for(var i = 0; i < length; i++) {
+      const currentDate = new Date(workingTime + (24 * 60 * 60 * 1000 * (i + 1)));
+      const currentDay = currentDate.getDay();
+
       entries.push({
-        entryDate: new Date(workingTime + (24 * 60 * 60 * 1000 * (i + 1))),
+        entryDate: currentDate,
+        entryTime: currentDate.getTime(),
         startDate: this.startDate,
         endDate: this.endDate,
-        entryTimes: {}
+        entryTimes: {},
+        weekend: currentDay === 0 || currentDay === 6,
+        today: isToday(currentDate)
       });
     }
 
@@ -110,7 +150,7 @@ export class TimesheetComponent implements OnInit {
 
     const wanted = entryDate.getTime();
     for(var i = 0; i < this.entries.length; i++) {
-      if(this.entries[i].entryDate.getTime() == wanted) {
+      if(this.entries[i].entryTime == wanted) {
         return this.entries[i];
       }
     }
@@ -118,21 +158,40 @@ export class TimesheetComponent implements OnInit {
     return undefined;
   }
 
-  private setEntryDate = (entry: TimeSheetEntryDto) => {
+  private setEntryInfo = (entry: TimeSheetEntryDto) => {
     const info = this.getEntryInfo(entry.entryDate);
     if(!info) { return; }
 
-    info.entryTimes[entry?.projectId ?? 0] = parseFloat(((entry?.entryTimeMin ?? 0) / 60).toFixed(2));
+    const projectId = entry?.projectId ?? 0;
+    const entryTime = parseFloat(((entry?.entryTimeMin ?? 0) / 60).toFixed(2));
+
+    info.entryTimes[projectId] = entryTime;
+    
+    if(!this.projectTimes.hasOwnProperty(projectId)) {
+      this.projectTimes[projectId] = 0;
+    }
+    this.projectTimes[projectId] += entryTime;
+
+    if(!this.dailyTimes.hasOwnProperty(info.entryTime)) {
+      this.dailyTimes[info.entryTime] = 0;
+    }
+    this.dailyTimes[info.entryTime] += entryTime;
+    this.dailyTimes[0] += entryTime;
+    this.totalLoggedTime += entryTime;
   }
 
   private updateTimeSheet = (response: GetTimeSheetResponse) => {
     this.projects = response?.projects ?? [];
+    this.projectTimes = {};
+    this.dailyTimes = { 0: 0 };
+    this.totalLoggedTime = 0;
+
     const startDate = response?.startDate ?? this.startDate;
     this.setDates(startDate, response?.dayCount ?? 7);
 
     const entries = response?.entries ?? [];
     this.colspan = this.entries.length + 2;
-    entries.forEach(this.setEntryDate);
+    entries.forEach(this.setEntryInfo);
   }
 
   private loadTimeSheet = () => {

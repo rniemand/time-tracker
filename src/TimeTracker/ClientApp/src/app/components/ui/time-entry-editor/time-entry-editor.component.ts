@@ -3,9 +3,12 @@ import { AddTimeSheetEntryRequest, GetTimeSheetResponse, ProjectDto, TimeSheetCl
 
 export interface TimeSheetEntryInfo {
   entryDate: Date;
+  entryTime: number;
   startDate: Date;
   endDate: Date;
   entryTimes: { [key: number]: number };
+  weekend: boolean;
+  today: boolean;
 }
 
 @Component({
@@ -38,7 +41,7 @@ export class TimeEntryEditorComponent implements OnInit {
       this.currentValue = this.info.entryTimes[projectId];
     }
 
-    this.originalValue = 0;
+    this.originalValue = this.currentValue;
   }
 
   editValue = () => {
@@ -63,8 +66,12 @@ export class TimeEntryEditorComponent implements OnInit {
   // Internal methods
   private updateLoggedTime = () => {
     this.editMode = false;
+
+    if(this.originalValue === this.currentValue) {
+      return;
+    }
+
     this.apiCallRunning = true;
-    
     const request = new AddTimeSheetEntryRequest({
       projectId: this.project.projectId,
       entryDate: this.info.entryDate,

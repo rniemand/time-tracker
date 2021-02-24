@@ -1,13 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using NSwag.Annotations;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
 using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Models.Responses;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Attributes;
-using TimeTracker.Core.WebApi.Requests;
 
 namespace TimeTracker.Controllers
 {

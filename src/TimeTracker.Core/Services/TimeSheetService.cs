@@ -75,7 +75,9 @@ namespace TimeTracker.Core.Services
       // TODO: [TESTS] (TimeSheetService.UpdateEntry) Add tests
       var loggedTime = request.LoggedTimeMin;
       var dbProject = await _projectRepo.GetById(request.ProjectId);
-      var entryDate = new DateTime(request.EntryDate.Year, request.EntryDate.Month, request.EntryDate.Day);
+      var baseDate = new DateTime(request.EntryDate.Year, request.EntryDate.Month, request.EntryDate.Day);
+      var entryDate = DateTime.SpecifyKind(baseDate, DateTimeKind.Utc);
+
       var dbEntry = await _entriesRepo.GetProjectTimeSheetEntry(request.ProjectId, request.EntryDate);
 
       if (dbEntry == null)

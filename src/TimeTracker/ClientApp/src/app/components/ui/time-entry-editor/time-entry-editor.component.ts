@@ -5,7 +5,6 @@ export interface TimeSheetEntryInfo {
   entryDate: Date;
   startDate: Date;
   endDate: Date;
-  entryDateStr: string;
   entryTimes: { [key: number]: number };
 }
 
@@ -33,6 +32,12 @@ export class TimeEntryEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentValue = 0;
+
+    const projectId = this.project?.projectId ?? 0;
+    if(projectId > 0 && this.info.entryTimes.hasOwnProperty(projectId)) {
+      this.currentValue = this.info.entryTimes[projectId];
+    }
+
     this.originalValue = 0;
   }
 
@@ -69,7 +74,6 @@ export class TimeEntryEditorComponent implements OnInit {
     });
     
     this.timeSheetClient.updateEntry(request).toPromise().then((response: GetTimeSheetResponse) => {
-      console.log(response);
       this.onUpdate.emit(response);
     })
     .finally(() => {

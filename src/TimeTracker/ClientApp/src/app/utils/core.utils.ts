@@ -40,8 +40,13 @@ export const shortTimeString = (seconds: number): string => {
   return `${hours}:${mins}:${secs}`;
 }
 
-export const getBaseDate = (now?: Date) => {
+export const getBaseDate = (now?: Date, forceUtc: boolean = false) => {
   if(!now) { now = new Date(); }
+
+  if(forceUtc) {
+    return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  }
+
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 

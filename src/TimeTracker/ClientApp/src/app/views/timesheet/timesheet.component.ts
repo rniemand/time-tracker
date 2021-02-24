@@ -52,24 +52,22 @@ export class TimesheetComponent implements OnInit {
       if(result && result.hasOwnProperty('addLine')) {
         const outcome = result as AddTimesheetRowDialogResult;
         if(outcome.addLine) {
-          console.log('need to add line!', outcome);
+          const request = new AddTimeSheetEntryRequest({
+            projectId: outcome.projectId,
+            loggedTimeMin: 0,
+            entryDate: this.startDate,
+            endDate: this.endDate,
+            startDate: this.startDate
+          });
 
-          // const request = new AddTimeSheetEntryRequest({
-          //   projectId: outcome.projectId,
-          //   loggedTimeMin: 0,
-          //   entryDate: this.dates[0],
-          //   endDate: this.endDate,
-          //   startDate: this.startDate
-          // });
-
-          // this.timeSheetClient.updateEntry(request).toPromise().then(
-          //   (response: GetTimeSheetResponse) => {
-          //     this.updateTimeSheet(response);
-          //   },
-          //   (error: any) => {
-          //     console.log(error);
-          //   }
-          // );
+          this.timeSheetClient.updateEntry(request).toPromise().then(
+            (response: GetTimeSheetResponse) => {
+              this.updateTimeSheet(response);
+            },
+            (error: any) => {
+              console.log(error);
+            }
+          );
         }
       }
     });
@@ -83,16 +81,14 @@ export class TimesheetComponent implements OnInit {
   // Internal methods
   private setDates = (startDate: Date, length: number) => {
     const entries: TimeSheetEntryInfo[] = [];
-    const workingDate = getBaseDate(startDate);
+    const workingTime = getBaseDate(startDate, true).getTime();
 
     for(var i = 0; i < length; i++) {
-      const curDate = new Date(workingDate.getTime() + (24 * 60 * 60 * 1000 * (i + 1)));
       entries.push({
-        entryDate: curDate,
+        entryDate: new Date(workingTime + (24 * 60 * 60 * 1000 * (i + 1))),
         startDate: this.startDate,
         endDate: this.endDate,
-        entryTimes: {},
-        entryDateStr: getShortDateString(curDate)
+        entryTimes: {}
       });
     }
 
@@ -105,16 +101,16 @@ export class TimesheetComponent implements OnInit {
 
     this.loadTimeSheet()
       .finally(() => {
-        console.log('we are all done');
+        // All done
       })
   }
 
   private getEntryInfo = (entryDate?: Date): TimeSheetEntryInfo | undefined => {
     if(!entryDate) { return undefined; }
 
-    const wanted = getShortDateString(entryDate);
+    const wanted = entryDate.getTime();
     for(var i = 0; i < this.entries.length; i++) {
-      if(getShortDateString(this.entries[i].entryDate) == wanted) {
+      if(this.entries[i].entryDate.getTime() == wanted) {
         return this.entries[i];
       }
     }
@@ -123,19 +119,19 @@ export class TimesheetComponent implements OnInit {
   }
 
   private setEntryDate = (entry: TimeSheetEntryDto) => {
+    const info = this.getEntryInfo(entry.entryDate);
+    if(!info) { return; }
 
-    console.log(entry, this.getEntryInfo(entry.entryDate));
-
+    info.entryTimes[entry?.projectId ?? 0] = parseFloat(((entry?.entryTimeMin ?? 0) / 60).toFixed(2));
   }
 
   private updateTimeSheet = (response: GetTimeSheetResponse) => {
     this.projects = response?.projects ?? [];
-    this.colspan = this.entries.length + 2;
-
     const startDate = response?.startDate ?? this.startDate;
     this.setDates(startDate, response?.dayCount ?? 7);
 
     const entries = response?.entries ?? [];
+    this.colspan = this.entries.length + 2;
     entries.forEach(this.setEntryDate);
   }
 

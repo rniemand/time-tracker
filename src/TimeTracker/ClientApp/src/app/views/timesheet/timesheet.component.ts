@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { TimeSheetEntryInfo } from 'src/app/components/ui/time-entry-editor/time-entry-editor.component';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
-import { AuthService } from 'src/app/services/auth.service';
 import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetEntryDto } from 'src/app/time-tracker-api';
 import { getBaseDate, isToday } from 'src/app/utils/core.utils';
 
@@ -15,6 +16,8 @@ import { getBaseDate, isToday } from 'src/app/utils/core.utils';
 export class TimesheetComponent implements OnInit {
   clientId: number = 0;
   startDate!: Date;
+  startDateFc!: FormControl;
+  minDate!: Date;
   endDate!: Date;
   projects: ProjectDto[] = [];
   entries: TimeSheetEntryInfo[] = [];
@@ -25,13 +28,11 @@ export class TimesheetComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private timeSheetClient: TimeSheetClient,
-    private authService: AuthService
+    private timeSheetClient: TimeSheetClient
   ) { }
 
   ngOnInit(): void {
-    this.startDate = new Date();
-    this.endDate = new Date((new Date()).getTime() + (60 * 60 * 24 * 7 * 1000));
+    this.setDateRange(new Date(), 7);
   }
 
   clientSelected = (clientId: number) => {
@@ -111,8 +112,26 @@ export class TimesheetComponent implements OnInit {
     return classes;
   }
 
+  dateSelected = (event: MatDatepickerInputEvent<Date>) => {
+    if(!event?.value) { return; }
+    this.setDateRange(event.value, 7);
+    this.refreshView();
+  }
+
 
   // Internal methods
+  private setDateRange = (startDate: Date, numDays: number) => {
+    this.startDate = startDate;
+    this.startDateFc = new FormControl(this.startDate);
+    this.endDate = new Date((new Date()).getTime() + (numDays * 24 * 60 * 60 * 1000));
+    
+    this.minDate = new Date(
+      this.startDate.getFullYear() - 1,
+      this.startDate.getMonth(),
+      this.startDate.getDate()
+    );
+  }
+
   private setDates = (startDate: Date, length: number) => {
     const entries: TimeSheetEntryInfo[] = [];
     const workingTime = getBaseDate(startDate, true).getTime();

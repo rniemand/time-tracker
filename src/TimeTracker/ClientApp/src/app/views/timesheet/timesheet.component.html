@@ -3,8 +3,15 @@
     <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / Timesheet</h1>
   </div>
 
-  <div class="content-row">
-    <app-client-selector (changed)="clientSelected($event)" class="stretched"></app-client-selector>
+  <div class="content-row timesheet-filter">
+    <app-client-selector (changed)="clientSelected($event)" class="stretched" fxFlex></app-client-selector>
+
+    <mat-form-field appearance="outline" fxFlex>
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startDatePicker" [min]="minDate" [formControl]="startDateFc" (dateChange)="dateSelected($event)">
+      <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #startDatePicker disabled="false"></mat-datepicker>
+    </mat-form-field>
   </div>
 
   <div class="content-row" *ngIf="entries.length > 0">

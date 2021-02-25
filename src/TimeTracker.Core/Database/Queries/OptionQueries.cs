@@ -4,6 +4,8 @@
   {
     string GetRawOption();
     string GetRawOptionsForCategory();
+    string Add();
+    string Update();
   }
 
   public class OptionQueries : IOptionQueries
@@ -30,6 +32,24 @@
 	      `OptionCategory` = @OptionCategory AND
 	      `UserId` IN (0, @UserId)
       ORDER BY `UserId` ASC";
+    }
+
+    public string Add()
+    {
+      return @"INSERT INTO `Options`
+	      (`UserId`, `IsCollection`, `OptionType`, `OptionCategory`, `OptionKey`, `OptionValue`)
+      VALUES
+	      (@UserId, @IsCollection, @OptionType, @OptionCategory, @OptionKey, @OptionValue)";
+    }
+
+    public string Update()
+    {
+      return @"UPDATE `Options`
+      SET
+	      `OptionType` = @OptionType,
+	      `OptionValue` = @OptionValue
+      WHERE
+	      `OptionId` = @OptionId";
     }
   }
 }

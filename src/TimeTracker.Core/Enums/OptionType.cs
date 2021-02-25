@@ -4,5 +4,6 @@
   {
     public const string Int = "int";
     public const string Bool = "bool";
+    public const string String = "string";
   }
 }

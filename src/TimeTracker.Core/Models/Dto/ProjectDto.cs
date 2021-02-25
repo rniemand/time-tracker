@@ -13,8 +13,9 @@ namespace TimeTracker.Core.Models.Dto
     public int ProductId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ProjectName { get; set; }
 
     public static Expression<Func<ProjectEntity, ProjectDto>> Projection
@@ -24,13 +25,14 @@ namespace TimeTracker.Core.Models.Dto
         return entity => new ProjectDto
         {
           UserId = entity.UserId,
-          DateCreatedUtc = entity.DateCreatedUtc,
+          DateAddedUtc = entity.DateAddedUtc,
           ClientId = entity.ClientId,
-          DateModifiedUtc = entity.DateModifiedUtc,
+          DateUpdatedUtc = entity.DateUpdatedUtc,
           Deleted = entity.Deleted,
           ProductId = entity.ProductId,
           ProjectId = entity.ProjectId,
-          ProjectName = entity.ProjectName
+          ProjectName = entity.ProjectName,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }
@@ -49,8 +51,9 @@ namespace TimeTracker.Core.Models.Dto
       ProductId = 0;
       UserId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ProjectName = string.Empty;
     }
 
@@ -60,13 +63,14 @@ namespace TimeTracker.Core.Models.Dto
       return new ProjectEntity
       {
         UserId = UserId,
-        DateCreatedUtc = DateCreatedUtc,
+        DateAddedUtc = DateAddedUtc,
         ClientId = ClientId,
-        DateModifiedUtc = DateModifiedUtc,
+        DateUpdatedUtc = DateUpdatedUtc,
         Deleted = Deleted,
         ProductId = ProductId,
         ProjectId = ProjectId,
-        ProjectName = ProjectName
+        ProjectName = ProjectName,
+        DateDeletedUtc = DateDeletedUtc
       };
     }
   }

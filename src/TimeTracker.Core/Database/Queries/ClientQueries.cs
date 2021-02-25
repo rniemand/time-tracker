@@ -43,7 +43,7 @@
     {
       return @"UPDATE `Clients`
       SET
-	      `DateModifiedUtc` = CURRENT_TIMESTAMP(),
+	      `DateUpdatedUtc` = utc_timestamp(4),
 	      `ClientName` = @ClientName,
 	      `ClientEmail` = @ClientEmail
       WHERE

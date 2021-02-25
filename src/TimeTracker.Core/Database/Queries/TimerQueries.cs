@@ -49,7 +49,7 @@
       SET
          `Running` = 0,
          `EntryState` = @EntryState,
-         `EndTimeUtc` = CURRENT_TIMESTAMP(),
+         `EndTimeUtc` = utc_timestamp(4),
          `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
          `Notes` = @Notes
       WHERE
@@ -82,7 +82,7 @@
       SET
          `Running` = 0,
          `EntryState` = @EntryState,
-         `EndTimeUtc` = CURRENT_TIMESTAMP(),
+         `EndTimeUtc` = utc_timestamp(4),
          `TotalSeconds` = TIME_TO_SEC(TIMEDIFF(CURRENT_TIMESTAMP(), `StartTimeUtc`)),
          `Notes` = @Notes
       WHERE

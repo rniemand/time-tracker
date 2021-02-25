@@ -11,8 +11,9 @@ namespace TimeTracker.Core.Models.Dto
     public int ClientId { get; set; }
     public bool Deleted { get; set; }
     public int UserId { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ClientName { get; set; }
     public string ClientEmail { get; set; }
 
@@ -23,12 +24,13 @@ namespace TimeTracker.Core.Models.Dto
         return entity => new ClientDto
         {
           UserId = entity.UserId,
-          DateCreatedUtc = entity.DateCreatedUtc,
+          DateAddedUtc = entity.DateAddedUtc,
           Deleted = entity.Deleted,
           ClientEmail = entity.ClientEmail,
           ClientId = entity.ClientId,
           ClientName = entity.ClientName,
-          DateModifiedUtc = entity.DateModifiedUtc
+          DateUpdatedUtc = entity.DateUpdatedUtc,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }
@@ -45,8 +47,9 @@ namespace TimeTracker.Core.Models.Dto
       ClientId = 0;
       Deleted = false;
       UserId = 0;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ClientName = string.Empty;
       ClientEmail = string.Empty;
     }
@@ -57,12 +60,13 @@ namespace TimeTracker.Core.Models.Dto
       return new ClientEntity
       {
         UserId = UserId,
-        DateCreatedUtc = DateCreatedUtc,
+        DateAddedUtc = DateAddedUtc,
         ClientEmail = ClientEmail,
         ClientId = ClientId,
-        DateModifiedUtc = DateModifiedUtc,
+        DateUpdatedUtc = DateUpdatedUtc,
         ClientName = ClientName,
-        Deleted = Deleted
+        Deleted = Deleted,
+        DateDeletedUtc = DateDeletedUtc
       };
     }
   }

@@ -53,7 +53,7 @@
     {
       return @"UPDATE `DailyTasks`
       SET
-	      `DateModifiedUtc` = CURRENT_TIMESTAMP(),
+	      `DateUpdatedUtc` = utc_timestamp(4),
 	      `TaskName` = @TaskName
       WHERE
 	      `TaskId` = @TaskId";

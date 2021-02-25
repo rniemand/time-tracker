@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Encryption;
+using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
@@ -152,8 +153,8 @@ namespace TimeTracker
     {
       var mappedConfig = new TimeTrackerConfig();
       var configSection = Configuration.GetSection("TimeTracker");
-      
-      if(configSection.Exists())
+
+      if (configSection.Exists())
         configSection.Bind(mappedConfig);
 
       services.AddSingleton(mappedConfig);
@@ -163,7 +164,8 @@ namespace TimeTracker
     {
       services
         .AddSingleton(typeof(ILoggerAdapter<>), typeof(LoggerAdapter<>))
-        .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>();
+        .AddSingleton<IDateTimeAbstraction, DateTimeAbstraction>()
+        .AddSingleton<ITimerFactory, TimerFactory>();
     }
 
     private static void ConfigureServices_Services(IServiceCollection services)
@@ -176,7 +178,8 @@ namespace TimeTracker
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
-        .AddSingleton<IDailyTasksService, DailyTasksService>();
+        .AddSingleton<IDailyTasksService, DailyTasksService>()
+        .AddSingleton<ITimeSheetService, TimeSheetService>();
     }
 
     private static void ConfigureServices_Helpers(IServiceCollection services)
@@ -208,7 +211,9 @@ namespace TimeTracker
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
-        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
+        .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
+        .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }
 
     private static void ConfigureServices_Metrics(IServiceCollection services)

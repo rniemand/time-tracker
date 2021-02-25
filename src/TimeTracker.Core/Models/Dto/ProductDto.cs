@@ -12,8 +12,9 @@ namespace TimeTracker.Core.Models.Dto
     public int ClientId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ProductName { get; set; }
 
     public static Expression<Func<ProductEntity, ProductDto>> Projection
@@ -23,12 +24,13 @@ namespace TimeTracker.Core.Models.Dto
         return entity => new ProductDto
         {
           UserId = entity.UserId,
-          DateCreatedUtc = entity.DateCreatedUtc,
+          DateAddedUtc = entity.DateAddedUtc,
           ClientId = entity.ClientId,
-          DateModifiedUtc = entity.DateModifiedUtc,
+          DateUpdatedUtc = entity.DateUpdatedUtc,
           Deleted = entity.Deleted,
           ProductName = entity.ProductName,
-          ProductId = entity.ProductId
+          ProductId = entity.ProductId,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }
@@ -46,8 +48,9 @@ namespace TimeTracker.Core.Models.Dto
       ClientId = 0;
       UserId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ProductName = string.Empty;
     }
 
@@ -57,12 +60,13 @@ namespace TimeTracker.Core.Models.Dto
       return new ProductEntity
       {
         UserId = UserId,
-        DateCreatedUtc = DateCreatedUtc,
+        DateAddedUtc = DateAddedUtc,
         ClientId = ClientId,
-        DateModifiedUtc = DateModifiedUtc,
+        DateUpdatedUtc = DateUpdatedUtc,
         Deleted = Deleted,
         ProductName = ProductName,
-        ProductId = ProductId
+        ProductId = ProductId,
+        DateDeletedUtc = DateDeletedUtc
       };
     }
   }

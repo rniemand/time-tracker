@@ -1,0 +1,11 @@
+<div class="editor">
+  <div class="display" (click)="editValue()" *ngIf="!editMode && !apiCallRunning">
+    {{ currentValue }}
+  </div>
+
+  <div class="display" *ngIf="apiCallRunning">...</div>
+
+  <div class="value-editor" *ngIf="editMode" appearance="outline">
+    <input #loggedTime [(ngModel)]="currentValue" type="number" (blur)="onBlur()" (keydown)="onKeyDown($event)">
+  </div>
+</div>

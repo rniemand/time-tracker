@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Hello World</h1>
+
+<div mat-dialog-content>
+  <div>
+    <app-product-selector #products [(ngModel)]="productId" (changed)="productChanged()" [clientId]="clientId"></app-product-selector>
+  </div>
+
+  <div>
+    <app-project-selector #projects [(ngModel)]="projectId" (changed)="projectChanged()" [productId]="productId"></app-project-selector>
+  </div>
+
+</div>
+
+<div mat-dialog-actions>
+  <button mat-flat-button color="warn" (click)="cancel()" fxFlex>Cancel</button>
+  <button mat-flat-button color="primary" (click)="addLine()" fxFlex>Add Line</button>
+</div>

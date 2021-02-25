@@ -49,6 +49,9 @@ import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/
 import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
 import { DailyOverviewComponent } from './views/timers/daily-overview/daily-overview.component';
 import { TimerTypePipe } from './pipes/timer-type.pipe';
+import { TimesheetComponent } from './views/timesheet/timesheet.component';
+import { AddTimesheetRowDialog } from './dialogs/add-timesheet-row/add-timesheet-row.dialog';
+import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time-entry-editor.component';
 
 @NgModule({
   declarations: [
@@ -92,7 +95,10 @@ import { TimerTypePipe } from './pipes/timer-type.pipe';
     DailyTaskSelectorComponent,
     DailyTasksTimersComponent,
     DailyOverviewComponent,
-    TimerTypePipe
+    TimerTypePipe,
+    TimesheetComponent,
+    AddTimesheetRowDialog,
+    TimeEntryEditorComponent
   ],
   imports: [
     BrowserModule,

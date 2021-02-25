@@ -9,16 +9,16 @@ using NSubstitute;
 using Rn.NetCore.Common.Abstractions;
 using Rn.NetCore.Common.Encryption;
 using Rn.NetCore.Common.Extensions;
+using Rn.NetCore.Common.Factories;
 using Rn.NetCore.Common.Helpers;
 using Rn.NetCore.Common.Logging;
 using Rn.NetCore.Common.Metrics;
-using Rn.NetCore.DbCommon;
 using Rn.NetCore.DbCommon.Helpers;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
+using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 using TimeTracker.DevConsole.Setup.Config;
 
@@ -38,11 +38,28 @@ namespace TimeTracker.DevConsole
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
 
-      new SweepLongRunningTimers(_serviceProvider)
-        .Run()
+
+      /*
+       INSERT INTO `TimeSheet_Rows`
+	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
+      VALUES
+	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
+       */
+
+      var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
+
+      var result = service.UpdateEntry(new AddTimeSheetEntryRequest
+        {
+          ProjectId = 2,
+          LoggedTimeMin = 60,
+          EntryDate = DateTime.Now,
+          StartDate = DateTime.Now,
+          EndDate = DateTime.Now.AddDays(7)
+        })
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
+
     }
 
 
@@ -90,6 +107,7 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IEnvironmentAbstraction, EnvironmentAbstraction>()
         .AddSingleton<IDirectoryAbstraction, DirectoryAbstraction>()
         .AddSingleton<IFileAbstraction, FileAbstraction>()
+        .AddSingleton<ITimerFactory, TimerFactory>()
         .AddLogging(loggingBuilder =>
         {
           // configure Logging with NLog
@@ -121,7 +139,9 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
-        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>();
+        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
+        .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
+        .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }
 
     private static void ConfigureDI_Services(IServiceCollection services)
@@ -133,7 +153,8 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
-        .AddSingleton<IDailyTasksService, DailyTasksService>();
+        .AddSingleton<IDailyTasksService, DailyTasksService>()
+        .AddSingleton<ITimeSheetService, TimeSheetService>();
     }
 
     private static void ConfigureDI_Configuration(IServiceCollection services, IConfiguration config)

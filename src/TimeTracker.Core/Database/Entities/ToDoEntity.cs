@@ -10,7 +10,8 @@ namespace TimeTracker.Core.Database.Entities
     public int UserId { get; set; }
     public bool Deleted { get; set; }
     public DateTime DateAddedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string ToDo { get; set; }
 
     public ToDoEntity()
@@ -22,7 +23,8 @@ namespace TimeTracker.Core.Database.Entities
       UserId = 0;
       Deleted = false;
       DateAddedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       ToDo = string.Empty;
     }
 	}

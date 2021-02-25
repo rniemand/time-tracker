@@ -6,8 +6,9 @@ namespace TimeTracker.Core.Database.Entities
   {
     public int UserId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModified { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public DateTime? LastLoginDate { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
@@ -20,8 +21,9 @@ namespace TimeTracker.Core.Database.Entities
       // TODO: [TESTS] (UserEntity) Add tests
       UserId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModified = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       LastLoginDate = null;
       FirstName = string.Empty;
       LastName = string.Empty;

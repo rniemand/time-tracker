@@ -1,0 +1,55 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="mc-flex">
+  <div class="content-row">
+    <h1 class="ui-navigation"><mat-icon routerLink="/">home</mat-icon> / Timesheet</h1>
+  </div>
+
+  <div class="content-row timesheet-filter">
+    <app-client-selector (changed)="clientSelected($event)" class="stretched" fxFlex></app-client-selector>
+
+    <mat-form-field appearance="outline" fxFlex>
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startDatePicker" [min]="minDate" [formControl]="startDateFc" (dateChange)="dateSelected($event)">
+      <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #startDatePicker disabled="false"></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="content-row table-container" *ngIf="entries.length > 0">
+    <div class="coverup" *ngIf="updating">
+      <span class="message">Updating...</span>
+    </div>
+    <table class="entry-table">
+      <tr class="header">
+        <td>&nbsp;</td>
+        <td *ngFor="let entry of entries" class="date">
+          <div class="day">{{ entry.entryDate | date:'E' }}</div>
+          <div>{{ entry.entryDate | date:'MM-dd' }}</div>
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+
+      <tr *ngFor="let project of projects" class="projects">
+        <td class="info">
+          <div class="product">{{ getProductName(project) }}</div>
+          <div class="project">{{ project.projectName }}</div>
+        </td>
+        <td *ngFor="let entry of entries" [class]="getDateClass(entry)">
+          <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" (onEvent)="onEntryEvent($event)" class="time-editor"></app-time-entry-editor>
+        </td>
+        <td>
+          <span class="total">{{ getProjectTotalTime(project) }}</span>
+        </td>
+      </tr>
+
+      <tr class="totals">
+        <td class="add-button">
+          <mat-icon (click)="addRow()">add</mat-icon>
+        </td>
+        <td *ngFor="let entry of entries">
+          <span class="daily-sum">{{ getDailyTotalTime(entry.entryTime) }}</span>
+        </td>
+        <td class="final-total">{{ totalLoggedTime }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

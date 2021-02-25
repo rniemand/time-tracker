@@ -41,7 +41,7 @@
     {
       return @"UPDATE `Products`
       SET
-	      `DateModifiedUtc` = CURRENT_TIMESTAMP(),
+	      `DateUpdatedUtc` = utc_timestamp(4),
 	      `ProductName` = @ProductName
       WHERE
 	      `ProductId` = @ProductId";

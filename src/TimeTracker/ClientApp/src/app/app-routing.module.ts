@@ -21,6 +21,7 @@ import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-da
 import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
 import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
 import { DailyOverviewComponent } from './views/timers/daily-overview/daily-overview.component';
+import { TimesheetComponent } from './views/timesheet/timesheet.component';
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -75,6 +76,13 @@ const routes: Routes = [
       { path: ':clientId', component: DailyTasksComponent },
       { path: 'add/:clientId', component: AddDailyTaskComponent },
       { path: 'edit/:taskId', component: EditDailyTaskComponent }
+    ]
+  },
+  {
+    path: 'timesheet',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: TimesheetComponent }
     ]
   }
 ];

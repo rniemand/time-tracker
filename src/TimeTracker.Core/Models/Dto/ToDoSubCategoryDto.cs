@@ -10,8 +10,9 @@ namespace TimeTracker.Core.Models.Dto
     public int CategoryId { get; set; }
     public int UserId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string SubCategory { get; set; }
 
     public ToDoSubCategoryDto()
@@ -21,8 +22,9 @@ namespace TimeTracker.Core.Models.Dto
       CategoryId = 0;
       UserId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       SubCategory = string.Empty;
     }
 
@@ -34,11 +36,12 @@ namespace TimeTracker.Core.Models.Dto
         {
           CategoryId = entity.CategoryId,
           Deleted = entity.Deleted,
-          DateCreatedUtc = entity.DateCreatedUtc,
-          DateModifiedUtc = entity.DateModifiedUtc,
+          DateAddedUtc = entity.DateAddedUtc,
+          DateUpdatedUtc = entity.DateUpdatedUtc,
           SubCategoryId = entity.SubCategoryId,
           SubCategory = entity.SubCategory,
-          UserId = entity.UserId
+          UserId = entity.UserId,
+          DateDeletedUtc = entity.DateDeletedUtc
         };
       }
     }

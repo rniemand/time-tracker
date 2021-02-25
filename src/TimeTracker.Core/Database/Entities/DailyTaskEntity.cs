@@ -8,8 +8,9 @@ namespace TimeTracker.Core.Database.Entities
     public int UserId { get; set; }
     public int ClientId { get; set; }
     public bool Deleted { get; set; }
-    public DateTime DateCreatedUtc { get; set; }
-    public DateTime? DateModifiedUtc { get; set; }
+    public DateTime DateAddedUtc { get; set; }
+    public DateTime? DateUpdatedUtc { get; set; }
+    public DateTime? DateDeletedUtc { get; set; }
     public string TaskName { get; set; }
 
     public DailyTaskEntity()
@@ -19,8 +20,9 @@ namespace TimeTracker.Core.Database.Entities
       UserId = 0;
       ClientId = 0;
       Deleted = false;
-      DateCreatedUtc = DateTime.UtcNow;
-      DateModifiedUtc = null;
+      DateAddedUtc = DateTime.UtcNow;
+      DateUpdatedUtc = null;
+      DateDeletedUtc = null;
       TaskName = string.Empty;
     }
   }

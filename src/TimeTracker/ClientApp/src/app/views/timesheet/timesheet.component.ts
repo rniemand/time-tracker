@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
-import { TimeSheetEntryInfo } from 'src/app/components/ui/time-entry-editor/time-entry-editor.component';
+import { TimeEntryEditorEvent, TimeSheetEntryInfo } from 'src/app/components/ui/time-entry-editor/time-entry-editor.component';
 import { DIALOG_DEFAULTS } from 'src/app/constants';
 import { AddTimesheetRowDialog, AddTimesheetRowDialogData, AddTimesheetRowDialogResult } from 'src/app/dialogs/add-timesheet-row/add-timesheet-row.dialog';
-import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProjectDto, TimeSheetClient, TimeSheetEntryDto } from 'src/app/time-tracker-api';
-import { getBaseDate, isToday } from 'src/app/utils/core.utils';
+import { AddTimeSheetEntryRequest, GetTimeSheetRequest, GetTimeSheetResponse, ProductDto, ProjectDto, TimeSheetClient, TimeSheetEntryDto } from 'src/app/time-tracker-api';
+import { getBaseDate, getStartOfWeek, isToday } from 'src/app/utils/core.utils';
 
 @Component({
   selector: 'app-timesheet',
@@ -20,11 +20,13 @@ export class TimesheetComponent implements OnInit {
   minDate!: Date;
   endDate!: Date;
   projects: ProjectDto[] = [];
+  products: { [key: number]: ProductDto } = {};
   entries: TimeSheetEntryInfo[] = [];
   colspan: number = 3;
   projectTimes: { [key: number]: number } = {};
   dailyTimes: { [key: number]: number } = {};
   totalLoggedTime: number = 0;
+  updating: boolean = false;
 
   constructor(
     public dialog: MatDialog,
@@ -32,7 +34,7 @@ export class TimesheetComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.setDateRange(new Date(), 7);
+    this.setDateRange(getStartOfWeek(), 7);
   }
 
   clientSelected = (clientId: number) => {
@@ -118,12 +120,25 @@ export class TimesheetComponent implements OnInit {
     this.refreshView();
   }
 
+  getProductName = (project: ProjectDto) => {
+    const productId = project?.productId ?? 0;
+    if(!this.products.hasOwnProperty(productId)) {
+      return 'Unknown';
+    }
+    
+    return this.products[productId].productName ?? 'N/A';
+  }
+
+  onEntryEvent = (event: TimeEntryEditorEvent) => {
+    this.updating = event?.apiCallRunning ?? false;
+  }
+
 
   // Internal methods
   private setDateRange = (startDate: Date, numDays: number) => {
     this.startDate = startDate;
     this.startDateFc = new FormControl(this.startDate);
-    this.endDate = new Date((new Date()).getTime() + (numDays * 24 * 60 * 60 * 1000));
+    this.endDate = new Date(this.startDate.getTime() + (numDays * 24 * 60 * 60 * 1000));
     
     this.minDate = new Date(
       this.startDate.getFullYear() - 1,
@@ -156,11 +171,18 @@ export class TimesheetComponent implements OnInit {
 
   private refreshView = () => {
     if(this.clientId == 0) { return; }
+
+    this.updating = true;
     this.entries = [];
+    this.projects = [];
+    this.products = {};
+    this.projectTimes = {};
+    this.dailyTimes = { 0: 0 };
+    this.totalLoggedTime = 0;
 
     this.loadTimeSheet()
       .finally(() => {
-        // All done
+        this.updating = false;
       })
   }
 
@@ -201,9 +223,9 @@ export class TimesheetComponent implements OnInit {
 
   private updateTimeSheet = (response: GetTimeSheetResponse) => {
     this.projects = response?.projects ?? [];
-    this.projectTimes = {};
-    this.dailyTimes = { 0: 0 };
-    this.totalLoggedTime = 0;
+    (response?.products ?? []).forEach((product: ProductDto) => {
+      this.products[product?.productId ?? 0] = product;
+    });
 
     const startDate = response?.startDate ?? this.startDate;
     this.setDates(startDate, response?.dayCount ?? 7);

@@ -11,6 +11,10 @@ export interface TimeSheetEntryInfo {
   today: boolean;
 }
 
+export interface TimeEntryEditorEvent {
+  apiCallRunning: boolean;
+}
+
 @Component({
   selector: 'app-time-entry-editor',
   templateUrl: './time-entry-editor.component.html',
@@ -19,9 +23,8 @@ export interface TimeSheetEntryInfo {
 export class TimeEntryEditorComponent implements OnInit {
   @Input('info') info!: TimeSheetEntryInfo;
   @Input('project') project!: ProjectDto;
-  @Input('startDate') startDate!: Date;
-  @Input('endDate') endDate!: Date;
   @Output('onUpdate') onUpdate = new EventEmitter<GetTimeSheetResponse>();
+  @Output('onEvent') onEvent = new EventEmitter<TimeEntryEditorEvent>();
   @ViewChild('loggedTime', { static: false }) loggedTime?: ElementRef;
   
   editMode: boolean = false;
@@ -64,6 +67,12 @@ export class TimeEntryEditorComponent implements OnInit {
   }
 
   // Internal methods
+  private emitApiCallRunningEvent = () => {
+    this.onEvent.emit({
+      apiCallRunning: this.apiCallRunning
+    });
+  }
+
   private updateLoggedTime = () => {
     this.editMode = false;
 
@@ -72,11 +81,13 @@ export class TimeEntryEditorComponent implements OnInit {
     }
 
     this.apiCallRunning = true;
+    this.emitApiCallRunningEvent();
+
     const request = new AddTimeSheetEntryRequest({
       projectId: this.project.projectId,
       entryDate: this.info.entryDate,
-      startDate: this.startDate,
-      endDate: this.endDate,
+      startDate: this.info.startDate,
+      endDate: this.info.endDate,
       loggedTimeMin: Math.floor(this.currentValue * 60)
     });
     
@@ -85,6 +96,7 @@ export class TimeEntryEditorComponent implements OnInit {
     })
     .finally(() => {
       this.apiCallRunning = false;
+      this.emitApiCallRunningEvent();
     });
   }
 

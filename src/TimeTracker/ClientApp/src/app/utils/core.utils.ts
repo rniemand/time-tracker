@@ -57,3 +57,8 @@ export const getShortDateString = (date: Date) => {
 
   return `${yyyy}-${mm}-${dd}`;
 }
+
+export const getStartOfWeek = () => {
+  const daysBack = 5 - (((new Date()).getDay() - 6) * -1);
+  return new Date(new Date().getTime() - (daysBack * 24 * 60 * 60 * 1000));
+}

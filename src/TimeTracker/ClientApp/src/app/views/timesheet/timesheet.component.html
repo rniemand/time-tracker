@@ -14,7 +14,10 @@
     </mat-form-field>
   </div>
 
-  <div class="content-row" *ngIf="entries.length > 0">
+  <div class="content-row table-container" *ngIf="entries.length > 0">
+    <div class="coverup" *ngIf="updating">
+      <span class="message">Updating...</span>
+    </div>
     <table class="entry-table">
       <tr class="header">
         <td>&nbsp;</td>
@@ -26,16 +29,19 @@
       </tr>
 
       <tr *ngFor="let project of projects" class="projects">
-        <td>{{ project.projectName }}</td>
+        <td class="info">
+          <div class="product">{{ getProductName(project) }}</div>
+          <div class="project">{{ project.projectName }}</div>
+        </td>
         <td *ngFor="let entry of entries" [class]="getDateClass(entry)">
-          <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" class="time-editor"></app-time-entry-editor>
+          <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" (onEvent)="onEntryEvent($event)" class="time-editor"></app-time-entry-editor>
         </td>
         <td>
           <span class="total">{{ getProjectTotalTime(project) }}</span>
         </td>
       </tr>
 
-      <tr class="totals" *ngIf="projects.length > 0">
+      <tr class="totals">
         <td class="add-button">
           <mat-icon (click)="addRow()">add</mat-icon>
         </td>

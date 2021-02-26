@@ -59,7 +59,6 @@ namespace TimeTracker.DevConsole
         .ConfigureAwait(false)
         .GetAwaiter()
         .GetResult();
-
     }
 
 

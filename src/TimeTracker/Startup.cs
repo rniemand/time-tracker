@@ -1,8 +1,4 @@
-using System;
-using System.Transactions;
 using Dapper;
-using Hangfire;
-using Hangfire.MySql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +18,6 @@ using Rn.NetCore.WebCommon.Middleware;
 using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
-using TimeTracker.Core.Jobs;
 using TimeTracker.Core.Models.Configuration;
 using TimeTracker.Core.Services;
 using TimeTracker.Core.WebApi.Middleware;
@@ -55,7 +50,6 @@ namespace TimeTracker
       ConfigureServices_Helpers(services);
       ConfigureServices_DbCore(services);
       ConfigureServices_Repos(services);
-      ConfigureServices_Hangfire(services);
 
       services.AddMvc();
 
@@ -65,7 +59,7 @@ namespace TimeTracker
       });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
       if (env.IsDevelopment())
       {
@@ -86,13 +80,8 @@ namespace TimeTracker
       }
 
       app.UseRouting();
-
-      Configure_HangfireDashboard(app);
-      Configure_HangfireJobs(serviceProvider);
-
       app.UseMiddleware<JwtMiddleware>();
       app.UseMiddleware<ApiMetricsMiddleware>();
-
       app.UseAuthorization();
 
       app.UseEndpoints(endpoints =>
@@ -114,38 +103,6 @@ namespace TimeTracker
         }
       });
     }
-
-
-    // Configure() related methods
-    private void Configure_HangfireDashboard(IApplicationBuilder app)
-    {
-      // Generate configuration to use
-      var hangfireConfig = new HangfireConfiguration();
-      var configSection = Configuration.GetSection("TimeTracker:Hangfire");
-      if (configSection.Exists())
-        configSection.Bind(hangfireConfig);
-
-      // Configure Hangfire dashboard
-      app.UseHangfireDashboard(hangfireConfig.PathMatch, new DashboardOptions
-      {
-        // Used for proxying requests
-        // https://discuss.hangfire.io/t/dashboard-returns-403-on-stats-call/7831
-        IgnoreAntiforgeryToken = hangfireConfig.IgnoreAntiforgeryToken,
-        DashboardTitle = hangfireConfig.DashboardTitle
-      });
-    }
-
-    private static void Configure_HangfireJobs(IServiceProvider serviceProvider)
-    {
-      // http://corntab.com/ <- UI for building CRON expressions
-
-      RecurringJob.AddOrUpdate(
-        "Sweep long running timers",
-        () => new SweepLongRunningTimers(serviceProvider).Run(),
-        "* * * * *"
-      );
-    }
-
 
 
     // ConfigureServices() related methods
@@ -224,32 +181,6 @@ namespace TimeTracker
         .AddSingleton<IMetricOutput, RabbitMetricOutput>()
         .AddSingleton<IRabbitFactory, RabbitFactory>()
         .AddSingleton<IRabbitConnection, RabbitConnection>();
-    }
-
-    private void ConfigureServices_Hangfire(IServiceCollection services)
-    {
-      services.AddHangfire(configuration => configuration
-        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-        .UseSimpleAssemblyNameTypeSerializer()
-        .UseRecommendedSerializerSettings()
-        .UseStorage(new MySqlStorage(
-          Configuration.GetConnectionString("TimeTracker"),
-          new MySqlStorageOptions
-          {
-            TransactionIsolationLevel = IsolationLevel.ReadCommitted,
-            QueuePollInterval = TimeSpan.FromSeconds(20),
-            JobExpirationCheckInterval = TimeSpan.FromHours(1),
-            CountersAggregateInterval = TimeSpan.FromMinutes(5),
-            PrepareSchemaIfNecessary = true,
-            DashboardJobListLimit = 50000,
-            TransactionTimeout = TimeSpan.FromSeconds(30),
-            TablesPrefix = "Hangfire"
-          })));
-
-      services.AddHangfireServer(options =>
-      {
-        options.WorkerCount = 3;
-      });
     }
   }
 }

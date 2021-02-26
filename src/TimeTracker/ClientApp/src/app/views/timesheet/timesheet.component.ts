@@ -100,8 +100,10 @@ export class TimesheetComponent implements OnInit {
     return 0;
   }
 
-  getDateClass = (entry: TimeSheetEntryInfo) => {
+  getDateClass = (entry: TimeSheetEntryInfo, project: ProjectDto) => {
     const classes: string[] = ['date'];
+    const projectId = project?.projectId ?? 0;
+    const loggedTime = entry.entryTimes.hasOwnProperty(projectId) ? entry.entryTimes[projectId] : 0;
 
     if(entry.weekend) {
       classes.push('weekend');
@@ -109,6 +111,10 @@ export class TimesheetComponent implements OnInit {
 
     if(entry.today) {
       classes.push('today');
+    }
+
+    if(loggedTime > 0) {
+      classes.push('logged-time');
     }
 
     return classes;

@@ -3,101 +3,6 @@
     margin-right: 5px;
 }
 
-.entry-table {
-    width: 100%;
-
-    tr {
-        &.header {
-            text-align: center;
-
-            td {
-                &.date {
-                    background-color: #3e3e3e;
-                    border-radius: 5px;
-
-                    .day {
-                        color: #c084da;
-                    }
-                }
-            }
-        }
-
-        &.projects {
-            &:hover {
-                td {
-                    background-color: #383838;
-
-                    &:first-child {
-                        border-top-left-radius: 8px;
-                        border-bottom-left-radius: 8px;
-                    }
-
-                    &:last-child {
-                        border-top-right-radius: 8px;
-                        border-bottom-right-radius: 8px;
-                    }
-                }
-            }
-
-            td {
-                text-align: center;
-
-                &.date {
-                    border: 1px dotted #4e4e4e;
-
-                    &.weekend {
-                        background-color: #484741;
-                    }
-
-                    &.today {
-                        background-color: #87ff7d29;
-                    }
-                }
-
-                &.info {
-                    .product {
-                        color: #d78bf7;
-                    }
-
-                    .project {
-                        color: #807e73;
-                    }
-                }
-
-                span.total {
-                    color: #8165b7;
-                    font-family: monospace;
-                }
-
-                .time-editor {
-                    display: block;
-                    width: 100%;
-                }
-            }
-        }
-        
-        &.totals {
-            td {
-                text-align: center;
-
-                span.daily-sum {
-                    font-family: monospace;
-                    color: #94c9e761;
-                }
-
-                &.final-total {
-                    font-family: monospace;
-                    color: #fff;
-                }
-
-                &.add-button {
-                    cursor: pointer;
-                }
-            }
-        }
-    }
-}
-
 .timesheet-filter {
     .stretched {
         margin-right: 5px;
@@ -128,6 +33,105 @@
             transform: translateY(-50%);
             position: absolute;
             font-size: 1.1em;
+        }
+    }
+
+    .entry-table {
+        width: 100%;
+    
+        tr {
+            &.header {
+                text-align: center;
+    
+                td {
+                    &.date {
+                        background-color: #3e3e3e;
+                        border-radius: 5px;
+    
+                        .day {
+                            color: #c084da;
+                        }
+                    }
+                }
+            }
+    
+            &.projects {
+                &:hover {
+                    td {
+                        background-color: #383838;
+    
+                        &:first-child {
+                            border-top-left-radius: 8px;
+                            border-bottom-left-radius: 8px;
+                        }
+    
+                        &:last-child {
+                            border-top-right-radius: 8px;
+                            border-bottom-right-radius: 8px;
+                        }
+                    }
+                }
+    
+                td {
+                    text-align: center;
+    
+                    &.date {
+                        border: 1px dotted #4e4e4e;
+
+                        &.logged-time {
+                            background-color: #3c3c3c;
+                        }
+    
+                        &.weekend {
+                            background-color: #484741;
+                        }
+    
+                        &.today {
+                            background-color: #87ff7d29;
+                        }
+                    }
+    
+                    &.info {
+                        .product {
+                            color: #d78bf7;
+                        }
+    
+                        .project {
+                            color: #807e73;
+                        }
+                    }
+    
+                    span.total {
+                        color: #8165b7;
+                        font-family: monospace;
+                    }
+    
+                    .time-editor {
+                        display: block;
+                        width: 100%;
+                    }
+                }
+            }
+            
+            &.totals {
+                td {
+                    text-align: center;
+    
+                    span.daily-sum {
+                        font-family: monospace;
+                        color: #94c9e761;
+                    }
+    
+                    &.final-total {
+                        font-family: monospace;
+                        color: #fff;
+                    }
+    
+                    &.add-button {
+                        cursor: pointer;
+                    }
+                }
+            }
         }
     }
 }

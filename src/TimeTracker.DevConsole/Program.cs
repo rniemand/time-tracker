@@ -112,8 +112,6 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProjectQueries, ProjectQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
-        .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
-        .AddSingleton<IDailyTasksQueries, DailyTasksQueries>()
         .AddSingleton<ITimeSheetEntryRepo, TimeSheetEntryRepo>()
         .AddSingleton<ITimeSheetEntryRepoQueries, TimeSheetEntryRepoQueries>();
     }
@@ -126,7 +124,6 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
         .AddSingleton<IOptionsService, OptionsService>()
-        .AddSingleton<IDailyTasksService, DailyTasksService>()
         .AddSingleton<ITimeSheetService, TimeSheetService>();
     }
 

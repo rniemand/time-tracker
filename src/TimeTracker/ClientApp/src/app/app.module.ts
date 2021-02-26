@@ -27,10 +27,6 @@ import { AddProjectComponent } from './views/projects/add-project/add-project.co
 import { EditProjectComponent } from './views/projects/edit-project/edit-project.component';
 import { ProjectSelectorComponent } from './components/ui/project-selector/project-selector.component';
 import { ValidationErrorDialog } from './dialogs/validation-error/validation-error.dialog';
-import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
-import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
-import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
-import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/daily-task-selector.component';
 import { TimesheetComponent } from './views/timesheet/timesheet.component';
 import { AddTimesheetRowDialog } from './dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time-entry-editor.component';
@@ -56,10 +52,6 @@ import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time
     EditProjectComponent,
     ProjectSelectorComponent,
     ValidationErrorDialog,
-    DailyTasksComponent,
-    AddDailyTaskComponent,
-    EditDailyTaskComponent,
-    DailyTaskSelectorComponent,
     TimesheetComponent,
     AddTimesheetRowDialog,
     TimeEntryEditorComponent

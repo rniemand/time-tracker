@@ -31,3 +31,5 @@ TRUNCATE TABLE `Options`;
 
 DROP TABLE `Timers`;
 
+DROP TABLE `DailyTasks`;
+

@@ -135,6 +135,31 @@ export class TimesheetComponent implements OnInit {
 
 
   // Internal methods
+  private updateTimeSheet = (response: GetTimeSheetResponse) => {
+    this.resetView();
+
+    this.projects = response?.projects ?? [];
+    (response?.products ?? []).forEach((product: ProductDto) => {
+      this.products[product?.productId ?? 0] = product;
+    });
+
+    const startDate = response?.startDate ?? this.startDate;
+    this.setDates(startDate, response?.dayCount ?? 7);
+
+    const entries = response?.entries ?? [];
+    this.colspan = this.entries.length + 2;
+    entries.forEach(this.setEntryInfo);
+  }
+
+  private resetView = () => {
+    this.entries = [];
+    this.projects = [];
+    this.products = {};
+    this.projectTimes = {};
+    this.dailyTimes = { 0: 0 };
+    this.totalLoggedTime = 0;
+  }
+
   private setDateRange = (startDate: Date, numDays: number) => {
     this.startDate = startDate;
     this.startDateFc = new FormControl(this.startDate);
@@ -173,12 +198,7 @@ export class TimesheetComponent implements OnInit {
     if(this.clientId == 0) { return; }
 
     this.updating = true;
-    this.entries = [];
-    this.projects = [];
-    this.products = {};
-    this.projectTimes = {};
-    this.dailyTimes = { 0: 0 };
-    this.totalLoggedTime = 0;
+    this.resetView();
 
     this.loadTimeSheet()
       .finally(() => {
@@ -221,20 +241,6 @@ export class TimesheetComponent implements OnInit {
     this.totalLoggedTime += entryTime;
   }
 
-  private updateTimeSheet = (response: GetTimeSheetResponse) => {
-    this.projects = response?.projects ?? [];
-    (response?.products ?? []).forEach((product: ProductDto) => {
-      this.products[product?.productId ?? 0] = product;
-    });
-
-    const startDate = response?.startDate ?? this.startDate;
-    this.setDates(startDate, response?.dayCount ?? 7);
-
-    const entries = response?.entries ?? [];
-    this.colspan = this.entries.length + 2;
-    entries.forEach(this.setEntryInfo);
-  }
-
   private loadTimeSheet = () => {
     const request = new GetTimeSheetRequest({
       startDate: this.startDate,
@@ -252,5 +258,4 @@ export class TimesheetComponent implements OnInit {
       );
     });
   }
-
 }

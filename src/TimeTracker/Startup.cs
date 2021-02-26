@@ -133,7 +133,6 @@ namespace TimeTracker
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
         .AddSingleton<IDailyTasksService, DailyTasksService>()
         .AddSingleton<ITimeSheetService, TimeSheetService>();
@@ -163,8 +162,6 @@ namespace TimeTracker
         .AddSingleton<IProductQueries, ProductQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectQueries, ProjectQueries>()
-        .AddSingleton<ITimerRepo, TimerRepo>()
-        .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()

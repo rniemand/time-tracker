@@ -18,7 +18,6 @@ using TimeTracker.Core.Database;
 using TimeTracker.Core.Database.Queries;
 using TimeTracker.Core.Database.Repos;
 using TimeTracker.Core.Models.Configuration;
-using TimeTracker.Core.Models.Requests;
 using TimeTracker.Core.Services;
 using TimeTracker.DevConsole.Setup.Config;
 
@@ -37,28 +36,6 @@ namespace TimeTracker.DevConsole
 
       //GenerateSampleConfig();
       //EncryptPassUsingConfig("password");
-
-
-      /*
-       INSERT INTO `TimeSheet_Rows`
-	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
-      VALUES
-	      (`DateId`, `UserId`, `ClientId`, `ProductId`, `ProjectId`)
-       */
-
-      var service = _serviceProvider.GetRequiredService<ITimeSheetService>();
-
-      var result = service.UpdateEntry(new AddTimeSheetEntryRequest
-        {
-          ProjectId = 2,
-          LoggedTimeMin = 60,
-          EntryDate = DateTime.Now,
-          StartDate = DateTime.Now,
-          EndDate = DateTime.Now.AddDays(7)
-        })
-        .ConfigureAwait(false)
-        .GetAwaiter()
-        .GetResult();
     }
 
 
@@ -133,8 +110,6 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IProductQueries, ProductQueries>()
         .AddSingleton<IProjectRepo, ProjectRepo>()
         .AddSingleton<IProjectQueries, ProjectQueries>()
-        .AddSingleton<ITimerRepo, TimerRepo>()
-        .AddSingleton<ITimerQueries, TimerQueries>()
         .AddSingleton<IOptionRepo, OptionRepo>()
         .AddSingleton<IOptionQueries, OptionQueries>()
         .AddSingleton<IDailyTasksRepo, DailyTasksRepo>()
@@ -150,7 +125,6 @@ namespace TimeTracker.DevConsole
         .AddSingleton<IClientService, ClientService>()
         .AddSingleton<IProductService, ProductService>()
         .AddSingleton<IProjectService, ProjectService>()
-        .AddSingleton<ITimerService, TimerService>()
         .AddSingleton<IOptionsService, OptionsService>()
         .AddSingleton<IDailyTasksService, DailyTasksService>()
         .AddSingleton<ITimeSheetService, TimeSheetService>();

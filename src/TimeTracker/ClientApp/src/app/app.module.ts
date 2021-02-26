@@ -25,30 +25,12 @@ import { ProjectsComponent } from './views/projects/projects.component';
 import { ProductSelectorComponent } from './components/ui/product-selector/product-selector.component';
 import { AddProjectComponent } from './views/projects/add-project/add-project.component';
 import { EditProjectComponent } from './views/projects/edit-project/edit-project.component';
-import { TimeLoggerComponent } from './components/ui/time-logger/time-logger.component';
-import { StartTimerComponent } from './components/ui/time-logger/start-timer/start-timer.component';
 import { ProjectSelectorComponent } from './components/ui/project-selector/project-selector.component';
-import { ListTimersComponent } from './components/ui/time-logger/list-timers/list-timers.component';
-import { RunningTimerPipe } from './pipes/running-timer.pipe';
-import { TimerSeriesDialog } from './dialogs/timer-series/timer-series.dialog';
-import { EntryStatePipe } from './pipes/entry-state.pipe';
-import { EditTimerEntryDialog } from './dialogs/edit-timer-entry/edit-timer-entry.dialog';
-import { EditTimerEntryComponent } from './components/ui/edit-timer-entry/edit-timer-entry.component';
 import { ValidationErrorDialog } from './dialogs/validation-error/validation-error.dialog';
-import { PausedTimerPipe } from './pipes/paused-timer.pipe';
-import { TimersComponent } from './views/timers/timers.component';
-import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
-import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
-import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
-import { TimerStatePipe } from './pipes/timer-state.pipe';
 import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
 import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
 import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
-import { StartDailyTaskComponent } from './components/ui/time-logger/start-daily-task/start-daily-task.component';
 import { DailyTaskSelectorComponent } from './components/ui/daily-task-selector/daily-task-selector.component';
-import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
-import { DailyOverviewComponent } from './views/timers/daily-overview/daily-overview.component';
-import { TimerTypePipe } from './pipes/timer-type.pipe';
 import { TimesheetComponent } from './views/timesheet/timesheet.component';
 import { AddTimesheetRowDialog } from './dialogs/add-timesheet-row/add-timesheet-row.dialog';
 import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time-entry-editor.component';
@@ -72,30 +54,12 @@ import { TimeEntryEditorComponent } from './components/ui/time-entry-editor/time
     ProductSelectorComponent,
     AddProjectComponent,
     EditProjectComponent,
-    TimeLoggerComponent,
-    StartTimerComponent,
     ProjectSelectorComponent,
-    ListTimersComponent,
-    RunningTimerPipe,
-    TimerSeriesDialog,
-    EntryStatePipe,
-    EditTimerEntryDialog,
-    EditTimerEntryComponent,
     ValidationErrorDialog,
-    PausedTimerPipe,
-    TimersComponent,
-    ClientTimersComponent,
-    ProductTimersComponent,
-    ProjectTimersComponent,
-    TimerStatePipe,
     DailyTasksComponent,
     AddDailyTaskComponent,
     EditDailyTaskComponent,
-    StartDailyTaskComponent,
     DailyTaskSelectorComponent,
-    DailyTasksTimersComponent,
-    DailyOverviewComponent,
-    TimerTypePipe,
     TimesheetComponent,
     AddTimesheetRowDialog,
     TimeEntryEditorComponent

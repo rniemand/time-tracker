@@ -25,19 +25,9 @@
     <span class="nav-caption">Projects</span>
   </a>
 
-  <a mat-list-item routerLink="/timers" (click)="onClose()" routerLinkActive="active" *ngIf="loggedIn">
-    <mat-icon>alarm</mat-icon>
-    <span class="nav-caption">Timers</span>
-  </a>
-
   <a mat-list-item routerLink="/daily-tasks" (click)="onClose()" routerLinkActive="active" *ngIf="loggedIn">
     <mat-icon>done_all</mat-icon>
     <span class="nav-caption">Daily Tasks</span>
-  </a>
-
-  <a mat-list-item [routerLink]="['/timers', 'daily-overview']" (click)="onClose()" routerLinkActive="active" *ngIf="loggedIn">
-    <mat-icon>hourglass_empty</mat-icon>
-    <span class="nav-caption">Overview</span>
   </a>
 
   <mat-list-item (click)="onLogout()" *ngIf="loggedIn">

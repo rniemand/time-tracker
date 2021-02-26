@@ -17,24 +17,12 @@
       <button mat-stroked-button class="last-btn" [routerLink]="['/projects', this.clientId, this.productId]" fxFlex>Manage</button>
     </app-home-card>
 
-    <app-home-card title="Timers" icon="alarm">
-      <button mat-stroked-button class="last-btn" [routerLink]="['/timers']" fxFlex>View</button>
-    </app-home-card>
-
     <app-home-card title="Daily Tasks" icon="done_all">
       <button mat-stroked-button class="last-btn" [routerLink]="['/daily-tasks']" fxFlex>Manage</button>
-    </app-home-card>
-
-    <app-home-card title="Overview" icon="hourglass_empty">
-      <button mat-stroked-button class="last-btn" [routerLink]="['/timers', 'daily-overview']" fxFlex>View</button>
     </app-home-card>
 
     <app-home-card title="Timesheet" icon="date_range">
       <button mat-stroked-button class="last-btn" [routerLink]="['/timesheet']" fxFlex>View</button>
     </app-home-card>
-  </div>
-
-  <div class="content-row" *ngIf="loggedIn">
-    <app-time-logger (onEvent)="timeLoggerEvent($event)"></app-time-logger>
   </div>
 </div>

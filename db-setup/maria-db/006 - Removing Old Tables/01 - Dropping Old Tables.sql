@@ -29,3 +29,5 @@ DROP TABLE `HangfireJob`;
 
 TRUNCATE TABLE `Options`;
 
+DROP TABLE `Timers`;
+

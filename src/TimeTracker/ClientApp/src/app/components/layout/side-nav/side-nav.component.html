@@ -25,6 +25,11 @@
     <span class="nav-caption">Projects</span>
   </a>
 
+  <a mat-list-item routerLink="/timesheet" (click)="onClose()" routerLinkActive="active" *ngIf="loggedIn">
+    <mat-icon>date_range</mat-icon>
+    <span class="nav-caption">Timesheet</span>
+  </a>
+
   <mat-list-item (click)="onLogout()" *ngIf="loggedIn">
     <button mat-icon-button>
       <mat-icon>lock</mat-icon>

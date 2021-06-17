@@ -33,7 +33,7 @@
           <div class="product">{{ getProductName(project) }}</div>
           <div class="project">{{ project.projectName }}</div>
         </td>
-        <td *ngFor="let entry of entries" [class]="getDateClass(entry)">
+        <td *ngFor="let entry of entries" [class]="getDateClass(entry, project)">
           <app-time-entry-editor [info]="entry" [project]="project" (onUpdate)="onEntryChange($event)" (onEvent)="onEntryEvent($event)" class="time-editor"></app-time-entry-editor>
         </td>
         <td>

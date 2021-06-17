@@ -12,15 +12,6 @@ import { AddProjectComponent } from './views/projects/add-project/add-project.co
 import { EditProjectComponent } from './views/projects/edit-project/edit-project.component';
 import { ProjectsComponent } from './views/projects/projects.component';
 import { AuthGuard } from './providers/append-token.interceptor';
-import { TimersComponent } from './views/timers/timers.component';
-import { ClientTimersComponent } from './views/timers/client-timers/client-timers.component';
-import { ProductTimersComponent } from './views/timers/product-timers/product-timers.component';
-import { ProjectTimersComponent } from './views/timers/project-timers/project-timers.component';
-import { DailyTasksComponent } from './views/daily-tasks/daily-tasks.component';
-import { AddDailyTaskComponent } from './views/daily-tasks/add-daily-task/add-daily-task.component';
-import { EditDailyTaskComponent } from './views/daily-tasks/edit-daily-task/edit-daily-task.component';
-import { DailyTasksTimersComponent } from './views/timers/daily-tasks-timers/daily-tasks-timers.component';
-import { DailyOverviewComponent } from './views/timers/daily-overview/daily-overview.component';
 import { TimesheetComponent } from './views/timesheet/timesheet.component';
 
 const routes: Routes = [
@@ -54,28 +45,6 @@ const routes: Routes = [
       { path: 'edit/:projectId', component: EditProjectComponent },
       { path: ':clientId/:productId', component: ProjectsComponent },
       { path: 'add/:clientId/:productId', component: AddProjectComponent }
-    ]
-  },
-  {
-    path: 'timers',
-    canActivate: [AuthGuard],
-    children: [
-      { path: '', component: TimersComponent },
-      { path: 'client/:clientId', component: ClientTimersComponent },
-      { path: 'product/:productId', component: ProductTimersComponent },
-      { path: 'project/:projectId', component: ProjectTimersComponent },
-      { path: 'daily-task/:taskId', component: DailyTasksTimersComponent },
-      { path: 'daily-overview', component: DailyOverviewComponent }
-    ]
-  },
-  {
-    path: 'daily-tasks',
-    canActivate: [AuthGuard],
-    children: [
-      { path: '', component: DailyTasksComponent },
-      { path: ':clientId', component: DailyTasksComponent },
-      { path: 'add/:clientId', component: AddDailyTaskComponent },
-      { path: 'edit/:taskId', component: EditDailyTaskComponent }
     ]
   },
   {

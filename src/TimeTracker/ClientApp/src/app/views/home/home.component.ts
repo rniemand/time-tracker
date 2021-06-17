@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { TimerDto } from 'src/app/time-tracker-api';
-import { TimeLoggerEvent } from './../../components/ui/time-logger/time-logger.component';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +12,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   clientId: number = 0;
   productId: number = 0;
   projectId: number = 0;
-  timer?: TimerDto;
 
   private subscriptions: Subscription[] = [];
 
@@ -36,14 +33,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach((sub: Subscription) => {
       sub?.unsubscribe();
     });
-  }
-
-  // Template methods
-  timeLoggerEvent = (e: TimeLoggerEvent) => {
-    if(e.type === 'state_changed' && e.source == 'StartTimerComponent') {
-      this.clientId = e.data?.clientId ?? 0;
-      this.productId = e.data?.productId ?? 0;
-      this.projectId = e.data?.projectId ?? 0;
-    }
   }
 }
